@@ -1,0 +1,77 @@
+import { useState } from 'react';
+import { CEFR_LEVELS, SKILLS } from '../data/skills';
+import { CefrLevel, SkillId } from '../data/types';
+import { SpeakingIcon, ReadingIcon, ListeningIcon, WritingIcon } from './icons/SkillIcons';
+import { useExerciseGate } from '../context/ExerciseGateContext';
+import { useLanguage } from '../context/LanguageContext';
+
+const ICONS: Record<SkillId, () => JSX.Element> = {
+  Speaking: SpeakingIcon,
+  Reading: ReadingIcon,
+  Listening: ListeningIcon,
+  Writing: WritingIcon,
+};
+
+function SkillCard({ id, sub }: { id: SkillId; sub: string }) {
+  const [level, setLevel] = useState<CefrLevel>('A1');
+  const { requestExercise } = useExerciseGate();
+  const Icon = ICONS[id];
+  const isMaintain = level === 'C2';
+
+  return (
+    <div className="skill-card">
+      <div className="skill-icon"><Icon /></div>
+      <h3>{id}</h3>
+      <div className="sub">{sub}</div>
+      <div className="chips">
+        {CEFR_LEVELS.map((lvl) => (
+          <button
+            key={lvl}
+            className={`chip ${level === lvl ? 'active' : ''} ${level === lvl && lvl === 'C2' ? 'gold' : ''}`}
+            onClick={() => setLevel(lvl)}
+          >
+            {lvl}
+          </button>
+        ))}
+      </div>
+      <span className="level-up">
+        {isMaintain ? <span className="maintain">Maintaining C2 ✓</span> : `Level up from ${level} →`}
+      </span>
+      <button className="btn btn-gold btn-small" style={{ marginTop: '1.25rem' }} onClick={() => requestExercise(id, level)}>
+        Try a {level} exercise
+      </button>
+    </div>
+  );
+}
+
+export function LevelsSection() {
+  const { language } = useLanguage();
+  return (
+    <section className="block levels" id="levels">
+      <div className="wrap">
+        <div className="head">
+          <span className="eyebrow">Your own level in every language</span>
+          <h2>You're not one level, you're four</h2>
+          <p>
+            Define your level for Speaking, Reading, Listening, and Writing on the CEFR scale (A1–C2). Each skill
+            progresses on its own. Listening C1 but writing B1? That's the point.
+          </p>
+        </div>
+
+        {language.status === 'active' ? (
+          <div className="level-grid">
+            {SKILLS.map((s) => (
+              <SkillCard key={s.id} id={s.id} sub={s.sub} />
+            ))}
+          </div>
+        ) : (
+          <p className="footnote">{language.label} exercises are coming soon. Switch to Español in the menu to start practicing today.</p>
+        )}
+
+        <p className="footnote">
+          When you reach <b>C2</b> in any skill, the system switches to <b>Maintain</b> instead of level up.
+        </p>
+      </div>
+    </section>
+  );
+}
