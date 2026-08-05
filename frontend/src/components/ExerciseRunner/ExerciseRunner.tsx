@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CefrLevel, SkillId } from '../../data/types';
 import { useLanguage } from '../../context/LanguageContext';
 import { getExercise } from '../../data/exercises.es';
@@ -6,6 +7,8 @@ import { WritingRunner } from './WritingRunner';
 import { ReadingRunner } from './ReadingRunner';
 import { ListeningRunner } from './ListeningRunner';
 import { SpeakingRunner } from './SpeakingRunner';
+import { ExerciseIntroduction } from '../Assessment/ExerciseIntroduction';
+import { exerciseIntros } from '../../data/exerciseIntros';
 
 const SESSION_SECONDS = 15 * 60;
 
@@ -13,6 +16,21 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
   const { language } = useLanguage();
   const exercise = getExercise(language.code, skill, level);
   const { label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
+  const [showIntro, setShowIntro] = useState(true);
+
+  if (showIntro && exercise) {
+    const skillLower = skill.toLowerCase() as keyof typeof exerciseIntros;
+    const intro = exerciseIntros[skillLower]?.[level];
+
+    if (intro) {
+      return (
+        <ExerciseIntroduction
+          intro={intro}
+          onStartExercise={() => setShowIntro(false)}
+        />
+      );
+    }
+  }
 
   return (
     <div className="exercise-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
