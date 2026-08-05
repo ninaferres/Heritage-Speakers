@@ -9,18 +9,26 @@ import { ListeningRunner } from './ListeningRunner';
 import { SpeakingRunner } from './SpeakingRunner';
 import { ExerciseIntroduction } from '../Assessment/ExerciseIntroduction';
 import { exerciseIntros } from '../../data/exerciseIntros';
+import { exerciseIntrosRu, getExerciseIntroRu } from '../../data/exerciseIntros.ru';
 
 const SESSION_SECONDS = 15 * 60;
 
 export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; level: CefrLevel; onClose: () => void }) {
-  const { language } = useLanguage();
-  const exercise = getExercise(language.code, skill, level);
+  const { learningLanguage } = useLanguage();
+  const exercise = getExercise(learningLanguage, skill, level);
   const { label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
   const [showIntro, setShowIntro] = useState(true);
 
   if (showIntro && exercise) {
-    const skillLower = skill.toLowerCase() as keyof typeof exerciseIntros;
-    const intro = exerciseIntros[skillLower]?.[level];
+    const skillLower = skill.toLowerCase();
+    let intro = null;
+
+    if (learningLanguage === 'ru') {
+      intro = getExerciseIntroRu(skillLower, level);
+    } else {
+      const skillKey = skillLower as keyof typeof exerciseIntros;
+      intro = exerciseIntros[skillKey]?.[level];
+    }
 
     if (intro) {
       return (

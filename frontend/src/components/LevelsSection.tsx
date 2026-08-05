@@ -65,7 +65,7 @@ export function LevelsSection() {
             ))}
           </div>
         ) : (
-          <p className="footnote">{language.label} exercises are coming soon. Switch to Español in the menu to start practicing today.</p>
+          <p className="footnote">{language.learningLabel} exercises are coming soon. Switch to Español in the menu to start practicing today.</p>
         )}
 
         <p className="footnote">

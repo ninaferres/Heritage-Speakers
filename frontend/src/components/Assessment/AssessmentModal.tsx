@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { SkillId, CefrLevel } from '../../data/types';
 import { getAssessmentQuestions } from '../../data/assessment.es';
+import { getAssessmentQuestionsRu } from '../../data/assessment.ru';
+import { useLanguage } from '../../context/LanguageContext';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { MatchingQuestion } from './MatchingQuestion';
 import { SpeakingAssessmentQuestionRunner } from './SpeakingAssessmentQuestionRunner';
 import { ListeningAssessmentQuestionRunner } from './ListeningAssessmentQuestionRunner';
 import { ExerciseIntroduction } from './ExerciseIntroduction';
 import { exerciseIntros } from '../../data/exerciseIntros';
+import { exerciseIntrosRu, getExerciseIntroRu } from '../../data/exerciseIntros.ru';
 
 const SKILLS: SkillId[] = ['Speaking', 'Reading', 'Listening', 'Writing'];
 const LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 export function AssessmentModal({ onClose }: { onClose: () => void }) {
+  const { learningLanguage } = useLanguage();
   const [stage, setStage] = useState<'skill-select' | 'intro' | 'test' | 'result'>('skill-select');
   const [selectedSkill, setSelectedSkill] = useState<SkillId | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -19,8 +23,10 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   const [detectedLevel, setDetectedLevel] = useState<CefrLevel | null>(null);
   const [shownIntroTypes, setShownIntroTypes] = useState<Set<string>>(new Set());
 
+  const getQuestionsFunc = learningLanguage === 'ru' ? getAssessmentQuestionsRu : getAssessmentQuestions;
+
   const questions = selectedSkill ? LEVELS.flatMap((level, levelIdx) => {
-    const qs = getAssessmentQuestions(selectedSkill, level);
+    const qs = getQuestionsFunc(selectedSkill, level);
     return qs.map((q, qIdx) => ({
       ...q,
       level,
@@ -238,9 +244,16 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   }
 
   if (shouldShowIntro()) {
-    const introType = currentQuestion.type as keyof typeof exerciseIntros;
+    const introType = currentQuestion.type;
     const introLevel = currentQuestion.level;
-    const intro = exerciseIntros[introType]?.[introLevel];
+    let intro = null;
+
+    if (learningLanguage === 'ru') {
+      intro = getExerciseIntroRu(introType, introLevel);
+    } else {
+      const introKey = introType as keyof typeof exerciseIntros;
+      intro = exerciseIntros[introKey]?.[introLevel];
+    }
 
     if (intro) {
       return (
@@ -285,7 +298,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
           {currentQuestion.type === 'mc' && 'options' in currentQuestion && (
             <MultipleChoiceQuestion
               question={currentQuestion.question}
-              options={currentQuestion.options}
+              options={currentQuestion.options!}
               selected={(currentAnswer as string) || null}
               onSelect={handleSelectOption}
               disabled={false}
@@ -295,7 +308,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
           {currentQuestion.type === 'matching' && 'pairs' in currentQuestion && (
             <MatchingQuestion
               question={currentQuestion.question}
-              pairs={currentQuestion.pairs}
+              pairs={currentQuestion.pairs!}
               selected={(currentAnswer as Record<number, number>) || {}}
               onSelect={handleMatchPair}
               disabled={false}

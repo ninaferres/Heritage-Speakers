@@ -52,7 +52,7 @@ export function Header() {
               >
                 {LANGUAGES.map((opt) => (
                   <option key={opt.code} value={opt.code} disabled={opt.status !== 'active'}>
-                    {opt.nativeLabel} {opt.status !== 'active' ? '— coming soon' : ''}
+                    {opt.uiNativeLabel} {opt.status !== 'active' ? '— coming soon' : ''}
                   </option>
                 ))}
               </select>
