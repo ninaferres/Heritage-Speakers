@@ -28,20 +28,22 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     };
   }, []);
 
-  function updateSubtitlesAndEmojis(elapsed: number, totalSecs: number) {
+  function updateSubtitlesAndEmojis(elapsed: number) {
     if (!intro.subtitles || intro.subtitles.length === 0) return;
 
-    // Distribute subtitles uniformly across the entire duration
-    const numSubtitles = intro.subtitles.length;
-    const timePerSubtitle = totalSecs / numSubtitles;
+    // Find the appropriate subtitle based on elapsed time using actual time values
+    let currentSubIdx = -1;
+    for (let i = 0; i < intro.subtitles.length; i++) {
+      if (elapsed >= intro.subtitles[i].time) {
+        currentSubIdx = i;
+      } else {
+        break;
+      }
+    }
 
-    // Find which subtitle should be shown based on elapsed time
-    let currentSubIdx = Math.floor(elapsed / timePerSubtitle);
-    currentSubIdx = Math.min(currentSubIdx, numSubtitles - 1);
+    setCurrentIdx(Math.max(0, currentSubIdx));
 
-    setCurrentIdx(currentSubIdx);
-
-    if (currentSubIdx >= 0 && currentSubIdx < numSubtitles) {
+    if (currentSubIdx >= 0 && currentSubIdx < intro.subtitles.length) {
       const subtitle = intro.subtitles[currentSubIdx];
       setCurrentSubtitleEs(subtitle.es);
       setCurrentSubtitleEn(subtitle.en);
@@ -91,14 +93,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
       timerRef.current = setInterval(() => {
         const elapsed = (Date.now() - startTimeRef.current) / 1000;
         setProgress(elapsed);
-
-        // Check if we've exceeded the estimated duration
-        if (elapsed >= estimatedDuration) {
-          // Clamp to total duration
-          updateSubtitlesAndEmojis(estimatedDuration - 0.1, estimatedDuration);
-        } else {
-          updateSubtitlesAndEmojis(elapsed, estimatedDuration);
-        }
+        updateSubtitlesAndEmojis(elapsed);
       }, 150); // Update every 150ms for better sync
     };
 
@@ -106,11 +101,12 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
       if (timerRef.current) clearInterval(timerRef.current);
       setIsPlaying(false);
       setFloatingEmojis([]);
-      // Show last subtitle
+      // Ensure last subtitle is visible
       if (intro.subtitles && intro.subtitles.length > 0) {
         const lastSub = intro.subtitles[intro.subtitles.length - 1];
         setCurrentSubtitleEs(lastSub.es);
         setCurrentSubtitleEn(lastSub.en);
+        setCurrentIdx(intro.subtitles.length - 1);
       }
     };
 
