@@ -24,6 +24,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
   function playIntroduction() {
     window.speechSynthesis.cancel();
+    if (timerRef.current) clearInterval(timerRef.current);
 
     const fullText = `${intro.explanationEs} ${intro.example || ''}`;
     const utterance = new SpeechSynthesisUtterance(fullText);
@@ -33,22 +34,29 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     startTimeRef.current = Date.now();
     setIsPlaying(true);
     setCurrentSubtitleIndex(0);
+    setProgress(0);
 
     utterance.onstart = () => {
       timerRef.current = setInterval(() => {
         const elapsed = (Date.now() - startTimeRef.current) / 1000;
         setProgress(elapsed);
 
-        const currentIdx = intro.subtitles.findIndex((s) => s.time <= elapsed && intro.subtitles[intro.subtitles.indexOf(s) + 1]?.time > elapsed);
-        if (currentIdx >= 0) {
-          setCurrentSubtitleIndex(currentIdx);
+        let subtitleIdx = 0;
+        for (let i = intro.subtitles.length - 1; i >= 0; i--) {
+          if (intro.subtitles[i].time <= elapsed) {
+            subtitleIdx = i;
+            break;
+          }
         }
+        setCurrentSubtitleIndex(subtitleIdx);
       }, 100);
     };
 
     utterance.onend = () => {
       setIsPlaying(false);
       if (timerRef.current) clearInterval(timerRef.current);
+      setCurrentSubtitleIndex(0);
+      setProgress(0);
     };
 
     synth.current = utterance;
@@ -115,9 +123,9 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
           <div
             style={{
-              minHeight: '80px',
-              padding: '1rem',
-              backgroundColor: 'rgba(250,247,243,.5)',
+              minHeight: '120px',
+              padding: '1.5rem',
+              backgroundColor: 'var(--bone)',
               borderRadius: '8px',
               borderLeft: '4px solid var(--gold)',
               display: 'flex',
@@ -125,21 +133,27 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
               justifyContent: 'center',
             }}
           >
-            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--wine-ink)', marginBottom: '0.5rem' }}>
-              Subtítulos
+            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--wine-ink)', marginBottom: '1rem', textTransform: 'uppercase' }}>
+              📝 Subtítulos
             </div>
-            {currentSubtitle ? (
-              <div>
-                <p style={{ color: 'var(--wine-ink)', margin: '0.3rem 0', fontSize: '0.95rem', fontWeight: '500' }}>
-                  {currentSubtitle.es}
+            {isPlaying ? (
+              currentSubtitle ? (
+                <div>
+                  <p style={{ color: 'var(--wine-ink)', margin: '0.5rem 0', fontSize: '1.1rem', fontWeight: '600', lineHeight: 1.4 }}>
+                    {currentSubtitle.es}
+                  </p>
+                  <p style={{ color: 'var(--muted)', margin: '0.5rem 0', fontSize: '1rem', fontStyle: 'italic', lineHeight: 1.4 }}>
+                    {currentSubtitle.en}
+                  </p>
+                </div>
+              ) : (
+                <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>
+                  Cargando...
                 </p>
-                <p style={{ color: 'var(--muted)', margin: '0.3rem 0', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                  {currentSubtitle.en}
-                </p>
-              </div>
+              )
             ) : (
-              <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.9rem' }}>
-                Presiona "Escuchar" para ver los subtítulos...
+              <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem', textAlign: 'center', padding: '1rem 0' }}>
+                Presiona "Escuchar Explicación" para ver los subtítulos en español e inglés sincronizados
               </p>
             )}
           </div>
