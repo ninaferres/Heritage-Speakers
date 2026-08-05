@@ -12,6 +12,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
   const [currentSubtitleEn, setCurrentSubtitleEn] = useState('');
   const [progress, setProgress] = useState(0);
   const [mouthOpen, setMouthOpen] = useState(false);
+  const [armPosition, setArmPosition] = useState(0);
 
   const synth = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -24,12 +25,13 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     };
   }, []);
 
-  function updateSubtitles(elapsed: number) {
+  function updateSubtitlesAndAnimations(elapsed: number) {
     if (!intro.subtitles || intro.subtitles.length === 0) return;
 
     let foundEs = '';
     let foundEn = '';
 
+    // Buscar el subtítulo correcto según el tiempo
     for (let i = intro.subtitles.length - 1; i >= 0; i--) {
       if (intro.subtitles[i].time <= elapsed) {
         foundEs = intro.subtitles[i].es;
@@ -38,10 +40,12 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
       }
     }
 
-    if (foundEs !== currentSubtitleEs) setCurrentSubtitleEs(foundEs);
-    if (foundEn !== currentSubtitleEn) setCurrentSubtitleEn(foundEn);
+    setCurrentSubtitleEs(foundEs);
+    setCurrentSubtitleEn(foundEn);
 
-    setMouthOpen(Math.random() > 0.3);
+    // Animaciones sincronizadas con el audio
+    setMouthOpen(Math.sin(elapsed * 8) > 0.2);
+    setArmPosition(Math.sin(elapsed * 2) * 15);
   }
 
   function playIntroduction() {
@@ -65,14 +69,15 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
       timerRef.current = setInterval(() => {
         const elapsed = (Date.now() - startTimeRef.current) / 1000;
         setProgress(elapsed);
-        updateSubtitles(elapsed);
-      }, 100);
+        updateSubtitlesAndAnimations(elapsed);
+      }, 50); // Actualizar cada 50ms para sincronización perfecta
     };
 
     utterance.onend = () => {
       if (timerRef.current) clearInterval(timerRef.current);
       setIsPlaying(false);
       setMouthOpen(false);
+      setArmPosition(0);
     };
 
     synth.current = utterance;
@@ -86,6 +91,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     setCurrentSubtitleEs('');
     setCurrentSubtitleEn('');
     setMouthOpen(false);
+    setArmPosition(0);
   }
 
   return (
@@ -95,58 +101,123 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
         {/* Main Video Section */}
         <div style={{ flex: 1, background: 'linear-gradient(135deg, #6b1f2e 0%, #2a1620 50%, #1a0d12 100%)', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Animated Background Particles */}
+          {/* Animated Background */}
           {isPlaying && (
             <>
-              <div style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, opacity: 0.3 }}>
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      position: 'absolute',
-                      width: `${30 + i * 20}px`,
-                      height: `${30 + i * 20}px`,
-                      background: `radial-gradient(circle, rgba(184,147,90,${0.3 - i * 0.05}) 0%, transparent 70%)`,
-                      borderRadius: '50%',
-                      animation: `float ${3 + i}s ease-in-out infinite`,
-                      left: `${10 + i * 15}%`,
-                      top: `${20 + i * 10}%`,
-                    }}
-                  />
-                ))}
-              </div>
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    width: `${40 + i * 25}px`,
+                    height: `${40 + i * 25}px`,
+                    background: `radial-gradient(circle, rgba(184,147,90,${0.2 - i * 0.03}) 0%, transparent 70%)`,
+                    borderRadius: '50%',
+                    animation: `float ${4 + i * 0.5}s ease-in-out infinite`,
+                    left: `${5 + i * 12}%`,
+                    top: `${15 + i * 8}%`,
+                  }}
+                />
+              ))}
             </>
           )}
 
-          {/* Avatar Section */}
-          <div style={{ position: 'relative', zIndex: 10, marginBottom: '1.5rem', textAlign: 'center' }}>
+          {/* Animated Person */}
+          <div style={{ position: 'relative', zIndex: 10, marginBottom: '1.5rem', textAlign: 'center', width: '200px', height: '320px' }}>
             {/* Head */}
             <div
               style={{
-                width: '120px',
-                height: '140px',
+                width: '140px',
+                height: '160px',
                 background: 'linear-gradient(135deg, #f5d4a8 0%, #e6b890 100%)',
                 borderRadius: '50% 50% 48% 52% / 44% 44% 56% 56%',
-                margin: '0 auto 0.5rem',
+                margin: '0 auto 1rem',
                 position: 'relative',
-                animation: isPlaying ? 'headBob 0.5s ease-in-out infinite' : 'none',
-                boxShadow: '0 8px 20px rgba(107,31,46,.4)',
+                animation: isPlaying ? 'headBob 0.4s ease-in-out infinite' : 'none',
+                boxShadow: '0 12px 30px rgba(107,31,46,.5)',
               }}
             >
+              {/* Hair */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-15px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '160px',
+                  height: '40px',
+                  background: 'linear-gradient(180deg, #3d2817 0%, #4a3428 100%)',
+                  borderRadius: '50% 50% 0 0',
+                }}
+              />
+
               {/* Eyes */}
-              <div style={{ position: 'absolute', top: '35%', left: '30%', width: '16px', height: '20px', background: '#333', borderRadius: '50%', animation: isPlaying ? 'blink 3s ease-in-out infinite' : 'none' }} />
-              <div style={{ position: 'absolute', top: '35%', right: '30%', width: '16px', height: '20px', background: '#333', borderRadius: '50%', animation: isPlaying ? 'blink 3s ease-in-out infinite 0.3s' : 'none' }} />
+              <div style={{ position: 'absolute', top: '40%', left: '28%', width: '20px', height: '26px', background: '#fff', borderRadius: '50%', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,.2)' }}>
+                <div style={{ position: 'absolute', width: '12px', height: '12px', background: '#333', borderRadius: '50%', top: isPlaying ? '50%' : '40%', left: '50%', transform: 'translate(-50%, -50%)', animation: isPlaying ? 'pupilMove 3s ease-in-out infinite' : 'none' }} />
+              </div>
+              <div style={{ position: 'absolute', top: '40%', right: '28%', width: '20px', height: '26px', background: '#fff', borderRadius: '50%', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,.2)' }}>
+                <div style={{ position: 'absolute', width: '12px', height: '12px', background: '#333', borderRadius: '50%', top: isPlaying ? '50%' : '40%', left: '50%', transform: 'translate(-50%, -50%)', animation: isPlaying ? 'pupilMove 3s ease-in-out infinite 0.2s' : 'none' }} />
+              </div>
 
               {/* Mouth */}
-              <div style={{ position: 'absolute', bottom: '25%', left: '50%', transform: 'translateX(-50%)', width: '30px', height: mouthOpen && isPlaying ? '20px' : '8px', background: '#c41e3a', borderRadius: '0 0 15px 15px', transition: 'all 0.1s ease' }} />
+              <div style={{ position: 'absolute', bottom: '20%', left: '50%', transform: 'translateX(-50%)', width: '45px', height: mouthOpen && isPlaying ? '30px' : '12px', background: mouthOpen && isPlaying ? '#d4445e' : '#c41e3a', borderRadius: '0 0 22px 22px', transition: 'all 0.05s ease', boxShadow: mouthOpen && isPlaying ? '0 4px 8px rgba(212,68,94,.4)' : 'none' }} />
 
               {/* Nose */}
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translateX(-50%)', width: '6px', height: '8px', background: '#d4a574', borderRadius: '50%' }} />
+              <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translateX(-50%)', width: '10px', height: '12px', background: 'linear-gradient(to right, transparent 0%, #d4a574 50%, transparent 100%)', borderRadius: '50%' }} />
+
+              {/* Eyebrows */}
+              <div style={{ position: 'absolute', top: '32%', left: '22%', width: '30px', height: '6px', background: '#3d2817', borderRadius: '3px', transform: 'rotate(-15deg)' }} />
+              <div style={{ position: 'absolute', top: '32%', right: '22%', width: '30px', height: '6px', background: '#3d2817', borderRadius: '3px', transform: 'rotate(15deg)' }} />
             </div>
 
-            {/* Icon Badge */}
-            <div style={{ fontSize: '2rem', animation: isPlaying ? 'pulse 2s ease-in-out infinite' : 'none' }}>
-              {intro.icon}
+            {/* Neck */}
+            <div style={{ width: '50px', height: '25px', background: 'linear-gradient(180deg, #f5d4a8 0%, #e6b890 100%)', margin: '0 auto', position: 'relative' }} />
+
+            {/* Body */}
+            <div
+              style={{
+                width: '90px',
+                height: '100px',
+                background: 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)',
+                margin: '0 auto',
+                borderRadius: '20px 20px 0 0',
+                position: 'relative',
+                boxShadow: '0 8px 20px rgba(74,144,226,.3)',
+              }}
+            >
+              {/* Left Arm */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '-50px',
+                  top: '15px',
+                  width: '50px',
+                  height: '20px',
+                  background: 'linear-gradient(90deg, #f5d4a8 0%, #e6b890 100%)',
+                  borderRadius: '10px',
+                  transform: `rotate(${armPosition}deg)`,
+                  transformOrigin: 'right center',
+                  transition: 'transform 0.05s ease',
+                  boxShadow: '0 4px 8px rgba(0,0,0,.2)',
+                }}
+              />
+
+              {/* Right Arm */}
+              <div
+                style={{
+                  position: 'absolute',
+                  right: '-50px',
+                  top: '15px',
+                  width: '50px',
+                  height: '20px',
+                  background: 'linear-gradient(90deg, #f5d4a8 0%, #e6b890 100%)',
+                  borderRadius: '10px',
+                  transform: `rotate(${-armPosition}deg)`,
+                  transformOrigin: 'left center',
+                  transition: 'transform 0.05s ease',
+                  boxShadow: '0 4px 8px rgba(0,0,0,.2)',
+                }}
+              />
             </div>
           </div>
 
@@ -155,7 +226,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             style={{
               color: 'var(--bone)',
               fontSize: '2.5rem',
-              marginBottom: '1rem',
+              marginBottom: '1.5rem',
               textAlign: 'center',
               animation: isPlaying ? 'slideDown 0.8s ease-out' : 'none',
               zIndex: 10,
@@ -166,59 +237,31 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             {intro.topic}
           </h1>
 
-          {/* Interactive Info Box */}
-          {isPlaying && (
-            <div
-              style={{
-                background: 'rgba(184,147,90,.2)',
-                border: '2px solid var(--gold)',
-                borderRadius: '12px',
-                padding: '1rem 1.5rem',
-                maxWidth: '600px',
-                textAlign: 'center',
-                color: 'var(--bone)',
-                fontSize: '1.1rem',
-                lineHeight: 1.7,
-                zIndex: 10,
-                animation: 'fadeInUp 0.6s ease-out',
-                backdropFilter: 'blur(4px)',
-              }}
-            >
-              Escucha atentamente el contenido y lee los subtítulos en español e inglés
-            </div>
-          )}
-
           {/* Styles */}
           <style>{`
-            @keyframes pulse {
-              0%, 100% { transform: scale(1); }
-              50% { transform: scale(1.2); }
+            @keyframes headBob {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-12px); }
+            }
+            @keyframes pupilMove {
+              0%, 100% { top: 40%; left: 50%; }
+              25% { top: 35%; left: 45%; }
+              50% { top: 50%; left: 50%; }
+              75% { top: 45%; left: 55%; }
             }
             @keyframes slideDown {
               from { transform: translateY(-40px); opacity: 0; }
               to { transform: translateY(0); opacity: 1; }
             }
-            @keyframes fadeInUp {
-              from { transform: translateY(30px); opacity: 0; }
-              to { transform: translateY(0); opacity: 1; }
-            }
-            @keyframes headBob {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-10px); }
-            }
-            @keyframes blink {
-              0%, 19%, 21%, 100% { height: 20px; }
-              20% { height: 2px; }
-            }
             @keyframes float {
               0%, 100% { transform: translateY(0px) translateX(0px); }
-              50% { transform: translateY(-30px) translateX(20px); }
+              50% { transform: translateY(-40px) translateX(30px); }
             }
           `}</style>
         </div>
 
-        {/* Subtitles - FULL WIDTH, SIDE BY SIDE */}
-        <div style={{ background: 'linear-gradient(90deg, rgba(107,31,46,.95) 0%, rgba(107,31,46,.9) 100%)', padding: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', minHeight: '180px', borderTop: '3px solid var(--gold)' }}>
+        {/* Subtitles - Perfectly Synced */}
+        <div style={{ background: 'linear-gradient(90deg, rgba(107,31,46,.95) 0%, rgba(107,31,46,.9) 100%)', padding: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', minHeight: '200px', borderTop: '3px solid var(--gold)' }}>
           {/* Spanish */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <div style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--gold)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '2px' }}>
@@ -227,19 +270,19 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             <div
               style={{
                 color: 'var(--bone)',
-                fontSize: '1.25rem',
+                fontSize: '1.3rem',
                 fontWeight: '600',
-                lineHeight: 1.8,
-                minHeight: '90px',
-                padding: '1rem',
-                background: 'rgba(250,247,243,.1)',
-                borderRadius: '8px',
-                border: `2px solid ${currentSubtitleEs ? 'var(--gold)' : 'transparent'}`,
-                transition: 'all 0.3s ease',
-                animation: currentSubtitleEs ? 'subtitlePulse 0.4s ease' : 'none',
+                lineHeight: 1.9,
+                minHeight: '110px',
+                padding: '1.2rem',
+                background: 'rgba(250,247,243,.12)',
+                borderRadius: '10px',
+                border: `3px solid ${currentSubtitleEs ? 'var(--gold)' : 'rgba(184,147,90,.3)'}`,
+                transition: 'all 0.2s ease',
+                animation: currentSubtitleEs && isPlaying ? 'subtitleChange 0.3s ease' : 'none',
               }}
             >
-              {currentSubtitleEs || 'Esperando audio...'}
+              {currentSubtitleEs && isPlaying ? currentSubtitleEs : '—'}
             </div>
           </div>
 
@@ -251,27 +294,26 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             <div
               style={{
                 color: 'var(--bone)',
-                fontSize: '1.25rem',
+                fontSize: '1.3rem',
                 fontWeight: '600',
-                lineHeight: 1.8,
-                minHeight: '90px',
-                padding: '1rem',
-                background: 'rgba(250,247,243,.1)',
-                borderRadius: '8px',
-                border: `2px solid ${currentSubtitleEn ? 'var(--gold)' : 'transparent'}`,
-                transition: 'all 0.3s ease',
-                animation: currentSubtitleEn ? 'subtitlePulse 0.4s ease' : 'none',
+                lineHeight: 1.9,
+                minHeight: '110px',
+                padding: '1.2rem',
+                background: 'rgba(250,247,243,.12)',
+                borderRadius: '10px',
+                border: `3px solid ${currentSubtitleEn ? 'var(--gold)' : 'rgba(184,147,90,.3)'}`,
+                transition: 'all 0.2s ease',
+                animation: currentSubtitleEn && isPlaying ? 'subtitleChange 0.3s ease' : 'none',
               }}
             >
-              {currentSubtitleEn || 'Waiting for audio...'}
+              {currentSubtitleEn && isPlaying ? currentSubtitleEn : '—'}
             </div>
           </div>
 
           <style>{`
-            @keyframes subtitlePulse {
-              0% { transform: scale(0.95); }
-              50% { transform: scale(1.02); }
-              100% { transform: scale(1); }
+            @keyframes subtitleChange {
+              0% { opacity: 0.6; transform: scale(0.98); }
+              100% { opacity: 1; transform: scale(1); }
             }
           `}</style>
         </div>
@@ -283,8 +325,8 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
               style={{
                 height: '100%',
                 background: 'linear-gradient(90deg, var(--gold) 0%, rgba(184,147,90,.8) 100%)',
-                width: `${progress * 5}%`,
-                transition: 'width 0.1s linear',
+                width: `${progress * 3}%`,
+                transition: 'width 0.05s linear',
                 boxShadow: '0 0 15px var(--gold)',
               }}
             />
