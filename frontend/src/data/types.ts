@@ -17,7 +17,20 @@ export interface MatchingQuestion {
   question: string;
   pairs: { left: string; right: string }[]; // Shuffled; correct pairing is by index
 }
-export type ExerciseQuestion = OpenQuestion | MultipleChoiceQuestion | MatchingQuestion;
+export interface SpeakingAssessmentQuestion {
+  type: 'speaking-assessment';
+  question: string;
+  prompt: string;
+  maxDuration: number; // seconds
+}
+export interface ListeningAssessmentQuestion {
+  type: 'listening-assessment';
+  question: string;
+  audioText: string;
+  options: string[];
+  answer: string;
+}
+export type ExerciseQuestion = OpenQuestion | MultipleChoiceQuestion | MatchingQuestion | SpeakingAssessmentQuestion | ListeningAssessmentQuestion;
 
 /** Regional Spanish accent used for Listening TTS audio (advanced levels rotate through these). */
 export type AccentId = 'es-ES' | 'es-MX' | 'es-AR' | 'es-CO';

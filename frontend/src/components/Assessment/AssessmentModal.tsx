@@ -3,6 +3,8 @@ import { SkillId, CefrLevel } from '../../data/types';
 import { getAssessmentQuestions } from '../../data/assessment.es';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { MatchingQuestion } from './MatchingQuestion';
+import { SpeakingAssessmentQuestionRunner } from './SpeakingAssessmentQuestionRunner';
+import { ListeningAssessmentQuestionRunner } from './ListeningAssessmentQuestionRunner';
 
 const SKILLS: SkillId[] = ['Speaking', 'Reading', 'Listening', 'Writing'];
 const LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -42,6 +44,10 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
     });
   }
 
+  function handleSpeakingAnswered(audioBlob: Blob) {
+    setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: 'recorded' }));
+  }
+
   function handleNext() {
     if (isLastQuestion) {
       calculateLevel();
@@ -69,6 +75,14 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
           return rightIdx === Number(leftIdx);
         }).length;
         totalCorrect += matchedCorrectly;
+      } else if (q.type === 'speaking-assessment') {
+        if (userAnswer === 'recorded') {
+          totalCorrect++;
+        }
+      } else if (q.type === 'listening-assessment') {
+        if (userAnswer === q.answer) {
+          totalCorrect++;
+        }
       }
     });
 
@@ -233,7 +247,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        <div style={{ flex: 1, marginBottom: '2rem' }}>
+        <div style={{ flex: 1, marginBottom: '2rem', overflowY: 'auto' }}>
           {currentQuestion.type === 'mc' && 'options' in currentQuestion && (
             <MultipleChoiceQuestion
               question={currentQuestion.question}
@@ -250,6 +264,23 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
               pairs={currentQuestion.pairs}
               selected={(currentAnswer as Record<number, number>) || {}}
               onSelect={handleMatchPair}
+              disabled={false}
+            />
+          )}
+
+          {currentQuestion.type === 'speaking-assessment' && 'maxDuration' in currentQuestion && (
+            <SpeakingAssessmentQuestionRunner
+              question={currentQuestion as any}
+              onAnswered={handleSpeakingAnswered}
+              disabled={false}
+            />
+          )}
+
+          {currentQuestion.type === 'listening-assessment' && 'audioText' in currentQuestion && (
+            <ListeningAssessmentQuestionRunner
+              question={currentQuestion as any}
+              selected={(currentAnswer as string) || null}
+              onSelect={handleSelectOption}
               disabled={false}
             />
           )}

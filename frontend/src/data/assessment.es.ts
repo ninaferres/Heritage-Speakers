@@ -2,10 +2,13 @@ import { CefrLevel, SkillId, ExerciseQuestion } from './types';
 
 interface AssessmentQuestion {
   question: string;
-  type: 'mc' | 'matching';
+  type: 'mc' | 'matching' | 'speaking-assessment' | 'listening-assessment';
   options?: string[];
   answer?: string;
   pairs?: { left: string; right: string }[];
+  prompt?: string;
+  maxDuration?: number;
+  audioText?: string;
 }
 
 const assessmentData: Record<SkillId, Record<CefrLevel, AssessmentQuestion[]>> = {
@@ -228,242 +231,184 @@ const assessmentData: Record<SkillId, Record<CefrLevel, AssessmentQuestion[]>> =
   Listening: {
     A1: [
       {
-        type: 'mc',
-        question: 'Cuando alguien dice "Hola, ¿cómo estás?", la intención es:',
-        options: ['Despedirse', 'Saludar y preguntar por el estado', 'Hacer una pregunta', 'Expresar desacuerdo'],
-        answer: 'Saludar y preguntar por el estado',
+        type: 'listening-assessment',
+        question: 'Escucha el saludo. ¿Qué respuesta es apropiada?',
+        audioText: 'Hola, ¿cómo estás?',
+        options: ['Adiós', 'Bien, gracias, ¿y tú?', 'Me llamo Juan', '¿Dónde está?'],
+        answer: 'Bien, gracias, ¿y tú?',
       },
       {
-        type: 'mc',
-        question: 'Si escuchas "Es lunes", ¿qué información recibes?',
-        options: ['La hora', 'El día de la semana', 'El mes', 'La estación'],
-        answer: 'El día de la semana',
+        type: 'listening-assessment',
+        question: 'Escucha el día que dice. ¿Cuál es?',
+        audioText: 'Hoy es lunes',
+        options: ['Martes', 'Lunes', 'Domingo', 'Miércoles'],
+        answer: 'Lunes',
       },
     ],
     A2: [
       {
-        type: 'mc',
-        question: 'En una conversación casual, "¿Qué tal tu fin de semana?" busca:',
-        options: ['Una crítica', 'Una anécdota o descripción', 'Un dato', 'Un consejo'],
-        answer: 'Una anécdota o descripción',
+        type: 'listening-assessment',
+        question: 'Escucha la pregunta. ¿Qué se pregunta?',
+        audioText: '¿Qué tal tu fin de semana?',
+        options: ['Cómo estuvo tu fin de semana', 'Dónde vives', 'Tu nombre', 'Tu edad'],
+        answer: 'Cómo estuvo tu fin de semana',
       },
       {
-        type: 'matching',
-        question: 'Empareja sonidos/palabras con significados:',
-        pairs: [
-          { left: 'Agua', right: 'Líquido para beber' },
-          { left: 'Puerta', right: 'Acceso a una habitación' },
-          { left: 'Reloj', right: 'Instrumento para medir el tiempo' },
-        ],
+        type: 'listening-assessment',
+        question: 'Escucha y elige el objeto descrito',
+        audioText: 'Es un líquido transparente que bebemos',
+        options: ['Café', 'Agua', 'Leche', 'Vino'],
+        answer: 'Agua',
       },
     ],
     B1: [
       {
-        type: 'mc',
-        question: 'El tono de voz en "Está bien" puede indicar:',
-        options: [
-          'Claramente lo mismo siempre',
-          'Conformidad o sarcasmo, según el contexto',
-          'Siempre alegría',
-          'Siempre tristeza',
-        ],
-        answer: 'Conformidad o sarcasmo, según el contexto',
+        type: 'listening-assessment',
+        question: 'Escucha el tono y determina el sentimiento',
+        audioText: 'Está bien',
+        options: ['Tristeza', 'Conformidad o sarcasmo', 'Alegría', 'Confusión'],
+        answer: 'Conformidad o sarcasmo',
       },
       {
-        type: 'matching',
-        question: 'Empareja expresiones con sentimientos implícitos:',
-        pairs: [
-          { left: '"No me importa"', right: 'Indiferencia' },
-          { left: '"Claro que sí"', right: 'Aceptación enfática' },
-          { left: '"Pues..."', right: 'Hesitación o duda' },
-        ],
+        type: 'listening-assessment',
+        question: 'Escucha la expresión. ¿Qué transmite?',
+        audioText: 'No me importa',
+        options: ['Aceptación', 'Entusiasmo', 'Indiferencia', 'Desacuerdo'],
+        answer: 'Indiferencia',
       },
     ],
     B2: [
       {
-        type: 'mc',
-        question: 'Cuando un hablante pausa y dice "este...", usualmente indica:',
-        options: ['Fin de la conversación', 'Búsqueda de palabras o reflexión', 'Acuerdo total', 'Prisa'],
-        answer: 'Búsqueda de palabras o reflexión',
+        type: 'listening-assessment',
+        question: 'Escucha la pausa. ¿Qué indica?',
+        audioText: 'Este... creo que no estoy de acuerdo',
+        options: ['Prisa', 'Búsqueda de palabras', 'Fin de conversación', 'Desinterés'],
+        answer: 'Búsqueda de palabras',
       },
       {
-        type: 'matching',
-        question: 'Registro de lenguaje según contexto:',
-        pairs: [
-          { left: 'Formal', right: 'Entrevista de trabajo' },
-          { left: 'Coloquial', right: 'Conversación entre amigos' },
-          { left: 'Técnico', right: 'Explicación médica' },
-        ],
+        type: 'listening-assessment',
+        question: 'Escucha el contexto. ¿Qué registro se usa?',
+        audioText: 'Buenos días, me gustaría solicitar información sobre sus servicios',
+        options: ['Coloquial', 'Formal', 'Técnico', 'Infantil'],
+        answer: 'Formal',
       },
     ],
     C1: [
       {
-        type: 'mc',
-        question: 'Las implicaturas conversacionales se refieren a:',
-        options: [
-          'Lo que se dice literalmente',
-          'Lo que se sugiere sin decirlo explícitamente',
-          'Solo los errores de pronunciación',
-          'El volumen de la voz',
-        ],
-        answer: 'Lo que se sugiere sin decirlo explícitamente',
+        type: 'listening-assessment',
+        question: 'Escucha la ironía. ¿Cuál es el significado implícito?',
+        audioText: 'Sí, claro, eso es una excelente idea',
+        options: ['Acuerdo genuino', 'Rechazo con ironía', 'Confusión', 'Alegría'],
+        answer: 'Rechazo con ironía',
       },
       {
-        type: 'matching',
-        question: 'Matices de significado en contextos:',
-        pairs: [
-          { left: 'Ironía', right: 'Decir algo significando lo opuesto' },
-          { left: 'Eufemismo', right: 'Expresión suave de algo desagradable' },
-          { left: 'Hipérbole', right: 'Exageración para enfatizar' },
-        ],
+        type: 'listening-assessment',
+        question: 'Escucha el eufemismo. ¿Qué se comunica?',
+        audioText: 'Su desempeño necesita mejorar',
+        options: ['Felicitación', 'Crítica suave', 'Pregunta', 'Apoyo'],
+        answer: 'Crítica suave',
       },
     ],
     C2: [
       {
-        type: 'mc',
-        question: 'El análisis discursivo implica comprender:',
-        options: [
-          'Solo palabras individuales',
-          'Estructura, intención y contexto sociolingüístico del mensaje',
-          'Únicamente la gramática',
-          'Pronósticos',
-        ],
-        answer: 'Estructura, intención y contexto sociolingüístico del mensaje',
+        type: 'listening-assessment',
+        question: 'Analiza el discurso. ¿Qué estructura observas?',
+        audioText: 'Primero, considere los hechos históricos. Segundo, analice el contexto cultural. Finalmente, extraiga conclusiones.',
+        options: ['Narrativa', 'Descriptiva', 'Argumentativa estructurada', 'Poética'],
+        answer: 'Argumentativa estructurada',
       },
       {
-        type: 'matching',
-        question: 'Empareja dialectos/acentos con características:',
-        pairs: [
-          { left: 'Español de Castilla', right: 'Distinción entre "z" y "c"' },
-          { left: 'Español de América', right: 'Seseo' },
-          { left: 'Español de Andalucía', right: 'Relajación de consonantes' },
-        ],
+        type: 'listening-assessment',
+        question: 'Escucha el acento y dialecto. ¿De dónde proviene?',
+        audioText: 'Gracias por la ayuda, vos sos muy amable',
+        options: ['España', 'México', 'Argentina', 'Colombia'],
+        answer: 'Argentina',
       },
     ],
   },
   Speaking: {
     A1: [
       {
-        type: 'mc',
-        question: 'Para introducirte, ¿qué dices primero?',
-        options: ['Mi opinión política', 'Mi nombre', 'Mi salario', 'Mis secretos'],
-        answer: 'Mi nombre',
+        type: 'speaking-assessment',
+        question: 'Presenta una introducción simple de ti mismo',
+        prompt: 'Introduce yourself with your name and one thing about you (e.g., "Me llamo... Soy...")',
+        maxDuration: 10,
       },
       {
-        type: 'mc',
-        question: 'Si no entiendes algo, debes:',
-        options: ['Guardar silencio', 'Pedir que repita o hable más lentamente', 'Marcharte', 'Fingir entender'],
-        answer: 'Pedir que repita o hable más lentamente',
+        type: 'speaking-assessment',
+        question: 'Responde: ¿Cómo te llamas?',
+        prompt: 'Answer the question with your name in Spanish',
+        maxDuration: 5,
       },
     ],
     A2: [
       {
-        type: 'mc',
-        question: 'En una conversación, la entonación es importante porque:',
-        options: [
-          'No tiene importancia',
-          'Comunica emociones y clarifica significado',
-          'Solo sirve para la música',
-          'Complica todo',
-        ],
-        answer: 'Comunica emociones y clarifica significado',
+        type: 'speaking-assessment',
+        question: 'Describe tu fin de semana',
+        prompt: 'Describe what you did this weekend (3-4 sentences)',
+        maxDuration: 15,
       },
       {
-        type: 'matching',
-        question: 'Empareja funciones comunicativas con ejemplos:',
-        pairs: [
-          { left: 'Pedir información', right: '¿Dónde está la estación?' },
-          { left: 'Hacer un pedido', right: 'Quisiera un café, por favor' },
-          { left: 'Expresar un sentimiento', right: 'Estoy muy feliz hoy' },
-        ],
+        type: 'speaking-assessment',
+        question: 'Habla sobre tu comida favorita',
+        prompt: 'Talk about your favorite food and why you like it',
+        maxDuration: 10,
       },
     ],
     B1: [
       {
-        type: 'mc',
-        question: 'La fluidez en el habla significa:',
-        options: [
-          'Hablar muy rápido',
-          'Hablar con ritmo natural y pocos titubeos',
-          'Hablar sin parar',
-          'No pensar antes de hablar',
-        ],
-        answer: 'Hablar con ritmo natural y pocos titubeos',
+        type: 'speaking-assessment',
+        question: 'Expresa tu opinión sobre un tema',
+        prompt: 'Give your opinion on a topic (travel, music, education, etc.) with reasons',
+        maxDuration: 20,
       },
       {
-        type: 'matching',
-        question: 'Estrategias para mantener una conversación:',
-        pairs: [
-          { left: 'Parafrasear', right: 'Reformular lo que otro dijo' },
-          { left: 'Verificar comprensión', right: 'Preguntar "¿Entiendes?"' },
-          { left: 'Cambiar tema', right: 'Introducir un nuevo tópico' },
-        ],
+        type: 'speaking-assessment',
+        question: 'Cuéntame una anécdota personal',
+        prompt: 'Tell a brief personal story or anecdote in the past tense',
+        maxDuration: 20,
       },
     ],
     B2: [
       {
-        type: 'mc',
-        question: 'El registro de habla se adapta según:',
-        options: [
-          'Nunca cambia',
-          'La audiencia, contexto y propósito',
-          'Solo el clima',
-          'El día de la semana',
-        ],
-        answer: 'La audiencia, contexto y propósito',
+        type: 'speaking-assessment',
+        question: 'Argumenta a favor o en contra de una proposición',
+        prompt: 'Present arguments for or against a proposal with nuanced explanations',
+        maxDuration: 25,
       },
       {
-        type: 'matching',
-        question: 'Tipos de narrativa oral:',
-        pairs: [
-          { left: 'Anécdota', right: 'Historia breve y personal' },
-          { left: 'Presentación', right: 'Información formal estructurada' },
-          { left: 'Debate', right: 'Intercambio de argumentos' },
-        ],
+        type: 'speaking-assessment',
+        question: 'Resume un problema y propón soluciones',
+        prompt: 'Summarize a problem and propose thoughtful solutions',
+        maxDuration: 25,
       },
     ],
     C1: [
       {
-        type: 'mc',
-        question: 'La elocuencia se caracteriza por:',
-        options: [
-          'Hablar rápido',
-          'Expresión persuasiva y elegante',
-          'Hablar mucho',
-          'No pensar',
-        ],
-        answer: 'Expresión persuasiva y elegante',
+        type: 'speaking-assessment',
+        question: 'Entrega una presentación sobre un tema especializado',
+        prompt: 'Present a topic in depth using sophisticated vocabulary and structures',
+        maxDuration: 30,
       },
       {
-        type: 'matching',
-        question: 'Técnicas de persuasión retórica:',
-        pairs: [
-          { left: 'Ethos', right: 'Credibilidad del orador' },
-          { left: 'Pathos', right: 'Apelación a emociones' },
-          { left: 'Logos', right: 'Argumentación lógica' },
-        ],
+        type: 'speaking-assessment',
+        question: 'Analiza un concepto abstracto',
+        prompt: 'Discuss an abstract concept (justice, identity, progress) with nuance',
+        maxDuration: 30,
       },
     ],
     C2: [
       {
-        type: 'mc',
-        question: 'El análisis pragmático del discurso considera:',
-        options: [
-          'Solo la pronunciación',
-          'Intención, contexto y efecto en la audiencia',
-          'Solo la gramática',
-          'Solo el vocabulario',
-        ],
-        answer: 'Intención, contexto y efecto en la audiencia',
+        type: 'speaking-assessment',
+        question: 'Diserta sobre un tema complejo',
+        prompt: 'Deliver a sophisticated discourse on a complex topic with multiple perspectives',
+        maxDuration: 35,
       },
       {
-        type: 'matching',
-        question: 'Empareja actos de habla con funciones:',
-        pairs: [
-          { left: 'Promesa', right: 'Compromiso futuro' },
-          { left: 'Ruego', right: 'Petición subordinada' },
-          { left: 'Amenaza', right: 'Advertencia de consecuencia' },
-        ],
+        type: 'speaking-assessment',
+        question: 'Responde a preguntas desafiantes',
+        prompt: 'Address nuanced questions about language, culture, or philosophy',
+        maxDuration: 35,
       },
     ],
   },
@@ -473,6 +418,6 @@ export function getAssessmentQuestions(skill: SkillId, level: CefrLevel): Exerci
   const questions = assessmentData[skill]?.[level] || [];
   return questions.map((q) => ({
     ...q,
-    type: q.type as 'mc' | 'matching',
+    type: q.type as 'mc' | 'matching' | 'speaking-assessment' | 'listening-assessment',
   } as ExerciseQuestion));
 }
