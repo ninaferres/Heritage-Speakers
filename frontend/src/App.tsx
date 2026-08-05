@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { LanguageSelector } from './components/LanguageSelector';
 import { LevelsSection } from './components/LevelsSection';
 import { BenefitsSection } from './components/BenefitsSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
@@ -17,6 +18,11 @@ export default function App() {
     <ExerciseGateProvider>
       <Header />
       <Hero onOpenAssessment={() => setAssessmentOpen(true)} />
+      <section style={{ padding: '2rem 0', background: 'var(--bone)' }}>
+        <div className="wrap">
+          <LanguageSelector />
+        </div>
+      </section>
       <LevelsSection />
       <BenefitsSection />
       <HowItWorksSection />
