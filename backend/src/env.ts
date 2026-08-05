@@ -12,11 +12,13 @@ export const env = {
   supabaseUrl: optional('SUPABASE_URL'),
   supabaseAnonKey: optional('SUPABASE_ANON_KEY'),
 
-  aiProvider: (optional('AI_PROVIDER') ?? 'anthropic') as 'anthropic' | 'openai',
+  aiProvider: (optional('AI_PROVIDER') ?? 'groq') as 'anthropic' | 'openai' | 'groq',
   anthropicApiKey: optional('ANTHROPIC_API_KEY'),
   anthropicModel: optional('ANTHROPIC_MODEL') ?? 'claude-sonnet-4-5',
   openaiApiKey: optional('OPENAI_API_KEY'),
   openaiModel: optional('OPENAI_MODEL') ?? 'gpt-4o',
+  groqApiKey: optional('GROQ_API_KEY'),
+  groqModel: optional('GROQ_MODEL') ?? 'mixtral-8x7b-32768',
 
   elevenLabsApiKey: optional('ELEVENLABS_API_KEY'),
   elevenLabsVoices: {
@@ -28,6 +30,11 @@ export const env = {
 };
 
 export const isAuthConfigured = Boolean(env.supabaseUrl && env.supabaseAnonKey);
-export const isGradingConfigured = env.aiProvider === 'anthropic' ? Boolean(env.anthropicApiKey) : Boolean(env.openaiApiKey);
+export const isGradingConfigured =
+  env.aiProvider === 'anthropic'
+    ? Boolean(env.anthropicApiKey)
+    : env.aiProvider === 'openai'
+      ? Boolean(env.openaiApiKey)
+      : Boolean(env.groqApiKey);
 export const isSttConfigured = Boolean(env.openaiApiKey);
 export const isTtsConfigured = Boolean(env.elevenLabsApiKey);

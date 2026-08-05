@@ -71,15 +71,41 @@ export async function evaluateSpeaking(params: {
   return res.json();
 }
 
-export async function synthesizeSpeech(params: { text: string; accent: AccentId }): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/tts`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
-    body: JSON.stringify(params),
-  });
-  if (!res.ok) {
-    const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.error || `TTS request failed (${res.status})`);
-  }
-  return res.blob();
+// Use Web Speech API for text-to-speech (free, no server required)
+export function synthesizeSpeech(params: { text: string; accent: AccentId }): { play: () => void; stop: () => void; isSupported: boolean } {
+  const isSupported = 'speechSynthesis' in window;
+
+  return {
+    isSupported,
+    play() {
+      if (!isSupported) {
+        console.error('Speech Synthesis API not supported in this browser');
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(params.text);
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+
+      // Select voice based on accent (best-effort fallback to Spanish)
+      const voices = window.speechSynthesis.getVoices();
+      const accentMap: Record<AccentId, string[]> = {
+        'es-ES': ['Spanish', 'Castilian'],
+        'es-MX': ['Mexican', 'Spanish - Mexico'],
+        'es-AR': ['Argentinian', 'Spanish - Argentina'],
+        'es-CO': ['Colombian', 'Spanish - Colombia'],
+      };
+
+      const preferredVoiceNames = accentMap[params.accent] || ['Spanish'];
+      const voice = voices.find((v) => preferredVoiceNames.some((name) => v.name.includes(name))) || voices.find((v) => v.lang.startsWith('es'));
+      if (voice) utterance.voice = voice;
+
+      window.speechSynthesis.speak(utterance);
+    },
+    stop() {
+      if (isSupported) window.speechSynthesis.cancel();
+    },
+  };
 }

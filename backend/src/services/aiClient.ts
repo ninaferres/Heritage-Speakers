@@ -18,7 +18,9 @@ export class GradingNotConfiguredError extends Error {
 
 export async function generateStructuredJSON<T>(req: StructuredRequest): Promise<T> {
   if (!isGradingConfigured) throw new GradingNotConfiguredError();
-  return env.aiProvider === 'anthropic' ? callAnthropic<T>(req) : callOpenAI<T>(req);
+  if (env.aiProvider === 'anthropic') return callAnthropic<T>(req);
+  if (env.aiProvider === 'openai') return callOpenAI<T>(req);
+  return callGroq<T>(req);
 }
 
 async function callAnthropic<T>({ system, user, schema, schemaName }: StructuredRequest): Promise<T> {
@@ -80,5 +82,33 @@ async function callOpenAI<T>({ system, user, schema, schemaName }: StructuredReq
   const data = (await res.json()) as { choices: Array<{ message: { content: string } }> };
   const raw = data.choices[0]?.message?.content;
   if (!raw) throw new Error('OpenAI response did not include structured content.');
+  return JSON.parse(raw) as T;
+}
+
+async function callGroq<T>({ system, user, schemaName }: StructuredRequest): Promise<T> {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${env.groqApiKey}`,
+    },
+    body: JSON.stringify({
+      model: env.groqModel,
+      temperature: GRADING_TEMPERATURE,
+      messages: [
+        { role: 'system', content: `${system}\n\nRespond with valid JSON matching the ${schemaName} structure.` },
+        { role: 'user', content: user },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`Groq grading request failed (${res.status}): ${detail}`);
+  }
+
+  const data = (await res.json()) as { choices: Array<{ message: { content: string } }> };
+  const raw = data.choices[0]?.message?.content;
+  if (!raw) throw new Error('Groq response did not include structured content.');
   return JSON.parse(raw) as T;
 }

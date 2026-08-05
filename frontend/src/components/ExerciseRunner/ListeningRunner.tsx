@@ -7,29 +7,24 @@ import { ACCENTS } from '../../data/accents';
 
 export function ListeningRunner({ exercise, level }: { exercise: ListeningExercise; level: CefrLevel }) {
   const [accent, setAccent] = useState<AccentId>(exercise.defaultAccent);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [audioLoading, setAudioLoading] = useState(false);
-  const [audioError, setAudioError] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ComprehensionEvaluation | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const ttsRef = useRef<ReturnType<typeof synthesizeSpeech> | null>(null);
 
   const allAnswered = answers.every((a) => a.trim().length > 0);
 
-  async function loadAudio() {
-    setAudioLoading(true);
-    setAudioError(null);
-    try {
-      const blob = await synthesizeSpeech({ text: exercise.transcript, accent });
-      const url = URL.createObjectURL(blob);
-      setAudioUrl(url);
-    } catch (e) {
-      setAudioError(e instanceof Error ? e.message : 'Could not generate audio.');
-    } finally {
-      setAudioLoading(false);
+  function playAudio() {
+    ttsRef.current = synthesizeSpeech({ text: exercise.transcript, accent });
+    if (!ttsRef.current.isSupported) {
+      setError('Speech synthesis is not supported in your browser. Please use Chrome, Firefox, Safari, or Edge.');
+      return;
     }
+    setIsPlaying(true);
+    ttsRef.current.play();
+    setTimeout(() => setIsPlaying(false), 2000);
   }
 
   async function submit() {
@@ -49,22 +44,16 @@ export function ListeningRunner({ exercise, level }: { exercise: ListeningExerci
     <div>
       <div className="exercise-block" style={{ borderLeftColor: 'var(--wine)' }}>
         <h4>Audio</h4>
-        <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: audioUrl ? '.9rem' : 0 }}>
-          <select className="accent-select" value={accent} onChange={(e) => { setAccent(e.target.value as AccentId); setAudioUrl(null); }}>
+        <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.9rem' }}>
+          <select className="accent-select" value={accent} onChange={(e) => setAccent(e.target.value as AccentId)}>
             {ACCENTS.map((a) => (
               <option key={a.id} value={a.id}>{a.label}</option>
             ))}
           </select>
-          <button className="btn btn-gold btn-small" onClick={loadAudio} disabled={audioLoading}>
-            {audioLoading ? 'Generating…' : audioUrl ? 'Regenerate audio' : 'Generate audio'}
+          <button className="btn btn-gold btn-small" onClick={playAudio} disabled={isPlaying}>
+            {isPlaying ? 'Playing…' : 'Play audio'}
           </button>
         </div>
-        {audioError && <div className="error-box">{audioError}</div>}
-        {audioUrl && (
-          <audio ref={audioRef} controls style={{ width: '100%' }} src={audioUrl}>
-            Your browser does not support audio playback.
-          </audio>
-        )}
       </div>
 
       {exercise.questions.map((q, i) => (
