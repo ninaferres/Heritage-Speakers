@@ -6,6 +6,8 @@ const STORAGE_KEY = 'hs.language';
 interface LanguageContextValue {
   language: LanguageOption;
   setLanguageCode: (code: string) => void;
+  uiLanguage: 'en' | 'es';
+  learningLanguage: string;
 }
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
@@ -17,15 +19,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   });
 
   const value = useMemo<LanguageContextValue>(
-    () => ({
-      language: getLanguage(code),
-      setLanguageCode: (next: string) => {
-        const opt = getLanguage(next);
-        if (opt.status !== 'active') return; // coming-soon languages can't be selected as the active track yet
-        setCode(opt.code);
-        window.localStorage.setItem(STORAGE_KEY, opt.code);
-      },
-    }),
+    () => {
+      const lang = getLanguage(code);
+      const uiCode = code.split('-')[0];
+      return {
+        language: lang,
+        uiLanguage: (uiCode === 'es' ? 'es' : 'en') as 'en' | 'es',
+        learningLanguage: lang.learningCode,
+        setLanguageCode: (next: string) => {
+          const opt = getLanguage(next);
+          if (opt.status !== 'active') return; // coming-soon languages can't be selected as the active track yet
+          setCode(opt.code);
+          window.localStorage.setItem(STORAGE_KEY, opt.code);
+        },
+      };
+    },
     [code]
   );
 
