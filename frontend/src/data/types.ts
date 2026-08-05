@@ -12,7 +12,12 @@ export interface MultipleChoiceQuestion {
   options: string[];
   answer: string; // matches one of options verbatim
 }
-export type ExerciseQuestion = OpenQuestion | MultipleChoiceQuestion;
+export interface MatchingQuestion {
+  type: 'matching';
+  question: string;
+  pairs: { left: string; right: string }[]; // Shuffled; correct pairing is by index
+}
+export type ExerciseQuestion = OpenQuestion | MultipleChoiceQuestion | MatchingQuestion;
 
 /** Regional Spanish accent used for Listening TTS audio (advanced levels rotate through these). */
 export type AccentId = 'es-ES' | 'es-MX' | 'es-AR' | 'es-CO';
