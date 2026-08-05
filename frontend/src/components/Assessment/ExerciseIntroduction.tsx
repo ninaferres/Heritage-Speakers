@@ -12,7 +12,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
   const [currentSubtitleEn, setCurrentSubtitleEn] = useState('');
   const [progress, setProgress] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
-  const [eyeOpen, setEyeOpen] = useState(true);
+  const [mouthOpen, setMouthOpen] = useState(false);
 
   const synth = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -26,62 +26,44 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     };
   }, []);
 
-  function estimateSubtitleTime(subtitleIndex: number, totalSubtitles: number): number {
-    // Distribute subtitles based on text length for more natural timing
-    if (totalSubtitles <= 1) return 0;
-
-    const totalDuration = totalDurationRef.current || 15;
-    const subtitles = intro.subtitles || [];
-
-    if (subtitles.length === 0) return 0;
-
-    // Calculate cumulative text length to weight timing
-    let cumulativeLength = 0;
-    const lengths: number[] = [];
-
-    subtitles.forEach((sub, idx) => {
-      const textLength = (sub.es + sub.en).length;
-      lengths[idx] = textLength;
-      cumulativeLength += textLength;
-    });
-
-    // Calculate time for this subtitle based on text proportion
-    let timeAccumulated = 0;
-    for (let i = 0; i < subtitleIndex; i++) {
-      timeAccumulated += (lengths[i] / cumulativeLength) * totalDuration;
-    }
-
-    return Math.max(0, Math.min(totalDuration, timeAccumulated));
-  }
-
   function updateSubtitlesBasedOnTime(elapsed: number) {
     if (!intro.subtitles || intro.subtitles.length === 0) return;
 
-    const totalSubs = intro.subtitles.length;
-    const estimatedTotal = totalDurationRef.current || 15;
-
-    // Find current subtitle based on proportional time windows
+    // Use the actual time values from subtitle data
     let currentEs = '';
     let currentEn = '';
+    let foundSubtitle = false;
 
-    for (let i = 0; i < totalSubs; i++) {
-      const startProp = i / totalSubs;
-      const endProp = (i + 1) / totalSubs;
-      const elapsedProp = Math.min(elapsed / estimatedTotal, 1);
+    for (let i = 0; i < intro.subtitles.length; i++) {
+      const subtitle = intro.subtitles[i];
+      const nextSubtitle = intro.subtitles[i + 1];
 
-      if (elapsedProp >= startProp && elapsedProp < endProp) {
-        currentEs = intro.subtitles[i].es;
-        currentEn = intro.subtitles[i].en;
+      // Check if current elapsed time falls within this subtitle's window
+      const nextTime = nextSubtitle ? nextSubtitle.time : totalDurationRef.current + 5;
+
+      if (elapsed >= subtitle.time && elapsed < nextTime) {
+        currentEs = subtitle.es;
+        currentEn = subtitle.en;
+        foundSubtitle = true;
         break;
+      }
+    }
+
+    // If we went past all subtitles, show the last one
+    if (!foundSubtitle && intro.subtitles.length > 0) {
+      const lastIdx = intro.subtitles.length - 1;
+      if (elapsed >= intro.subtitles[lastIdx].time) {
+        currentEs = intro.subtitles[lastIdx].es;
+        currentEn = intro.subtitles[lastIdx].en;
       }
     }
 
     setCurrentSubtitleEs(currentEs);
     setCurrentSubtitleEn(currentEn);
 
-    // Mouth animation: open mouth during speech, close during silence
-    // Cycle through different mouth shapes for naturalistic animation
-    const mouthCycle = (elapsed * 3) % 1; // 3 cycles per second
+    // Mouth animation: open/close in cycles while speaking
+    const mouthCycle = Math.sin(elapsed * 4) > 0.3;
+    setMouthOpen(mouthCycle);
   }
 
   function playIntroduction() {
@@ -95,7 +77,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     utterance.pitch = 1;
     utterance.volume = 1;
 
-    // Estimar duración: promedio 150 palabras por minuto
+    // Estimate duration: 150 words per minute for Spanish
     const wordCount = fullText.split(' ').length;
     const estimatedDuration = (wordCount / 150) * 60;
     totalDurationRef.current = estimatedDuration;
@@ -118,7 +100,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     utterance.onend = () => {
       if (timerRef.current) clearInterval(timerRef.current);
       setIsPlaying(false);
-      setEyeOpen(true);
+      setMouthOpen(false);
     };
 
     synth.current = utterance;
@@ -131,7 +113,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     if (timerRef.current) clearInterval(timerRef.current);
     setCurrentSubtitleEs('');
     setCurrentSubtitleEn('');
-    setEyeOpen(true);
+    setMouthOpen(false);
   }
 
   return (
@@ -139,12 +121,12 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
       <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '1200px', height: '95vh', overflow: 'hidden', background: 'var(--bone)', borderRadius: '16px', boxShadow: '0 20px 60px rgba(107,31,46,.3)' }}>
         <button className="modal-close" aria-label="Close" onClick={onStartExercise} style={{ zIndex: 100 }}>✕</button>
 
-        {/* Main Video Section - Anime Style */}
-        <div style={{ flex: 1, background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+        {/* Main Video Section - Website Color Scheme */}
+        <div style={{ flex: 1, background: 'linear-gradient(135deg, var(--bone) 0%, var(--bone-dim) 50%, rgba(184,147,90,.1) 100%)', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
           {/* Background Effects */}
           {isPlaying && (
             <>
-              <div style={{ position: 'absolute', width: '200%', height: '200%', top: '-50%', left: '-50%', background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(233, 212, 96, 0.03) 10px, rgba(233, 212, 96, 0.03) 20px)', animation: 'scan 8s linear infinite' }} />
+              <div style={{ position: 'absolute', width: '200%', height: '200%', top: '-50%', left: '-50%', background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(184,147,90,.05) 10px, rgba(184,147,90,.05) 20px)', animation: 'scan 8s linear infinite' }} />
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
@@ -152,7 +134,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
                     position: 'absolute',
                     width: `${150 + i * 50}px`,
                     height: `${150 + i * 50}px`,
-                    border: `2px solid rgba(233, 212, 96, ${0.2 - i * 0.06})`,
+                    border: `2px solid rgba(184,147,90, ${0.15 - i * 0.05})`,
                     borderRadius: '50%',
                     animation: `rotate ${10 + i * 2}s linear infinite`,
                     left: '50%',
@@ -164,118 +146,129 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             </>
           )}
 
-          {/* Realistic Character - Attack on Titan Style */}
+          {/* Realistic Attack on Titan Character */}
           <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
-            <svg width="280" height="320" viewBox="0 0 280 320" style={{ filter: isPlaying ? 'drop-shadow(0 0 30px rgba(233, 212, 96, 0.5))' : 'none' }}>
+            <svg width="300" height="360" viewBox="0 0 300 360" style={{ filter: isPlaying ? 'drop-shadow(0 0 25px rgba(184,147,90,.4))' : 'none' }}>
               <defs>
-                <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#f8d7a8" />
-                  <stop offset="100%" stopColor="#e8c795" />
+                <linearGradient id="darkHair" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#1a1410" />
+                  <stop offset="100%" stopColor="#0a0805" />
                 </linearGradient>
-                <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#2a2a2a" />
-                  <stop offset="100%" stopColor="#0d0d0d" />
+                <linearGradient id="skin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#e8d4bf" />
+                  <stop offset="100%" stopColor="#d4b8a0" />
                 </linearGradient>
+                <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3" />
+                </filter>
               </defs>
 
-              {/* Hair - Dark and flowing */}
-              <path d="M 60 45 Q 40 20, 140 15 Q 200 18, 220 55 L 215 90 Q 140 110, 65 90 Z" fill="url(#hairGrad)" stroke="#000" strokeWidth="1.5" />
-              <path d="M 220 55 Q 230 75, 225 100 L 220 95 Q 215 70, 215 55 Z" fill="#1a1a1a" />
+              {/* Dark Hair - Attack on Titan style (dark, slicked back) */}
+              <path d="M 50 60 Q 30 35, 150 25 Q 270 35, 250 80 L 245 120 Q 150 145, 55 120 Z" fill="url(#darkHair)" stroke="#0a0805" strokeWidth="1" filter="url(#shadow)" />
+              {/* Hair detail - bangs */}
+              <path d="M 120 60 Q 130 50, 150 48 Q 170 50, 180 60" fill="#0a0805" opacity="0.6" />
 
               {/* Head - Realistic proportions */}
-              <ellipse cx="140" cy="95" rx="55" ry="62" fill="url(#skinGrad)" stroke="#222" strokeWidth="2" />
+              <ellipse cx="150" cy="115" rx="62" ry="75" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1.5" filter="url(#shadow)" />
 
-              {/* Ear (left) */}
-              <ellipse cx="85" cy="95" rx="8" ry="15" fill="#f0c9a0" stroke="#222" strokeWidth="1" />
+              {/* Ears */}
+              <ellipse cx="88" cy="115" rx="9" ry="18" fill="#dcc0a5" stroke="#3a2f28" strokeWidth="0.5" />
+              <ellipse cx="212" cy="115" rx="9" ry="18" fill="#dcc0a5" stroke="#3a2f28" strokeWidth="0.5" />
 
-              {/* Eyes - Realistic but serious */}
+              {/* Eyes - Intense, serious expression */}
               <g>
                 {/* Left Eye */}
-                <ellipse cx="115" cy="85" rx="12" ry="16" fill="#fff" stroke="#222" strokeWidth="1.5" />
-                <circle cx="115" cy="87" r="8" fill="#4a3520" />
-                <circle cx="116" cy={eyeOpen ? 85 : 84} r="5" fill="#000" />
-                <circle cx="117" cy={eyeOpen ? 83 : 82} r="2.5" fill="#fff" opacity="0.8" />
-                {/* Eye shadow for depth */}
-                <path d="M 105 82 Q 115 80, 125 82" stroke="#d4a373" strokeWidth="0.5" fill="none" opacity="0.5" />
+                <ellipse cx="120" cy="100" rx="14" ry="20" fill="#f5f5f5" stroke="#3a2f28" strokeWidth="1.5" />
+                <circle cx="120" cy="103" r="10" fill="#3a4a4a" />
+                <circle cx="120" cy="103" r="7" fill="#0a0a0a" />
+                <circle cx="122" cy={mouthOpen ? 100 : 99} r="3.5" fill="#fff" opacity="0.9" />
+                {/* Upper eyelid shadow for serious look */}
+                <path d="M 108 95 Q 120 91, 132 95" stroke="#c9a68f" strokeWidth="1.2" fill="none" opacity="0.7" />
+                {/* Lower eyelid definition */}
+                <path d="M 108 115 Q 120 122, 132 115" stroke="#c9a68f" strokeWidth="0.8" fill="none" opacity="0.5" />
 
                 {/* Right Eye */}
-                <ellipse cx="165" cy="85" rx="12" ry="16" fill="#fff" stroke="#222" strokeWidth="1.5" />
-                <circle cx="165" cy="87" r="8" fill="#4a3520" />
-                <circle cx="166" cy={eyeOpen ? 85 : 84} r="5" fill="#000" />
-                <circle cx="167" cy={eyeOpen ? 83 : 82} r="2.5" fill="#fff" opacity="0.8" />
-                {/* Eye shadow for depth */}
-                <path d="M 155 82 Q 165 80, 175 82" stroke="#d4a373" strokeWidth="0.5" fill="none" opacity="0.5" />
+                <ellipse cx="180" cy="100" rx="14" ry="20" fill="#f5f5f5" stroke="#3a2f28" strokeWidth="1.5" />
+                <circle cx="180" cy="103" r="10" fill="#3a4a4a" />
+                <circle cx="180" cy="103" r="7" fill="#0a0a0a" />
+                <circle cx="182" cy={mouthOpen ? 100 : 99} r="3.5" fill="#fff" opacity="0.9" />
+                {/* Upper eyelid shadow */}
+                <path d="M 168 95 Q 180 91, 192 95" stroke="#c9a68f" strokeWidth="1.2" fill="none" opacity="0.7" />
+                {/* Lower eyelid definition */}
+                <path d="M 168 115 Q 180 122, 192 115" stroke="#c9a68f" strokeWidth="0.8" fill="none" opacity="0.5" />
               </g>
 
               {/* Nose - Realistic */}
-              <path d="M 140 90 L 138 115 L 142 115 Z" fill="#f0c9a0" stroke="none" />
-              <line x1="138" y1="115" x2="135" y2="118" stroke="#d9b896" strokeWidth="0.5" opacity="0.6" />
-              <line x1="142" y1="115" x2="145" y2="118" stroke="#d9b896" strokeWidth="0.5" opacity="0.6" />
+              <path d="M 150 105 L 147 145 L 153 145 Z" fill="#dcc0a5" stroke="none" />
+              <line x1="147" y1="145" x2="142" y2="150" stroke="#c9a68f" strokeWidth="0.6" opacity="0.6" />
+              <line x1="153" y1="145" x2="158" y2="150" stroke="#c9a68f" strokeWidth="0.6" opacity="0.6" />
 
-              {/* Mouth - Detailed with lip sync */}
-              {isPlaying ? (
+              {/* Mouth - Determined expression, animates with speech */}
+              {mouthOpen ? (
                 <>
-                  {/* Open mouth for speech */}
-                  <path d="M 125 135 Q 140 148, 155 135" stroke="#8b1a23" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  <path d="M 125 135 Q 140 145, 155 135 L 155 136 Q 140 147, 125 136 Z" fill="#5a0a15" opacity="0.4" />
-                  {/* Tongue hint */}
-                  <ellipse cx="140" cy="144" rx="6" ry="4" fill="#c41e3a" opacity="0.3" />
+                  {/* Open/speaking mouth */}
+                  <path d="M 130 165 Q 150 180, 170 165" stroke="#7a2835" strokeWidth="2" fill="none" strokeLinecap="round" />
+                  <path d="M 130 165 Q 150 175, 170 165 L 170 167 Q 150 177, 130 167 Z" fill="#4a1420" opacity="0.5" />
+                  <ellipse cx="150" cy="172" rx="8" ry="5" fill="#8b4452" opacity="0.4" />
                 </>
               ) : (
                 <>
-                  {/* Closed mouth - resting */}
-                  <path d="M 125 135 L 155 135" stroke="#a5253a" strokeWidth="2" strokeLinecap="round" />
-                  {/* Lips shading */}
-                  <path d="M 125 135 Q 140 138, 155 135" fill="#c9516a" opacity="0.3" />
+                  {/* Closed/neutral mouth - determined expression */}
+                  <path d="M 130 165 L 170 165" stroke="#8b4452" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M 130 165 Q 150 168, 170 165" fill="#b8776b" opacity="0.2" />
                 </>
               )}
 
-              {/* Eyebrows - Serious expression */}
-              <path d="M 100 76 Q 115 71, 130 74" stroke="#1a1a1a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d="M 150 74 Q 165 71, 180 76" stroke="#1a1a1a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              {/* Eyebrows - Strong, serious, determined expression */}
+              <path d="M 105 88 Q 120 82, 135 86" stroke="#0a0805" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d="M 165 86 Q 180 82, 195 88" stroke="#0a0805" strokeWidth="2.5" fill="none" strokeLinecap="round" />
 
-              {/* Face shading for depth */}
-              <path d="M 85 95 Q 80 110, 85 125" stroke="#d9a86e" strokeWidth="1" fill="none" opacity="0.3" />
-              <path d="M 195 95 Q 200 110, 195 125" stroke="#d9a86e" strokeWidth="1" fill="none" opacity="0.3" />
+              {/* Cheekbones - Facial definition */}
+              <path d="M 88 120 Q 85 135, 88 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.3" />
+              <path d="M 212 120 Q 215 135, 212 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.3" />
 
               {/* Neck */}
-              <rect x="125" y="150" width="30" height="20" fill="url(#skinGrad)" stroke="#222" strokeWidth="1.5" />
+              <rect x="135" y="185" width="30" height="25" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1" />
 
-              {/* Shoulders and Uniform - Military Style */}
-              <path d="M 95 170 L 85 250 L 195 250 L 185 170 Z" fill="#1a1a24" stroke="#0a0a0a" strokeWidth="2" />
+              {/* Shoulders and Military Uniform */}
+              <path d="M 100 210 L 85 310 L 215 310 L 200 210 Z" fill="#2a1a14" stroke="#0a0805" strokeWidth="2" />
 
-              {/* Uniform Details - Attack on Titans style */}
-              <rect x="105" y="175" width="70" height="50" fill="none" stroke="#e9d460" strokeWidth="2" rx="6" />
-              <circle cx="140" cy="200" r="4" fill="#e9d460" />
+              {/* Uniform - Attack on Titan Corps emblem area */}
+              <circle cx="150" cy="235" r="25" fill="none" stroke="var(--wine)" strokeWidth="2" />
+              <path d="M 140 235 L 150 225 L 160 235" fill="var(--wine)" opacity="0.3" />
 
-              {/* Shoulder armor */}
-              <ellipse cx="90" cy="175" rx="12" ry="18" fill="#2d2d3a" stroke="#e9d460" strokeWidth="1.5" />
-              <ellipse cx="190" cy="175" rx="12" ry="18" fill="#2d2d3a" stroke="#e9d460" strokeWidth="1.5" />
+              {/* Gold trim on uniform (wing insignia style) */}
+              <ellipse cx="120" cy="240" rx="8" ry="12" fill="none" stroke="var(--gold)" strokeWidth="1.5" transform="rotate(-30 120 240)" />
+              <ellipse cx="180" cy="240" rx="8" ry="12" fill="none" stroke="var(--gold)" strokeWidth="1.5" transform="rotate(30 180 240)" />
 
-              {/* Arms */}
+              {/* Arms - Military uniform sleeves */}
               <g id="leftArm">
-                <path d="M 95 180 Q 60 190, 50 220" stroke="#e8c795" strokeWidth="11" fill="none" strokeLinecap="round" />
-                <circle cx="50" cy="220" r="7" fill="#e8c795" stroke="#222" strokeWidth="1" />
+                <path d="M 100 220 Q 65 235, 50 280" stroke="#3a2417" strokeWidth="13" fill="none" strokeLinecap="round" />
+                <circle cx="50" cy="280" r="8" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1" />
               </g>
               <g id="rightArm">
-                <path d="M 185 180 Q 220 190, 230 220" stroke="#e8c795" strokeWidth="11" fill="none" strokeLinecap="round" />
-                <circle cx="230" cy="220" r="7" fill="#e8c795" stroke="#222" strokeWidth="1" />
+                <path d="M 200 220 Q 235 235, 250 280" stroke="#3a2417" strokeWidth="13" fill="none" strokeLinecap="round" />
+                <circle cx="250" cy="280" r="8" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1" />
               </g>
+
+              {/* Uniform sleeves detail */}
+              <ellipse cx="50" cy="260" rx="7" ry="15" fill="none" stroke="var(--wine)" strokeWidth="0.8" opacity="0.5" />
+              <ellipse cx="250" cy="260" rx="7" ry="15" fill="none" stroke="var(--wine)" strokeWidth="0.8" opacity="0.5" />
             </svg>
           </div>
 
           {/* Title */}
           <h1
             style={{
-              color: '#e9d460',
+              color: 'var(--wine)',
               fontSize: '2.8rem',
               marginBottom: '1rem',
               textAlign: 'center',
               animation: isPlaying ? 'slideDown 0.8s ease-out' : 'none',
               zIndex: 10,
-              textShadow: '3px 3px 6px rgba(0,0,0,.6)',
+              textShadow: '2px 2px 4px rgba(58,15,25,.1)',
               fontWeight: 'bold',
-              letterSpacing: '2px',
+              letterSpacing: '1px',
             }}
           >
             {intro.topic}
@@ -297,26 +290,26 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
           `}</style>
         </div>
 
-        {/* Subtitles - PERFECTLY SYNCED */}
-        <div style={{ background: 'linear-gradient(90deg, rgba(26,26,46,.98) 0%, rgba(22,33,62,.98) 100%)', padding: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', minHeight: '220px', borderTop: '4px solid #e9d460' }}>
+        {/* Subtitles - Synced to actual timeline data */}
+        <div style={{ background: 'linear-gradient(90deg, rgba(107,31,46,.08) 0%, rgba(184,147,90,.05) 100%)', padding: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', minHeight: '200px', borderTop: `4px solid var(--wine)` }}>
           {/* Spanish Subtitles */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '0.95rem', fontWeight: '900', color: '#e9d460', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '2.5px' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--wine)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
               🇪🇸 ESPAÑOL
             </div>
             <div
               style={{
-                color: '#f5d5b0',
-                fontSize: '1.35rem',
-                fontWeight: '700',
-                lineHeight: 2,
-                minHeight: '130px',
-                padding: '1.5rem',
-                background: 'rgba(233, 212, 96, 0.08)',
+                color: 'var(--ink)',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                lineHeight: 1.8,
+                minHeight: '120px',
+                padding: '1.2rem',
+                background: 'rgba(184,147,90,.08)',
                 borderRadius: '8px',
-                border: `3px solid ${currentSubtitleEs ? '#e9d460' : 'rgba(233, 212, 96, 0.2)'}`,
+                border: `3px solid ${currentSubtitleEs ? 'var(--wine)' : 'rgba(107,31,46,.2)'}`,
                 transition: 'all 0.25s ease',
-                animation: currentSubtitleEs && isPlaying ? 'textAppear 0.4s ease' : 'none',
+                animation: currentSubtitleEs && isPlaying ? 'textAppear 0.3s ease' : 'none',
               }}
             >
               {currentSubtitleEs || ' '}
@@ -325,22 +318,22 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
           {/* English Subtitles */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '0.95rem', fontWeight: '900', color: '#e9d460', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '2.5px' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--wine)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
               🇬🇧 ENGLISH
             </div>
             <div
               style={{
-                color: '#f5d5b0',
-                fontSize: '1.35rem',
-                fontWeight: '700',
-                lineHeight: 2,
-                minHeight: '130px',
-                padding: '1.5rem',
-                background: 'rgba(233, 212, 96, 0.08)',
+                color: 'var(--ink)',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                lineHeight: 1.8,
+                minHeight: '120px',
+                padding: '1.2rem',
+                background: 'rgba(184,147,90,.08)',
                 borderRadius: '8px',
-                border: `3px solid ${currentSubtitleEn ? '#e9d460' : 'rgba(233, 212, 96, 0.2)'}`,
+                border: `3px solid ${currentSubtitleEn ? 'var(--wine)' : 'rgba(107,31,46,.2)'}`,
                 transition: 'all 0.25s ease',
-                animation: currentSubtitleEn && isPlaying ? 'textAppear 0.4s ease' : 'none',
+                animation: currentSubtitleEn && isPlaying ? 'textAppear 0.3s ease' : 'none',
               }}
             >
               {currentSubtitleEn || ' '}
@@ -349,7 +342,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
           <style>{`
             @keyframes textAppear {
-              0% { opacity: 0.5; }
+              0% { opacity: 0.6; }
               100% { opacity: 1; }
             }
           `}</style>
@@ -357,46 +350,46 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
         {/* Progress Bar */}
         {isPlaying && (
-          <div style={{ height: '14px', background: 'rgba(26,26,46,.6)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ height: '12px', background: 'rgba(107,31,46,.1)', position: 'relative', overflow: 'hidden' }}>
             <div
               style={{
                 height: '100%',
-                background: 'linear-gradient(90deg, #e9d460 0%, rgba(233, 212, 96, 0.7) 100%)',
+                background: 'linear-gradient(90deg, var(--wine) 0%, var(--gold) 100%)',
                 width: `${totalDuration > 0 ? (progress / totalDuration) * 100 : 0}%`,
                 transition: 'width 0.1s linear',
-                boxShadow: '0 0 20px #e9d460',
+                boxShadow: '0 0 15px rgba(107,31,46,.5)',
               }}
             />
           </div>
         )}
 
         {/* Control Buttons */}
-        <div style={{ padding: '1.8rem', display: 'flex', gap: '1.2rem', background: 'var(--bone)' }}>
+        <div style={{ padding: '1.5rem', display: 'flex', gap: '1rem', background: 'var(--bone)' }}>
           {!isPlaying ? (
             <button
               onClick={playIntroduction}
               style={{
                 flex: 1,
-                padding: '1.3rem',
-                fontSize: '1.15rem',
+                padding: '1.2rem',
+                fontSize: '1.1rem',
                 borderRadius: '8px',
                 border: 'none',
-                background: 'linear-gradient(135deg, #e9d460 0%, #d4af37 100%)',
-                color: '#1a1a1a',
-                fontWeight: '900',
+                background: 'var(--wine)',
+                color: 'var(--bone)',
+                fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 8px 25px rgba(233, 212, 96, 0.5)',
+                boxShadow: '0 6px 20px rgba(107,31,46,.3)',
                 textTransform: 'uppercase',
-                letterSpacing: '1.5px',
+                letterSpacing: '1px',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-5px)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 35px rgba(233, 212, 96, 0.7)';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-3px)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(107,31,46,.5)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(233, 212, 96, 0.5)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(107,31,46,.3)';
               }}
             >
               ▶️ VER VÍDEO
@@ -406,26 +399,26 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
               onClick={stopPlayback}
               style={{
                 flex: 1,
-                padding: '1.3rem',
-                fontSize: '1.15rem',
+                padding: '1.2rem',
+                fontSize: '1.1rem',
                 borderRadius: '8px',
                 border: 'none',
-                background: '#c41e3a',
-                color: 'white',
-                fontWeight: '900',
+                background: 'var(--wine)',
+                color: 'var(--bone)',
+                fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 8px 25px rgba(196, 30, 58, 0.5)',
+                boxShadow: '0 6px 20px rgba(107,31,46,.3)',
                 textTransform: 'uppercase',
-                letterSpacing: '1.5px',
+                letterSpacing: '1px',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-5px)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 35px rgba(196, 30, 58, 0.7)';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-3px)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(107,31,46,.5)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(196, 30, 58, 0.5)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(107,31,46,.3)';
               }}
             >
               ⏹️ DETENER
@@ -436,26 +429,26 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             onClick={onStartExercise}
             style={{
               flex: 1,
-              padding: '1.3rem',
-              fontSize: '1.15rem',
+              padding: '1.2rem',
+              fontSize: '1.1rem',
               borderRadius: '8px',
-              border: '3px solid #1a1a1a',
+              border: `2px solid var(--wine)`,
               background: 'transparent',
-              color: '#1a1a1a',
-              fontWeight: '900',
+              color: 'var(--wine)',
+              fontWeight: '700',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               textTransform: 'uppercase',
-              letterSpacing: '1.5px',
+              letterSpacing: '1px',
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = '#1a1a1a';
-              (e.currentTarget as HTMLButtonElement).style.color = '#e9d460';
-              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-5px)';
+              (e.currentTarget as HTMLButtonElement).style.background = 'var(--wine)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone)';
+              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-3px)';
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = '#1a1a1a';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--wine)';
               (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
             }}
           >
