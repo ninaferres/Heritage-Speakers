@@ -27,41 +27,61 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
   }, []);
 
   function estimateSubtitleTime(subtitleIndex: number, totalSubtitles: number): number {
-    // Distribuir los subtítulos uniformemente a lo largo de la duración total estimada
+    // Distribute subtitles based on text length for more natural timing
     if (totalSubtitles <= 1) return 0;
-    return (subtitleIndex / (totalSubtitles - 1)) * (totalDurationRef.current || 15);
+
+    const totalDuration = totalDurationRef.current || 15;
+    const subtitles = intro.subtitles || [];
+
+    if (subtitles.length === 0) return 0;
+
+    // Calculate cumulative text length to weight timing
+    let cumulativeLength = 0;
+    const lengths: number[] = [];
+
+    subtitles.forEach((sub, idx) => {
+      const textLength = (sub.es + sub.en).length;
+      lengths[idx] = textLength;
+      cumulativeLength += textLength;
+    });
+
+    // Calculate time for this subtitle based on text proportion
+    let timeAccumulated = 0;
+    for (let i = 0; i < subtitleIndex; i++) {
+      timeAccumulated += (lengths[i] / cumulativeLength) * totalDuration;
+    }
+
+    return Math.max(0, Math.min(totalDuration, timeAccumulated));
   }
 
   function updateSubtitlesBasedOnTime(elapsed: number) {
     if (!intro.subtitles || intro.subtitles.length === 0) return;
 
-    let foundEs = '';
-    let foundEn = '';
     const totalSubs = intro.subtitles.length;
+    const estimatedTotal = totalDurationRef.current || 15;
 
-    // Buscar cuál subtítulo debería mostrarse basándose en el tiempo estimado
+    // Find current subtitle based on proportional time windows
+    let currentEs = '';
+    let currentEn = '';
+
     for (let i = 0; i < totalSubs; i++) {
-      const estimatedTime = estimateSubtitleTime(i, totalSubs);
-      const nextEstimatedTime = estimateSubtitleTime(i + 1, totalSubs);
+      const startProp = i / totalSubs;
+      const endProp = (i + 1) / totalSubs;
+      const elapsedProp = Math.min(elapsed / estimatedTotal, 1);
 
-      if (elapsed >= estimatedTime && elapsed < nextEstimatedTime) {
-        foundEs = intro.subtitles[i].es;
-        foundEn = intro.subtitles[i].en;
+      if (elapsedProp >= startProp && elapsedProp < endProp) {
+        currentEs = intro.subtitles[i].es;
+        currentEn = intro.subtitles[i].en;
         break;
       }
     }
 
-    // Si estamos en la última parte, mostrar el último subtítulo
-    if (elapsed >= estimateSubtitleTime(totalSubs - 1, totalSubs)) {
-      foundEs = intro.subtitles[totalSubs - 1].es;
-      foundEn = intro.subtitles[totalSubs - 1].en;
-    }
+    setCurrentSubtitleEs(currentEs);
+    setCurrentSubtitleEn(currentEn);
 
-    setCurrentSubtitleEs(foundEs);
-    setCurrentSubtitleEn(foundEn);
-
-    // Animación de ojos
-    setEyeOpen(Math.sin(elapsed * 2) > 0);
+    // Mouth animation: open mouth during speech, close during silence
+    // Cycle through different mouth shapes for naturalistic animation
+    const mouthCycle = (elapsed * 3) % 1; // 3 cycles per second
   }
 
   function playIntroduction() {
@@ -144,57 +164,102 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             </>
           )}
 
-          {/* Anime Character - Attack on Titan Style */}
+          {/* Realistic Character - Attack on Titan Style */}
           <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
-            <svg width="220" height="280" viewBox="0 0 220 280" style={{ filter: isPlaying ? 'drop-shadow(0 0 20px rgba(233, 212, 96, 0.4))' : 'none' }}>
-              {/* Hair - Long Dark */}
-              <path d="M 60 50 Q 50 30, 110 20 Q 170 30, 160 50 L 165 80 Q 110 100, 55 80 Z" fill="#1a1a1a" stroke="#000" strokeWidth="2" />
+            <svg width="280" height="320" viewBox="0 0 280 320" style={{ filter: isPlaying ? 'drop-shadow(0 0 30px rgba(233, 212, 96, 0.5))' : 'none' }}>
+              <defs>
+                <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#f8d7a8" />
+                  <stop offset="100%" stopColor="#e8c795" />
+                </linearGradient>
+                <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#2a2a2a" />
+                  <stop offset="100%" stopColor="#0d0d0d" />
+                </linearGradient>
+              </defs>
 
-              {/* Head */}
-              <circle cx="110" cy="80" r="45" fill="#f5d5b0" stroke="#000" strokeWidth="2.5" />
+              {/* Hair - Dark and flowing */}
+              <path d="M 60 45 Q 40 20, 140 15 Q 200 18, 220 55 L 215 90 Q 140 110, 65 90 Z" fill="url(#hairGrad)" stroke="#000" strokeWidth="1.5" />
+              <path d="M 220 55 Q 230 75, 225 100 L 220 95 Q 215 70, 215 55 Z" fill="#1a1a1a" />
 
-              {/* Eyes - Anime Style */}
+              {/* Head - Realistic proportions */}
+              <ellipse cx="140" cy="95" rx="55" ry="62" fill="url(#skinGrad)" stroke="#222" strokeWidth="2" />
+
+              {/* Ear (left) */}
+              <ellipse cx="85" cy="95" rx="8" ry="15" fill="#f0c9a0" stroke="#222" strokeWidth="1" />
+
+              {/* Eyes - Realistic but serious */}
               <g>
                 {/* Left Eye */}
-                <ellipse cx="90" cy="70" rx="16" ry="22" fill="#fff" stroke="#000" strokeWidth="2" />
-                <path d="M 85 80 Q 90 95, 95 80 Q 90 75, 85 80" fill="#4a4a4a" stroke="none" />
-                <circle cx="90" cy={eyeOpen ? 75 : 72} r="8" fill="#000" />
-                <circle cx="92" cy={eyeOpen ? 73 : 70} r="3" fill="#fff" />
+                <ellipse cx="115" cy="85" rx="12" ry="16" fill="#fff" stroke="#222" strokeWidth="1.5" />
+                <circle cx="115" cy="87" r="8" fill="#4a3520" />
+                <circle cx="116" cy={eyeOpen ? 85 : 84} r="5" fill="#000" />
+                <circle cx="117" cy={eyeOpen ? 83 : 82} r="2.5" fill="#fff" opacity="0.8" />
+                {/* Eye shadow for depth */}
+                <path d="M 105 82 Q 115 80, 125 82" stroke="#d4a373" strokeWidth="0.5" fill="none" opacity="0.5" />
 
                 {/* Right Eye */}
-                <ellipse cx="130" cy="70" rx="16" ry="22" fill="#fff" stroke="#000" strokeWidth="2" />
-                <path d="M 125 80 Q 130 95, 135 80 Q 130 75, 125 80" fill="#4a4a4a" stroke="none" />
-                <circle cx="130" cy={eyeOpen ? 75 : 72} r="8" fill="#000" />
-                <circle cx="132" cy={eyeOpen ? 73 : 70} r="3" fill="#fff" />
+                <ellipse cx="165" cy="85" rx="12" ry="16" fill="#fff" stroke="#222" strokeWidth="1.5" />
+                <circle cx="165" cy="87" r="8" fill="#4a3520" />
+                <circle cx="166" cy={eyeOpen ? 85 : 84} r="5" fill="#000" />
+                <circle cx="167" cy={eyeOpen ? 83 : 82} r="2.5" fill="#fff" opacity="0.8" />
+                {/* Eye shadow for depth */}
+                <path d="M 155 82 Q 165 80, 175 82" stroke="#d4a373" strokeWidth="0.5" fill="none" opacity="0.5" />
               </g>
 
-              {/* Nose */}
-              <line x1="110" y1="75" x2="110" y2="95" stroke="#000" strokeWidth="1.5" />
+              {/* Nose - Realistic */}
+              <path d="M 140 90 L 138 115 L 142 115 Z" fill="#f0c9a0" stroke="none" />
+              <line x1="138" y1="115" x2="135" y2="118" stroke="#d9b896" strokeWidth="0.5" opacity="0.6" />
+              <line x1="142" y1="115" x2="145" y2="118" stroke="#d9b896" strokeWidth="0.5" opacity="0.6" />
 
-              {/* Mouth */}
-              <path d={isPlaying ? 'M 100 105 Q 110 115, 120 105' : 'M 100 105 L 120 105'} stroke="#c41e3a" strokeWidth="2" fill="none" strokeLinecap="round" />
+              {/* Mouth - Detailed with lip sync */}
+              {isPlaying ? (
+                <>
+                  {/* Open mouth for speech */}
+                  <path d="M 125 135 Q 140 148, 155 135" stroke="#8b1a23" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                  <path d="M 125 135 Q 140 145, 155 135 L 155 136 Q 140 147, 125 136 Z" fill="#5a0a15" opacity="0.4" />
+                  {/* Tongue hint */}
+                  <ellipse cx="140" cy="144" rx="6" ry="4" fill="#c41e3a" opacity="0.3" />
+                </>
+              ) : (
+                <>
+                  {/* Closed mouth - resting */}
+                  <path d="M 125 135 L 155 135" stroke="#a5253a" strokeWidth="2" strokeLinecap="round" />
+                  {/* Lips shading */}
+                  <path d="M 125 135 Q 140 138, 155 135" fill="#c9516a" opacity="0.3" />
+                </>
+              )}
 
-              {/* Eyebrows - Serious */}
-              <line x1="75" y1="60" x2="105" y2="55" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
-              <line x1="115" y1="55" x2="145" y2="60" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+              {/* Eyebrows - Serious expression */}
+              <path d="M 100 76 Q 115 71, 130 74" stroke="#1a1a1a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d="M 150 74 Q 165 71, 180 76" stroke="#1a1a1a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+              {/* Face shading for depth */}
+              <path d="M 85 95 Q 80 110, 85 125" stroke="#d9a86e" strokeWidth="1" fill="none" opacity="0.3" />
+              <path d="M 195 95 Q 200 110, 195 125" stroke="#d9a86e" strokeWidth="1" fill="none" opacity="0.3" />
 
               {/* Neck */}
-              <rect x="100" y="120" width="20" height="15" fill="#f5d5b0" stroke="#000" strokeWidth="1.5" />
+              <rect x="125" y="150" width="30" height="20" fill="url(#skinGrad)" stroke="#222" strokeWidth="1.5" />
 
-              {/* Uniform - Military Style */}
-              <path d="M 70 135 L 65 200 L 155 200 L 150 135 Z" fill="#2d2d44" stroke="#000" strokeWidth="2.5" />
+              {/* Shoulders and Uniform - Military Style */}
+              <path d="M 95 170 L 85 250 L 195 250 L 185 170 Z" fill="#1a1a24" stroke="#0a0a0a" strokeWidth="2" />
 
-              {/* Chest Armor Detail */}
-              <rect x="85" y="140" width="50" height="40" fill="none" stroke="#e9d460" strokeWidth="2" rx="4" />
+              {/* Uniform Details - Attack on Titans style */}
+              <rect x="105" y="175" width="70" height="50" fill="none" stroke="#e9d460" strokeWidth="2" rx="6" />
+              <circle cx="140" cy="200" r="4" fill="#e9d460" />
+
+              {/* Shoulder armor */}
+              <ellipse cx="90" cy="175" rx="12" ry="18" fill="#2d2d3a" stroke="#e9d460" strokeWidth="1.5" />
+              <ellipse cx="190" cy="175" rx="12" ry="18" fill="#2d2d3a" stroke="#e9d460" strokeWidth="1.5" />
 
               {/* Arms */}
               <g id="leftArm">
-                <line x1="70" y1="145" x2="45" y2="160" stroke="#f5d5b0" strokeWidth="8" strokeLinecap="round" />
-                <circle cx="45" cy="160" r="6" fill="#f5d5b0" stroke="#000" strokeWidth="1.5" />
+                <path d="M 95 180 Q 60 190, 50 220" stroke="#e8c795" strokeWidth="11" fill="none" strokeLinecap="round" />
+                <circle cx="50" cy="220" r="7" fill="#e8c795" stroke="#222" strokeWidth="1" />
               </g>
               <g id="rightArm">
-                <line x1="150" y1="145" x2="175" y2="160" stroke="#f5d5b0" strokeWidth="8" strokeLinecap="round" />
-                <circle cx="175" cy="160" r="6" fill="#f5d5b0" stroke="#000" strokeWidth="1.5" />
+                <path d="M 185 180 Q 220 190, 230 220" stroke="#e8c795" strokeWidth="11" fill="none" strokeLinecap="round" />
+                <circle cx="230" cy="220" r="7" fill="#e8c795" stroke="#222" strokeWidth="1" />
               </g>
             </svg>
           </div>
