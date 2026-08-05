@@ -2,11 +2,7 @@ import { LogoMark } from './Logo';
 
 export function Hero() {
   return (
-    <header className="hero" style={{
-      background: 'linear-gradient(135deg, rgba(214, 184, 153, 0.15) 0%, rgba(107, 31, 46, 0.08) 100%)',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <header className="hero">
       {/* Decorative floating elements */}
       <div style={{
         position: 'absolute',
