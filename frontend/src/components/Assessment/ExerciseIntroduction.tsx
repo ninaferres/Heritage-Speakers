@@ -11,12 +11,13 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
   const [currentSubtitleEs, setCurrentSubtitleEs] = useState('');
   const [currentSubtitleEn, setCurrentSubtitleEn] = useState('');
   const [progress, setProgress] = useState(0);
-  const [mouthOpen, setMouthOpen] = useState(false);
-  const [armPosition, setArmPosition] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
+  const [eyeOpen, setEyeOpen] = useState(true);
 
   const synth = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
+  const totalDurationRef = useRef<number>(0);
 
   useEffect(() => {
     return () => {
@@ -25,27 +26,42 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     };
   }, []);
 
-  function updateSubtitlesAndAnimations(elapsed: number) {
+  function estimateSubtitleTime(subtitleIndex: number, totalSubtitles: number): number {
+    // Distribuir los subtítulos uniformemente a lo largo de la duración total estimada
+    if (totalSubtitles <= 1) return 0;
+    return (subtitleIndex / (totalSubtitles - 1)) * (totalDurationRef.current || 15);
+  }
+
+  function updateSubtitlesBasedOnTime(elapsed: number) {
     if (!intro.subtitles || intro.subtitles.length === 0) return;
 
     let foundEs = '';
     let foundEn = '';
+    const totalSubs = intro.subtitles.length;
 
-    // Buscar el subtítulo correcto según el tiempo
-    for (let i = intro.subtitles.length - 1; i >= 0; i--) {
-      if (intro.subtitles[i].time <= elapsed) {
+    // Buscar cuál subtítulo debería mostrarse basándose en el tiempo estimado
+    for (let i = 0; i < totalSubs; i++) {
+      const estimatedTime = estimateSubtitleTime(i, totalSubs);
+      const nextEstimatedTime = estimateSubtitleTime(i + 1, totalSubs);
+
+      if (elapsed >= estimatedTime && elapsed < nextEstimatedTime) {
         foundEs = intro.subtitles[i].es;
         foundEn = intro.subtitles[i].en;
         break;
       }
     }
 
+    // Si estamos en la última parte, mostrar el último subtítulo
+    if (elapsed >= estimateSubtitleTime(totalSubs - 1, totalSubs)) {
+      foundEs = intro.subtitles[totalSubs - 1].es;
+      foundEn = intro.subtitles[totalSubs - 1].en;
+    }
+
     setCurrentSubtitleEs(foundEs);
     setCurrentSubtitleEn(foundEn);
 
-    // Animaciones sincronizadas con el audio
-    setMouthOpen(Math.sin(elapsed * 8) > 0.2);
-    setArmPosition(Math.sin(elapsed * 2) * 15);
+    // Animación de ojos
+    setEyeOpen(Math.sin(elapsed * 2) > 0);
   }
 
   function playIntroduction() {
@@ -59,6 +75,12 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     utterance.pitch = 1;
     utterance.volume = 1;
 
+    // Estimar duración: promedio 150 palabras por minuto
+    const wordCount = fullText.split(' ').length;
+    const estimatedDuration = (wordCount / 150) * 60;
+    totalDurationRef.current = estimatedDuration;
+    setTotalDuration(estimatedDuration);
+
     startTimeRef.current = Date.now();
     setIsPlaying(true);
     setCurrentSubtitleEs('');
@@ -69,15 +91,14 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
       timerRef.current = setInterval(() => {
         const elapsed = (Date.now() - startTimeRef.current) / 1000;
         setProgress(elapsed);
-        updateSubtitlesAndAnimations(elapsed);
-      }, 50); // Actualizar cada 50ms para sincronización perfecta
+        updateSubtitlesBasedOnTime(elapsed);
+      }, 100);
     };
 
     utterance.onend = () => {
       if (timerRef.current) clearInterval(timerRef.current);
       setIsPlaying(false);
-      setMouthOpen(false);
-      setArmPosition(0);
+      setEyeOpen(true);
     };
 
     synth.current = utterance;
@@ -90,276 +111,227 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     if (timerRef.current) clearInterval(timerRef.current);
     setCurrentSubtitleEs('');
     setCurrentSubtitleEn('');
-    setMouthOpen(false);
-    setArmPosition(0);
+    setEyeOpen(true);
   }
 
   return (
     <div className="exercise-overlay">
-      <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '1100px', height: '95vh', overflow: 'hidden', background: 'var(--bone)', borderRadius: '16px', boxShadow: '0 20px 60px rgba(107,31,46,.3)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '1200px', height: '95vh', overflow: 'hidden', background: 'var(--bone)', borderRadius: '16px', boxShadow: '0 20px 60px rgba(107,31,46,.3)' }}>
         <button className="modal-close" aria-label="Close" onClick={onStartExercise} style={{ zIndex: 100 }}>✕</button>
 
-        {/* Main Video Section */}
-        <div style={{ flex: 1, background: 'linear-gradient(135deg, #6b1f2e 0%, #2a1620 50%, #1a0d12 100%)', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Animated Background */}
+        {/* Main Video Section - Anime Style */}
+        <div style={{ flex: 1, background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+          {/* Background Effects */}
           {isPlaying && (
             <>
-              {[...Array(6)].map((_, i) => (
+              <div style={{ position: 'absolute', width: '200%', height: '200%', top: '-50%', left: '-50%', background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(233, 212, 96, 0.03) 10px, rgba(233, 212, 96, 0.03) 20px)', animation: 'scan 8s linear infinite' }} />
+              {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
                   style={{
                     position: 'absolute',
-                    width: `${40 + i * 25}px`,
-                    height: `${40 + i * 25}px`,
-                    background: `radial-gradient(circle, rgba(184,147,90,${0.2 - i * 0.03}) 0%, transparent 70%)`,
+                    width: `${150 + i * 50}px`,
+                    height: `${150 + i * 50}px`,
+                    border: `2px solid rgba(233, 212, 96, ${0.2 - i * 0.06})`,
                     borderRadius: '50%',
-                    animation: `float ${4 + i * 0.5}s ease-in-out infinite`,
-                    left: `${5 + i * 12}%`,
-                    top: `${15 + i * 8}%`,
+                    animation: `rotate ${10 + i * 2}s linear infinite`,
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
                   }}
                 />
               ))}
             </>
           )}
 
-          {/* Animated Person */}
-          <div style={{ position: 'relative', zIndex: 10, marginBottom: '1.5rem', textAlign: 'center', width: '200px', height: '320px' }}>
-            {/* Head */}
-            <div
-              style={{
-                width: '140px',
-                height: '160px',
-                background: 'linear-gradient(135deg, #f5d4a8 0%, #e6b890 100%)',
-                borderRadius: '50% 50% 48% 52% / 44% 44% 56% 56%',
-                margin: '0 auto 1rem',
-                position: 'relative',
-                animation: isPlaying ? 'headBob 0.4s ease-in-out infinite' : 'none',
-                boxShadow: '0 12px 30px rgba(107,31,46,.5)',
-              }}
-            >
-              {/* Hair */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '-15px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '160px',
-                  height: '40px',
-                  background: 'linear-gradient(180deg, #3d2817 0%, #4a3428 100%)',
-                  borderRadius: '50% 50% 0 0',
-                }}
-              />
+          {/* Anime Character - Attack on Titan Style */}
+          <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
+            <svg width="220" height="280" viewBox="0 0 220 280" style={{ filter: isPlaying ? 'drop-shadow(0 0 20px rgba(233, 212, 96, 0.4))' : 'none' }}>
+              {/* Hair - Long Dark */}
+              <path d="M 60 50 Q 50 30, 110 20 Q 170 30, 160 50 L 165 80 Q 110 100, 55 80 Z" fill="#1a1a1a" stroke="#000" strokeWidth="2" />
 
-              {/* Eyes */}
-              <div style={{ position: 'absolute', top: '40%', left: '28%', width: '20px', height: '26px', background: '#fff', borderRadius: '50%', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,.2)' }}>
-                <div style={{ position: 'absolute', width: '12px', height: '12px', background: '#333', borderRadius: '50%', top: isPlaying ? '50%' : '40%', left: '50%', transform: 'translate(-50%, -50%)', animation: isPlaying ? 'pupilMove 3s ease-in-out infinite' : 'none' }} />
-              </div>
-              <div style={{ position: 'absolute', top: '40%', right: '28%', width: '20px', height: '26px', background: '#fff', borderRadius: '50%', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,.2)' }}>
-                <div style={{ position: 'absolute', width: '12px', height: '12px', background: '#333', borderRadius: '50%', top: isPlaying ? '50%' : '40%', left: '50%', transform: 'translate(-50%, -50%)', animation: isPlaying ? 'pupilMove 3s ease-in-out infinite 0.2s' : 'none' }} />
-              </div>
+              {/* Head */}
+              <circle cx="110" cy="80" r="45" fill="#f5d5b0" stroke="#000" strokeWidth="2.5" />
 
-              {/* Mouth */}
-              <div style={{ position: 'absolute', bottom: '20%', left: '50%', transform: 'translateX(-50%)', width: '45px', height: mouthOpen && isPlaying ? '30px' : '12px', background: mouthOpen && isPlaying ? '#d4445e' : '#c41e3a', borderRadius: '0 0 22px 22px', transition: 'all 0.05s ease', boxShadow: mouthOpen && isPlaying ? '0 4px 8px rgba(212,68,94,.4)' : 'none' }} />
+              {/* Eyes - Anime Style */}
+              <g>
+                {/* Left Eye */}
+                <ellipse cx="90" cy="70" rx="16" ry="22" fill="#fff" stroke="#000" strokeWidth="2" />
+                <path d="M 85 80 Q 90 95, 95 80 Q 90 75, 85 80" fill="#4a4a4a" stroke="none" />
+                <circle cx="90" cy={eyeOpen ? 75 : 72} r="8" fill="#000" />
+                <circle cx="92" cy={eyeOpen ? 73 : 70} r="3" fill="#fff" />
+
+                {/* Right Eye */}
+                <ellipse cx="130" cy="70" rx="16" ry="22" fill="#fff" stroke="#000" strokeWidth="2" />
+                <path d="M 125 80 Q 130 95, 135 80 Q 130 75, 125 80" fill="#4a4a4a" stroke="none" />
+                <circle cx="130" cy={eyeOpen ? 75 : 72} r="8" fill="#000" />
+                <circle cx="132" cy={eyeOpen ? 73 : 70} r="3" fill="#fff" />
+              </g>
 
               {/* Nose */}
-              <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translateX(-50%)', width: '10px', height: '12px', background: 'linear-gradient(to right, transparent 0%, #d4a574 50%, transparent 100%)', borderRadius: '50%' }} />
+              <line x1="110" y1="75" x2="110" y2="95" stroke="#000" strokeWidth="1.5" />
 
-              {/* Eyebrows */}
-              <div style={{ position: 'absolute', top: '32%', left: '22%', width: '30px', height: '6px', background: '#3d2817', borderRadius: '3px', transform: 'rotate(-15deg)' }} />
-              <div style={{ position: 'absolute', top: '32%', right: '22%', width: '30px', height: '6px', background: '#3d2817', borderRadius: '3px', transform: 'rotate(15deg)' }} />
-            </div>
+              {/* Mouth */}
+              <path d={isPlaying ? 'M 100 105 Q 110 115, 120 105' : 'M 100 105 L 120 105'} stroke="#c41e3a" strokeWidth="2" fill="none" strokeLinecap="round" />
 
-            {/* Neck */}
-            <div style={{ width: '50px', height: '25px', background: 'linear-gradient(180deg, #f5d4a8 0%, #e6b890 100%)', margin: '0 auto', position: 'relative' }} />
+              {/* Eyebrows - Serious */}
+              <line x1="75" y1="60" x2="105" y2="55" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="115" y1="55" x2="145" y2="60" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
 
-            {/* Body */}
-            <div
-              style={{
-                width: '90px',
-                height: '100px',
-                background: 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)',
-                margin: '0 auto',
-                borderRadius: '20px 20px 0 0',
-                position: 'relative',
-                boxShadow: '0 8px 20px rgba(74,144,226,.3)',
-              }}
-            >
-              {/* Left Arm */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '-50px',
-                  top: '15px',
-                  width: '50px',
-                  height: '20px',
-                  background: 'linear-gradient(90deg, #f5d4a8 0%, #e6b890 100%)',
-                  borderRadius: '10px',
-                  transform: `rotate(${armPosition}deg)`,
-                  transformOrigin: 'right center',
-                  transition: 'transform 0.05s ease',
-                  boxShadow: '0 4px 8px rgba(0,0,0,.2)',
-                }}
-              />
+              {/* Neck */}
+              <rect x="100" y="120" width="20" height="15" fill="#f5d5b0" stroke="#000" strokeWidth="1.5" />
 
-              {/* Right Arm */}
-              <div
-                style={{
-                  position: 'absolute',
-                  right: '-50px',
-                  top: '15px',
-                  width: '50px',
-                  height: '20px',
-                  background: 'linear-gradient(90deg, #f5d4a8 0%, #e6b890 100%)',
-                  borderRadius: '10px',
-                  transform: `rotate(${-armPosition}deg)`,
-                  transformOrigin: 'left center',
-                  transition: 'transform 0.05s ease',
-                  boxShadow: '0 4px 8px rgba(0,0,0,.2)',
-                }}
-              />
-            </div>
+              {/* Uniform - Military Style */}
+              <path d="M 70 135 L 65 200 L 155 200 L 150 135 Z" fill="#2d2d44" stroke="#000" strokeWidth="2.5" />
+
+              {/* Chest Armor Detail */}
+              <rect x="85" y="140" width="50" height="40" fill="none" stroke="#e9d460" strokeWidth="2" rx="4" />
+
+              {/* Arms */}
+              <g id="leftArm">
+                <line x1="70" y1="145" x2="45" y2="160" stroke="#f5d5b0" strokeWidth="8" strokeLinecap="round" />
+                <circle cx="45" cy="160" r="6" fill="#f5d5b0" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g id="rightArm">
+                <line x1="150" y1="145" x2="175" y2="160" stroke="#f5d5b0" strokeWidth="8" strokeLinecap="round" />
+                <circle cx="175" cy="160" r="6" fill="#f5d5b0" stroke="#000" strokeWidth="1.5" />
+              </g>
+            </svg>
           </div>
 
           {/* Title */}
           <h1
             style={{
-              color: 'var(--bone)',
-              fontSize: '2.5rem',
-              marginBottom: '1.5rem',
+              color: '#e9d460',
+              fontSize: '2.8rem',
+              marginBottom: '1rem',
               textAlign: 'center',
               animation: isPlaying ? 'slideDown 0.8s ease-out' : 'none',
               zIndex: 10,
-              textShadow: '2px 2px 4px rgba(26,13,18,.5)',
+              textShadow: '3px 3px 6px rgba(0,0,0,.6)',
               fontWeight: 'bold',
+              letterSpacing: '2px',
             }}
           >
             {intro.topic}
           </h1>
 
-          {/* Styles */}
           <style>{`
-            @keyframes headBob {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-12px); }
+            @keyframes scan {
+              0% { transform: translateY(-100%); }
+              100% { transform: translateY(100%); }
             }
-            @keyframes pupilMove {
-              0%, 100% { top: 40%; left: 50%; }
-              25% { top: 35%; left: 45%; }
-              50% { top: 50%; left: 50%; }
-              75% { top: 45%; left: 55%; }
+            @keyframes rotate {
+              0% { transform: translate(-50%, -50%) rotate(0deg); }
+              100% { transform: translate(-50%, -50%) rotate(360deg); }
             }
             @keyframes slideDown {
               from { transform: translateY(-40px); opacity: 0; }
               to { transform: translateY(0); opacity: 1; }
             }
-            @keyframes float {
-              0%, 100% { transform: translateY(0px) translateX(0px); }
-              50% { transform: translateY(-40px) translateX(30px); }
-            }
           `}</style>
         </div>
 
-        {/* Subtitles - Perfectly Synced */}
-        <div style={{ background: 'linear-gradient(90deg, rgba(107,31,46,.95) 0%, rgba(107,31,46,.9) 100%)', padding: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', minHeight: '200px', borderTop: '3px solid var(--gold)' }}>
-          {/* Spanish */}
+        {/* Subtitles - PERFECTLY SYNCED */}
+        <div style={{ background: 'linear-gradient(90deg, rgba(26,26,46,.98) 0%, rgba(22,33,62,.98) 100%)', padding: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', minHeight: '220px', borderTop: '4px solid #e9d460' }}>
+          {/* Spanish Subtitles */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--gold)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '2px' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: '900', color: '#e9d460', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '2.5px' }}>
               🇪🇸 ESPAÑOL
             </div>
             <div
               style={{
-                color: 'var(--bone)',
-                fontSize: '1.3rem',
-                fontWeight: '600',
-                lineHeight: 1.9,
-                minHeight: '110px',
-                padding: '1.2rem',
-                background: 'rgba(250,247,243,.12)',
-                borderRadius: '10px',
-                border: `3px solid ${currentSubtitleEs ? 'var(--gold)' : 'rgba(184,147,90,.3)'}`,
-                transition: 'all 0.2s ease',
-                animation: currentSubtitleEs && isPlaying ? 'subtitleChange 0.3s ease' : 'none',
+                color: '#f5d5b0',
+                fontSize: '1.35rem',
+                fontWeight: '700',
+                lineHeight: 2,
+                minHeight: '130px',
+                padding: '1.5rem',
+                background: 'rgba(233, 212, 96, 0.08)',
+                borderRadius: '8px',
+                border: `3px solid ${currentSubtitleEs ? '#e9d460' : 'rgba(233, 212, 96, 0.2)'}`,
+                transition: 'all 0.25s ease',
+                animation: currentSubtitleEs && isPlaying ? 'textAppear 0.4s ease' : 'none',
               }}
             >
-              {currentSubtitleEs && isPlaying ? currentSubtitleEs : '—'}
+              {currentSubtitleEs || ' '}
             </div>
           </div>
 
-          {/* English */}
+          {/* English Subtitles */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--gold)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '2px' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: '900', color: '#e9d460', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '2.5px' }}>
               🇬🇧 ENGLISH
             </div>
             <div
               style={{
-                color: 'var(--bone)',
-                fontSize: '1.3rem',
-                fontWeight: '600',
-                lineHeight: 1.9,
-                minHeight: '110px',
-                padding: '1.2rem',
-                background: 'rgba(250,247,243,.12)',
-                borderRadius: '10px',
-                border: `3px solid ${currentSubtitleEn ? 'var(--gold)' : 'rgba(184,147,90,.3)'}`,
-                transition: 'all 0.2s ease',
-                animation: currentSubtitleEn && isPlaying ? 'subtitleChange 0.3s ease' : 'none',
+                color: '#f5d5b0',
+                fontSize: '1.35rem',
+                fontWeight: '700',
+                lineHeight: 2,
+                minHeight: '130px',
+                padding: '1.5rem',
+                background: 'rgba(233, 212, 96, 0.08)',
+                borderRadius: '8px',
+                border: `3px solid ${currentSubtitleEn ? '#e9d460' : 'rgba(233, 212, 96, 0.2)'}`,
+                transition: 'all 0.25s ease',
+                animation: currentSubtitleEn && isPlaying ? 'textAppear 0.4s ease' : 'none',
               }}
             >
-              {currentSubtitleEn && isPlaying ? currentSubtitleEn : '—'}
+              {currentSubtitleEn || ' '}
             </div>
           </div>
 
           <style>{`
-            @keyframes subtitleChange {
-              0% { opacity: 0.6; transform: scale(0.98); }
-              100% { opacity: 1; transform: scale(1); }
+            @keyframes textAppear {
+              0% { opacity: 0.5; }
+              100% { opacity: 1; }
             }
           `}</style>
         </div>
 
         {/* Progress Bar */}
         {isPlaying && (
-          <div style={{ height: '12px', background: 'rgba(107,31,46,.3)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ height: '14px', background: 'rgba(26,26,46,.6)', position: 'relative', overflow: 'hidden' }}>
             <div
               style={{
                 height: '100%',
-                background: 'linear-gradient(90deg, var(--gold) 0%, rgba(184,147,90,.8) 100%)',
-                width: `${progress * 3}%`,
-                transition: 'width 0.05s linear',
-                boxShadow: '0 0 15px var(--gold)',
+                background: 'linear-gradient(90deg, #e9d460 0%, rgba(233, 212, 96, 0.7) 100%)',
+                width: `${totalDuration > 0 ? (progress / totalDuration) * 100 : 0}%`,
+                transition: 'width 0.1s linear',
+                boxShadow: '0 0 20px #e9d460',
               }}
             />
           </div>
         )}
 
         {/* Control Buttons */}
-        <div style={{ padding: '1.5rem', display: 'flex', gap: '1rem', background: 'var(--bone)' }}>
+        <div style={{ padding: '1.8rem', display: 'flex', gap: '1.2rem', background: 'var(--bone)' }}>
           {!isPlaying ? (
             <button
               onClick={playIntroduction}
               style={{
                 flex: 1,
-                padding: '1.2rem',
-                fontSize: '1.1rem',
-                borderRadius: '10px',
+                padding: '1.3rem',
+                fontSize: '1.15rem',
+                borderRadius: '8px',
                 border: 'none',
-                background: 'linear-gradient(135deg, #d4935f 0%, #b8932a 100%)',
-                color: '#1a0d12',
-                fontWeight: '800',
+                background: 'linear-gradient(135deg, #e9d460 0%, #d4af37 100%)',
+                color: '#1a1a1a',
+                fontWeight: '900',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 6px 20px rgba(184,147,90,.4)',
+                boxShadow: '0 8px 25px rgba(233, 212, 96, 0.5)',
                 textTransform: 'uppercase',
-                letterSpacing: '1px',
+                letterSpacing: '1.5px',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(184,147,90,.6)';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-5px)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 35px rgba(233, 212, 96, 0.7)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(184,147,90,.4)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(233, 212, 96, 0.5)';
               }}
             >
               ▶️ VER VÍDEO
@@ -369,26 +341,26 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
               onClick={stopPlayback}
               style={{
                 flex: 1,
-                padding: '1.2rem',
-                fontSize: '1.1rem',
-                borderRadius: '10px',
+                padding: '1.3rem',
+                fontSize: '1.15rem',
+                borderRadius: '8px',
                 border: 'none',
-                background: '#d4445e',
+                background: '#c41e3a',
                 color: 'white',
-                fontWeight: '800',
+                fontWeight: '900',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 6px 20px rgba(212,68,94,.4)',
+                boxShadow: '0 8px 25px rgba(196, 30, 58, 0.5)',
                 textTransform: 'uppercase',
-                letterSpacing: '1px',
+                letterSpacing: '1.5px',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(212,68,94,.6)';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-5px)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 35px rgba(196, 30, 58, 0.7)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(212,68,94,.4)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(196, 30, 58, 0.5)';
               }}
             >
               ⏹️ DETENER
@@ -399,26 +371,26 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             onClick={onStartExercise}
             style={{
               flex: 1,
-              padding: '1.2rem',
-              fontSize: '1.1rem',
-              borderRadius: '10px',
-              border: '2px solid #6b1f2e',
+              padding: '1.3rem',
+              fontSize: '1.15rem',
+              borderRadius: '8px',
+              border: '3px solid #1a1a1a',
               background: 'transparent',
-              color: '#6b1f2e',
-              fontWeight: '800',
+              color: '#1a1a1a',
+              fontWeight: '900',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               textTransform: 'uppercase',
-              letterSpacing: '1px',
+              letterSpacing: '1.5px',
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = '#6b1f2e';
-              (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone)';
-              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)';
+              (e.currentTarget as HTMLButtonElement).style.background = '#1a1a1a';
+              (e.currentTarget as HTMLButtonElement).style.color = '#e9d460';
+              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-5px)';
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = '#6b1f2e';
+              (e.currentTarget as HTMLButtonElement).style.color = '#1a1a1a';
               (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
             }}
           >
