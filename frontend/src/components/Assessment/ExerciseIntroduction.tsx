@@ -8,8 +8,11 @@ interface Props {
 
 export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentSubtitleIndex, setCurrentSubtitleIndex] = useState(0);
+  const [currentSubtitleEs, setCurrentSubtitleEs] = useState('');
+  const [currentSubtitleEn, setCurrentSubtitleEn] = useState('');
+  const [displayedText, setDisplayedText] = useState('');
   const [progress, setProgress] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
 
   const synth = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -22,6 +25,25 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     };
   }, []);
 
+  function updateSubtitles(elapsed: number) {
+    let foundEs = '';
+    let foundEn = '';
+
+    for (let i = 0; i < intro.subtitles.length; i++) {
+      const current = intro.subtitles[i];
+      const next = intro.subtitles[i + 1];
+
+      if (current.time <= elapsed && (!next || elapsed < next.time)) {
+        foundEs = current.es;
+        foundEn = current.en;
+        break;
+      }
+    }
+
+    setCurrentSubtitleEs(foundEs);
+    setCurrentSubtitleEn(foundEn);
+  }
+
   function playIntroduction() {
     window.speechSynthesis.cancel();
     if (timerRef.current) clearInterval(timerRef.current);
@@ -29,34 +51,34 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     const fullText = `${intro.explanationEs} ${intro.example || ''}`;
     const utterance = new SpeechSynthesisUtterance(fullText);
     utterance.lang = 'es-ES';
-    utterance.rate = 0.85;
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
 
     startTimeRef.current = Date.now();
     setIsPlaying(true);
-    setCurrentSubtitleIndex(0);
+    setCurrentSubtitleEs('');
+    setCurrentSubtitleEn('');
     setProgress(0);
+    setDisplayedText(intro.topic);
 
     utterance.onstart = () => {
       timerRef.current = setInterval(() => {
         const elapsed = (Date.now() - startTimeRef.current) / 1000;
         setProgress(elapsed);
+        updateSubtitles(elapsed);
 
-        let subtitleIdx = 0;
-        for (let i = intro.subtitles.length - 1; i >= 0; i--) {
-          if (intro.subtitles[i].time <= elapsed) {
-            subtitleIdx = i;
-            break;
-          }
-        }
-        setCurrentSubtitleIndex(subtitleIdx);
-      }, 100);
+        const visibleText = Math.floor(elapsed / 0.05);
+        const chars = fullText.split('');
+        setDisplayedText(chars.slice(0, visibleText).join(''));
+      }, 50);
     };
 
     utterance.onend = () => {
-      setIsPlaying(false);
       if (timerRef.current) clearInterval(timerRef.current);
-      setCurrentSubtitleIndex(0);
-      setProgress(0);
+      setIsPlaying(false);
+      setDisplayedText(fullText);
+      setProgress((Date.now() - startTimeRef.current) / 1000);
     };
 
     synth.current = utterance;
@@ -67,99 +89,173 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     window.speechSynthesis.cancel();
     setIsPlaying(false);
     if (timerRef.current) clearInterval(timerRef.current);
+    setCurrentSubtitleEs('');
+    setCurrentSubtitleEn('');
+    setDisplayedText('');
   }
-
-  const currentSubtitle = intro.subtitles[currentSubtitleIndex];
 
   return (
     <div className="exercise-overlay">
-      <div className="exercise-card" style={{ display: 'flex', flexDirection: 'column', maxWidth: '800px' }}>
+      <div className="exercise-card" style={{ display: 'flex', flexDirection: 'column', maxWidth: '900px', height: '90vh', overflow: 'hidden' }}>
         <button className="modal-close" aria-label="Close" onClick={onStartExercise}>✕</button>
 
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{intro.icon}</div>
-          <h2 style={{ color: 'var(--wine-ink)', marginBottom: '0.5rem', fontSize: '1.8rem' }}>
-            {intro.topic}
-          </h2>
-          <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>Introducción al ejercicio</p>
-        </div>
-
+        {/* Video Area */}
         <div
           style={{
             flex: 1,
-            padding: '2rem',
-            backgroundColor: 'rgba(107,31,46,.05)',
+            background: 'linear-gradient(135deg, rgba(107,31,46,.1) 0%, rgba(184,147,90,.05) 100%)',
             borderRadius: '12px',
-            marginBottom: '2rem',
+            marginBottom: '1.5rem',
+            padding: '3rem 2rem',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden',
+            minHeight: '400px',
           }}
         >
-          <div>
-            <p style={{ color: 'var(--charcoal)', lineHeight: 1.8, marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-              {intro.explanationEs}
-            </p>
-
-            {intro.example && (
-              <div
-                style={{
-                  padding: '1rem',
-                  backgroundColor: 'rgba(184,147,90,.1)',
-                  borderLeft: '4px solid var(--gold)',
-                  borderRadius: '4px',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                <p style={{ color: 'var(--wine-ink)', fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                  Ejemplo:
-                </p>
-                <p style={{ color: 'var(--charcoal)', fontStyle: 'italic', margin: 0, fontSize: '0.9rem' }}>
-                  {intro.example}
-                </p>
-              </div>
-            )}
-          </div>
-
+          {/* Animated Icon */}
           <div
             style={{
-              minHeight: '120px',
-              padding: '1.5rem',
-              backgroundColor: 'var(--bone)',
-              borderRadius: '8px',
-              borderLeft: '4px solid var(--gold)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
+              fontSize: '5rem',
+              marginBottom: '2rem',
+              animation: isPlaying ? 'pulse 2s ease-in-out infinite' : 'none',
+              textShadow: '0 4px 8px rgba(107,31,46,.2)',
             }}
           >
-            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--wine-ink)', marginBottom: '1rem', textTransform: 'uppercase' }}>
-              📝 Subtítulos
-            </div>
-            {isPlaying ? (
-              currentSubtitle ? (
-                <div>
-                  <p style={{ color: 'var(--wine-ink)', margin: '0.5rem 0', fontSize: '1.1rem', fontWeight: '600', lineHeight: 1.4 }}>
-                    {currentSubtitle.es}
-                  </p>
-                  <p style={{ color: 'var(--muted)', margin: '0.5rem 0', fontSize: '1rem', fontStyle: 'italic', lineHeight: 1.4 }}>
-                    {currentSubtitle.en}
-                  </p>
-                </div>
-              ) : (
-                <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>
-                  Cargando...
-                </p>
-              )
-            ) : (
-              <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem', textAlign: 'center', padding: '1rem 0' }}>
-                Presiona "Escuchar Explicación" para ver los subtítulos en español e inglés sincronizados
-              </p>
-            )}
+            {intro.icon}
           </div>
+
+          {/* Title */}
+          <h1
+            style={{
+              color: 'var(--wine-ink)',
+              fontSize: '2rem',
+              marginBottom: '2rem',
+              textAlign: 'center',
+              opacity: isPlaying ? 0.8 : 1,
+            }}
+          >
+            {intro.topic}
+          </h1>
+
+          {/* Main Content - Animated Text */}
+          {isPlaying && (
+            <div
+              style={{
+                color: 'var(--charcoal)',
+                fontSize: '1.1rem',
+                lineHeight: 1.8,
+                textAlign: 'center',
+                maxWidth: '100%',
+                minHeight: '60px',
+                animation: 'fadeIn 0.3s ease-in',
+              }}
+            >
+              {displayedText}
+            </div>
+          )}
+
+          {!isPlaying && displayedText === '' && (
+            <p style={{ color: 'var(--muted)', fontSize: '1rem', textAlign: 'center' }}>
+              Presiona el botón de abajo para comenzar la introducción
+            </p>
+          )}
+
+          <style>{`
+            @keyframes pulse {
+              0%, 100% { transform: scale(1); }
+              50% { transform: scale(1.1); }
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+          `}</style>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+        {/* Subtitles Section */}
+        <div
+          style={{
+            background: 'var(--bone)',
+            padding: '1.5rem',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            borderLeft: '4px solid var(--gold)',
+            minHeight: '100px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--wine-ink)', marginBottom: '1rem', textTransform: 'uppercase' }}>
+            📝 Subtítulos
+          </div>
+
+          {isPlaying && (currentSubtitleEs || currentSubtitleEn) ? (
+            <div>
+              <p
+                style={{
+                  color: 'var(--wine-ink)',
+                  fontSize: '1.15rem',
+                  fontWeight: '600',
+                  margin: '0.5rem 0',
+                  lineHeight: 1.5,
+                  minHeight: '40px',
+                }}
+              >
+                {currentSubtitleEs}
+              </p>
+              <p
+                style={{
+                  color: 'var(--muted)',
+                  fontSize: '1rem',
+                  fontStyle: 'italic',
+                  margin: '0.5rem 0',
+                  lineHeight: 1.5,
+                  minHeight: '35px',
+                }}
+              >
+                {currentSubtitleEn}
+              </p>
+            </div>
+          ) : isPlaying ? (
+            <p style={{ color: 'var(--muted)', fontSize: '0.95rem', margin: 0 }}>
+              Escuchando... los subtítulos aparecerán en breve
+            </p>
+          ) : (
+            <p style={{ color: 'var(--muted)', fontSize: '0.95rem', margin: 0, textAlign: 'center' }}>
+              Presiona "Ver Vídeo" para ver la introducción con subtítulos sincronizados en español e inglés
+            </p>
+          )}
+        </div>
+
+        {/* Progress Bar */}
+        {isPlaying && (
+          <div style={{ marginBottom: '1rem' }}>
+            <div
+              style={{
+                height: '6px',
+                backgroundColor: 'var(--line)',
+                borderRadius: '3px',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  backgroundColor: 'var(--gold)',
+                  width: `${(progress / (totalDuration || progress + 5)) * 100}%`,
+                  transition: 'width 0.1s linear',
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Control Buttons */}
+        <div style={{ display: 'flex', gap: '1rem' }}>
           {!isPlaying ? (
             <button
               onClick={playIntroduction}
@@ -182,7 +278,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
                 (e.currentTarget as HTMLButtonElement).style.background = 'var(--wine)';
               }}
             >
-              🔊 Escuchar Explicación
+              ▶️ Ver Vídeo
             </button>
           ) : (
             <button
@@ -197,13 +293,6 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
                 color: 'white',
                 fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'all .2s ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = '#b71c1c';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = '#d32f2f';
               }}
             >
               ⏹️ Detener
@@ -234,28 +323,6 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             Empezar Ejercicio →
           </button>
         </div>
-
-        {isPlaying && (
-          <div style={{ marginBottom: '1rem' }}>
-            <div
-              style={{
-                height: '4px',
-                backgroundColor: 'var(--line)',
-                borderRadius: '2px',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  height: '100%',
-                  backgroundColor: 'var(--gold)',
-                  width: `${progress * 10}%`,
-                  transition: 'width .1s linear',
-                }}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
