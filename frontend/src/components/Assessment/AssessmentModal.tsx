@@ -52,14 +52,18 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   }
 
   function shouldShowIntro(): boolean {
-    if (!currentQuestion || !selectedSkill || stage !== 'test') return false;
-    const introKey = `${selectedSkill}-${currentQuestion.level}`;
+    if (!currentQuestion || stage !== 'test') return false;
+    // Only show intros for assessment question types that have intros defined
+    if (currentQuestion.type !== 'speaking-assessment' && currentQuestion.type !== 'listening-assessment') {
+      return false;
+    }
+    const introKey = `${currentQuestion.type}-${currentQuestion.level}`;
     return !shownIntroTypes.has(introKey);
   }
 
   function handleIntroComplete() {
-    if (!currentQuestion || !selectedSkill) return;
-    const introKey = `${selectedSkill}-${currentQuestion.level}`;
+    if (!currentQuestion) return;
+    const introKey = `${currentQuestion.type}-${currentQuestion.level}`;
     setShownIntroTypes((prev) => new Set([...prev, introKey]));
   }
 
@@ -234,9 +238,9 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   }
 
   if (shouldShowIntro()) {
-    const skillKey = selectedSkill.toLowerCase() as keyof typeof exerciseIntros;
+    const introType = currentQuestion.type as keyof typeof exerciseIntros;
     const introLevel = currentQuestion.level;
-    const intro = exerciseIntros[skillKey]?.[introLevel];
+    const intro = exerciseIntros[introType]?.[introLevel];
 
     if (intro) {
       return (
