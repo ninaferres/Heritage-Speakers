@@ -1,6 +1,6 @@
 import { LogoMark } from './Logo';
 
-export function Hero() {
+export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
   return (
     <header className="hero">
       <div className="wrap hero-inner">
@@ -17,7 +17,13 @@ export function Hero() {
         </p>
         <div className="cta-row">
           <a href="#levels" className="btn btn-gold">Start now</a>
-          <a href="#how" className="btn btn-outline">See how it works</a>
+          <button
+            onClick={onOpenAssessment}
+            className="btn btn-outline"
+            style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}
+          >
+            Determine your level
+          </button>
         </div>
       </div>
     </header>
