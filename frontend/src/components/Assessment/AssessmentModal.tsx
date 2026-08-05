@@ -23,7 +23,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   const [detectedLevel, setDetectedLevel] = useState<CefrLevel | null>(null);
   const [shownIntroTypes, setShownIntroTypes] = useState<Set<string>>(new Set());
 
-  const getQuestionsFunc = learningLanguage === 'ru' ? getAssessmentQuestionsRu : getAssessmentQuestions;
+  const getQuestionsFunc = !learningLanguage ? () => [] : (learningLanguage === 'ru' ? getAssessmentQuestionsRu : getAssessmentQuestions);
 
   const questions = selectedSkill ? LEVELS.flatMap((level, levelIdx) => {
     const qs = getQuestionsFunc(selectedSkill, level);
@@ -250,7 +250,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
 
     if (learningLanguage === 'ru') {
       intro = getExerciseIntroRu(introType, introLevel);
-    } else {
+    } else if (learningLanguage === 'es') {
       const introKey = introType as keyof typeof exerciseIntros;
       intro = exerciseIntros[introKey]?.[introLevel];
     }

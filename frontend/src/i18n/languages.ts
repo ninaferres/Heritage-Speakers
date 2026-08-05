@@ -1,59 +1,82 @@
 /**
- * Paired language tracks: UI language + Learning language
- * When user selects "Español" interface → learns Russian
- * When user selects "English" interface → learns Spanish
+ * UI Language: controls interface language (English or Español)
+ * Learning Language: what you want to learn (depends on UI language)
+ *
+ * UI = English → Learn Spanish
+ * UI = Español → Learn Russian
  */
+export type UILanguageCode = 'en' | 'es';
+export type LearningLanguageCode = 'es' | 'ru' | 'zh';
 export type LanguageStatus = 'active' | 'coming-soon';
 
-export interface LanguageOption {
-  code: string;                    // Unique code for this pair
-  uiLabel: string;                 // UI language display name (in English)
-  uiNativeLabel: string;           // UI language display name (native)
-  learningCode: string;            // Learning language code
-  learningLabel: string;           // Learning language name
-  learningNativeLabel: string;     // Learning language name (native)
+export interface UILanguage {
+  code: UILanguageCode;
+  label: string;
+  nativeLabel: string;
+}
+
+export interface LearningLanguage {
+  code: LearningLanguageCode;
+  label: string;
+  nativeLabel: string;
   status: LanguageStatus;
 }
 
-export const LANGUAGES: LanguageOption[] = [
+export const UI_LANGUAGES: UILanguage[] = [
   {
-    code: 'en-es',
-    uiLabel: 'English',
-    uiNativeLabel: 'English',
-    learningCode: 'es',
-    learningLabel: 'Spanish',
-    learningNativeLabel: 'Español',
-    status: 'active',
+    code: 'en',
+    label: 'English',
+    nativeLabel: 'English',
   },
   {
-    code: 'es-ru',
-    uiLabel: 'Spanish',
-    uiNativeLabel: 'Español',
-    learningCode: 'ru',
-    learningLabel: 'Russian',
-    learningNativeLabel: 'Русский',
-    status: 'active',
-  },
-  {
-    code: 'en-zh',
-    uiLabel: 'English',
-    uiNativeLabel: 'English',
-    learningCode: 'zh',
-    learningLabel: 'Chinese (Mandarin)',
-    learningNativeLabel: '中文 (普通话)',
-    status: 'coming-soon',
+    code: 'es',
+    label: 'Spanish',
+    nativeLabel: 'Español',
   },
 ];
 
-export const DEFAULT_LANGUAGE_CODE = 'en-es'; // Default: English UI, learn Spanish
+// Available learning languages for each UI language
+export const LEARNING_LANGUAGES_BY_UI: Record<UILanguageCode, LearningLanguage[]> = {
+  'en': [
+    {
+      code: 'es',
+      label: 'Spanish',
+      nativeLabel: 'Español',
+      status: 'active',
+    },
+    {
+      code: 'zh',
+      label: 'Chinese (Mandarin)',
+      nativeLabel: '中文 (普通话)',
+      status: 'coming-soon',
+    },
+  ],
+  'es': [
+    {
+      code: 'ru',
+      label: 'Russian',
+      nativeLabel: 'Русский',
+      status: 'active',
+    },
+    {
+      code: 'zh',
+      label: 'Chinese (Mandarin)',
+      nativeLabel: '中文 (普通话)',
+      status: 'coming-soon',
+    },
+  ],
+};
 
-export function getLanguage(code: string): LanguageOption {
-  return LANGUAGES.find((l) => l.code === code) ?? LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE_CODE)!;
+export const DEFAULT_UI_LANGUAGE: UILanguageCode = 'en';
+
+export function getUILanguage(code: UILanguageCode): UILanguage | undefined {
+  return UI_LANGUAGES.find((l) => l.code === code);
 }
 
-export function getLanguagesByUI(uiCode: string): LanguageOption[] {
-  return LANGUAGES.filter((l) => {
-    const uiPart = l.code.split('-')[0];
-    return uiPart === uiCode;
-  });
+export function getLearningLanguages(uiCode: UILanguageCode): LearningLanguage[] {
+  return LEARNING_LANGUAGES_BY_UI[uiCode] || [];
+}
+
+export function getLearningLanguage(uiCode: UILanguageCode, learningCode: LearningLanguageCode): LearningLanguage | undefined {
+  return LEARNING_LANGUAGES_BY_UI[uiCode]?.find((l) => l.code === learningCode);
 }

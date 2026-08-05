@@ -15,17 +15,17 @@ const SESSION_SECONDS = 15 * 60;
 
 export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; level: CefrLevel; onClose: () => void }) {
   const { learningLanguage } = useLanguage();
-  const exercise = getExercise(learningLanguage, skill, level);
+  const exercise = learningLanguage ? getExercise(learningLanguage, skill, level) : null;
   const { label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
   const [showIntro, setShowIntro] = useState(true);
 
-  if (showIntro && exercise) {
+  if (showIntro && exercise && learningLanguage) {
     const skillLower = skill.toLowerCase();
     let intro = null;
 
     if (learningLanguage === 'ru') {
       intro = getExerciseIntroRu(skillLower, level);
-    } else {
+    } else if (learningLanguage === 'es') {
       const skillKey = skillLower as keyof typeof exerciseIntros;
       intro = exerciseIntros[skillKey]?.[level];
     }

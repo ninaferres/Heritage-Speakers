@@ -45,7 +45,7 @@ function SkillCard({ id, sub }: { id: SkillId; sub: string }) {
 }
 
 export function LevelsSection() {
-  const { language } = useLanguage();
+  const { learningLanguage } = useLanguage();
   return (
     <section className="block levels" id="levels">
       <div className="wrap">
@@ -58,14 +58,14 @@ export function LevelsSection() {
           </p>
         </div>
 
-        {language.status === 'active' ? (
+        {learningLanguage ? (
           <div className="level-grid">
             {SKILLS.map((s) => (
               <SkillCard key={s.id} id={s.id} sub={s.sub} />
             ))}
           </div>
         ) : (
-          <p className="footnote">{language.learningLabel} exercises are coming soon. Switch to Español in the menu to start practicing today.</p>
+          <p className="footnote">Please select a language to learn from the menu to start practicing.</p>
         )}
 
         <p className="footnote">

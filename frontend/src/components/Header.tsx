@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrandLockup } from './Logo';
-import { LANGUAGES } from '../i18n/languages';
+import { UI_LANGUAGES, UILanguageCode } from '../i18n/languages';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
@@ -9,7 +9,7 @@ import { COPY } from '../i18n/copy';
 export function Header() {
   const [navOpen, setNavOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
-  const { language, setLanguageCode } = useLanguage();
+  const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
 
   return (
@@ -43,20 +43,37 @@ export function Header() {
             </div>
 
             <div>
-              <div className="nav-section-label">Learning language</div>
+              <div className="nav-section-label">Interface Language</div>
               <select
                 className="lang-select"
-                value={language.code}
-                onChange={(e) => setLanguageCode(e.target.value)}
-                aria-label="Choose learning language"
+                value={uiLanguage}
+                onChange={(e) => setUILanguage(e.target.value as UILanguageCode)}
+                aria-label="Choose interface language"
               >
-                {LANGUAGES.map((opt) => (
-                  <option key={opt.code} value={opt.code} disabled={opt.status !== 'active'}>
-                    {opt.uiNativeLabel} {opt.status !== 'active' ? '— coming soon' : ''}
+                {UI_LANGUAGES.map((opt) => (
+                  <option key={opt.code} value={opt.code}>
+                    {opt.nativeLabel}
                   </option>
                 ))}
               </select>
-              <p className="lang-hint">More heritage languages, including Mandarin, are on the way.</p>
+            </div>
+
+            <div>
+              <div className="nav-section-label">Learn a Language</div>
+              <select
+                className="lang-select"
+                value={learningLanguage || ''}
+                onChange={(e) => e.target.value && setLearningLanguage(e.target.value as any)}
+                aria-label="Choose language to learn"
+              >
+                <option value="">Select a language...</option>
+                {availableLearningLanguages.map((opt) => (
+                  <option key={opt.code} value={opt.code} disabled={opt.status !== 'active'}>
+                    {opt.nativeLabel} {opt.status !== 'active' ? '— coming soon' : ''}
+                  </option>
+                ))}
+              </select>
+              <p className="lang-hint">More heritage languages are on the way.</p>
             </div>
 
             <div>

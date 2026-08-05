@@ -1,40 +1,56 @@
 import { createContext, useContext, useMemo, useState, ReactNode } from 'react';
-import { DEFAULT_LANGUAGE_CODE, getLanguage, LanguageOption } from '../i18n/languages';
+import { DEFAULT_UI_LANGUAGE, UILanguageCode, LearningLanguageCode, getLearningLanguages } from '../i18n/languages';
 
-const STORAGE_KEY = 'hs.language';
+const UI_LANGUAGE_STORAGE_KEY = 'hs.uiLanguage';
+const LEARNING_LANGUAGE_STORAGE_KEY = 'hs.learningLanguage';
 
 interface LanguageContextValue {
-  language: LanguageOption;
-  setLanguageCode: (code: string) => void;
-  uiLanguage: 'en' | 'es';
-  learningLanguage: string;
+  uiLanguage: UILanguageCode;
+  setUILanguage: (code: UILanguageCode) => void;
+  learningLanguage: LearningLanguageCode | null;
+  setLearningLanguage: (code: LearningLanguageCode) => void;
+  availableLearningLanguages: ReturnType<typeof getLearningLanguages>;
 }
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [code, setCode] = useState<string>(() => {
-    if (typeof window === 'undefined') return DEFAULT_LANGUAGE_CODE;
-    return window.localStorage.getItem(STORAGE_KEY) || DEFAULT_LANGUAGE_CODE;
+  const [uiLanguage, setUILanguageState] = useState<UILanguageCode>(() => {
+    if (typeof window === 'undefined') return DEFAULT_UI_LANGUAGE;
+    const saved = window.localStorage.getItem(UI_LANGUAGE_STORAGE_KEY) as UILanguageCode | null;
+    return (saved === 'en' || saved === 'es') ? saved : DEFAULT_UI_LANGUAGE;
   });
 
+  const [learningLanguage, setLearningLanguageState] = useState<LearningLanguageCode | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const saved = window.localStorage.getItem(LEARNING_LANGUAGE_STORAGE_KEY) as LearningLanguageCode | null;
+    return saved || null;
+  });
+
+  const availableLearningLanguages = useMemo(() => getLearningLanguages(uiLanguage), [uiLanguage]);
+
   const value = useMemo<LanguageContextValue>(
-    () => {
-      const lang = getLanguage(code);
-      const uiCode = code.split('-')[0];
-      return {
-        language: lang,
-        uiLanguage: (uiCode === 'es' ? 'es' : 'en') as 'en' | 'es',
-        learningLanguage: lang.learningCode,
-        setLanguageCode: (next: string) => {
-          const opt = getLanguage(next);
-          if (opt.status !== 'active') return; // coming-soon languages can't be selected as the active track yet
-          setCode(opt.code);
-          window.localStorage.setItem(STORAGE_KEY, opt.code);
-        },
-      };
-    },
-    [code]
+    () => ({
+      uiLanguage,
+      setUILanguage: (next: UILanguageCode) => {
+        setUILanguageState(next);
+        window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, next);
+        // Reset learning language when UI language changes
+        setLearningLanguageState(null);
+        window.localStorage.removeItem(LEARNING_LANGUAGE_STORAGE_KEY);
+      },
+      learningLanguage,
+      setLearningLanguage: (next: LearningLanguageCode) => {
+        // Verify that this learning language is available for current UI language
+        const available = getLearningLanguages(uiLanguage);
+        if (available.find((l) => l.code === next && l.status === 'active')) {
+          setLearningLanguageState(next);
+          window.localStorage.setItem(LEARNING_LANGUAGE_STORAGE_KEY, next);
+        }
+      },
+      availableLearningLanguages,
+    }),
+    [uiLanguage, learningLanguage, availableLearningLanguages]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
