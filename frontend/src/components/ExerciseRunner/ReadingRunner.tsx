@@ -5,12 +5,24 @@ import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 
 export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; level: CefrLevel }) {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ComprehensionEvaluation | null>(null);
 
-  const allAnswered = answers.every((a) => a.trim().length > 0);
+  const currentQuestion = exercise.questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === exercise.questions.length - 1;
+  const currentAnswered = answers[currentQuestionIndex]?.trim().length > 0;
+
+  async function handleNext() {
+    if (isLastQuestion) {
+      submit();
+    } else {
+      setCurrentQuestionIndex((i) => i + 1);
+      setError(null);
+    }
+  }
 
   async function submit() {
     setLoading(true);
@@ -25,46 +37,70 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
     }
   }
 
+  if (result) {
+    return <ComprehensionFeedback result={result} />;
+  }
+
   return (
-    <div>
-      <div className="exercise-block">
-        <h4>Text</h4>
-        <p>{exercise.passage}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Progress indicator */}
+      <div style={{ marginBottom: '1.5rem', color: 'var(--muted)', fontSize: '.9rem' }}>
+        Question {currentQuestionIndex + 1} of {exercise.questions.length}
       </div>
 
-      {exercise.questions.map((q, i) => (
-        <div className="exercise-question" key={i}>
-          <h4>Question {i + 1}: {q.question}</h4>
-          {q.type === 'open' && (
-            <>
-              <textarea
-                className="exercise-textarea"
-                style={{ minHeight: 90 }}
-                value={answers[i]}
-                disabled={Boolean(result)}
-                onChange={(e) => setAnswers((a) => a.map((v, idx) => (idx === i ? e.target.value : v)))}
-              />
-              {q.hint && <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginTop: '.4rem' }}>Hint: {q.hint}</p>}
-            </>
-          )}
+      {/* Text (shown once at top) */}
+      {currentQuestionIndex === 0 && (
+        <div className="exercise-block" style={{ marginBottom: '2rem' }}>
+          <h4>Text</h4>
+          <p>{exercise.passage}</p>
         </div>
-      ))}
-
-      {error && <div className="error-box" style={{ marginBottom: '1rem' }}>{error}</div>}
-
-      {!result && (
-        <button className="btn btn-wine" disabled={loading || !allAnswered} onClick={submit}>
-          {loading ? 'Evaluating…' : 'Submit answers'}
-        </button>
       )}
+
+      {/* Current question */}
+      <div className="exercise-question" style={{ flex: 1 }}>
+        <h4>{currentQuestion.question}</h4>
+        {currentQuestion.type === 'open' && (
+          <>
+            <textarea
+              className="exercise-textarea"
+              style={{ minHeight: 120 }}
+              placeholder="Write your answer here..."
+              value={answers[currentQuestionIndex]}
+              disabled={Boolean(result)}
+              onChange={(e) => setAnswers((a) => a.map((v, idx) => (idx === currentQuestionIndex ? e.target.value : v)))}
+              autoFocus
+            />
+            {currentQuestion.hint && <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginTop: '.4rem' }}>Hint: {currentQuestion.hint}</p>}
+          </>
+        )}
+      </div>
+
+      {error && <div className="error-box" style={{ marginTop: '1rem', marginBottom: '1rem' }}>{error}</div>}
+
+      {/* Navigation buttons */}
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+        <button
+          className="btn btn-outline"
+          disabled={currentQuestionIndex === 0 || loading}
+          onClick={() => setCurrentQuestionIndex((i) => i - 1)}
+        >
+          ← Previous
+        </button>
+        <button
+          className="btn btn-wine"
+          style={{ flex: 1 }}
+          disabled={loading || !currentAnswered}
+          onClick={handleNext}
+        >
+          {loading ? 'Evaluating…' : isLastQuestion ? 'Finish & Review' : 'Next →'}
+        </button>
+      </div>
 
       {loading && (
-        <div className="loading-inline">
-          <span className="spinner" /> Checking comprehension, syntax and vocabulary use…
+        <div className="loading-inline" style={{ marginTop: '1rem' }}>
+          <span className="spinner" /> Checking comprehension…
         </div>
       )}
-
-      {result && <ComprehensionFeedback result={result} />}
     </div>
   );
 }
