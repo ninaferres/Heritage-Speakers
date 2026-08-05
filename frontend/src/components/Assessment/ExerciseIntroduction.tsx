@@ -146,114 +146,153 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
             </>
           )}
 
-          {/* Realistic Attack on Titan Character */}
+          {/* Realistic Attack on Titan Character - Eren/Mikasa style */}
           <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
-            <svg width="300" height="360" viewBox="0 0 300 360" style={{ filter: isPlaying ? 'drop-shadow(0 0 25px rgba(184,147,90,.4))' : 'none' }}>
+            <svg width="340" height="420" viewBox="0 0 340 420" style={{ filter: isPlaying ? 'drop-shadow(0 0 30px rgba(184,147,90,.5))' : 'none' }}>
               <defs>
-                <linearGradient id="darkHair" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#1a1410" />
-                  <stop offset="100%" stopColor="#0a0805" />
+                <linearGradient id="darkHairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#0d0a08" />
+                  <stop offset="100%" stopColor="#000000" />
                 </linearGradient>
-                <linearGradient id="skin" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#e8d4bf" />
-                  <stop offset="100%" stopColor="#d4b8a0" />
+                <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#f5e6d3" />
+                  <stop offset="100%" stopColor="#e8d4bf" />
                 </linearGradient>
-                <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3" />
-                </filter>
+                <linearGradient id="uniformGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="var(--wine)" />
+                  <stop offset="100%" stopColor="#4a1420" />
+                </linearGradient>
               </defs>
 
-              {/* Dark Hair - Attack on Titan style (dark, slicked back) */}
-              <path d="M 50 60 Q 30 35, 150 25 Q 270 35, 250 80 L 245 120 Q 150 145, 55 120 Z" fill="url(#darkHair)" stroke="#0a0805" strokeWidth="1" filter="url(#shadow)" />
-              {/* Hair detail - bangs */}
-              <path d="M 120 60 Q 130 50, 150 48 Q 170 50, 180 60" fill="#0a0805" opacity="0.6" />
+              {/* Hair - Dark, detailed, Attack on Titan style */}
+              <path d="M 50 80 Q 30 45, 170 35 Q 310 45, 290 110 L 285 160 Q 170 190, 55 160 Z" fill="url(#darkHairGrad)" stroke="#000000" strokeWidth="1.5" />
+              {/* Hair highlights/shadows */}
+              <path d="M 100 60 Q 110 45, 130 50" stroke="#1a1515" strokeWidth="2" fill="none" opacity="0.8" />
+              <path d="M 210 50 Q 230 45, 250 60" stroke="#1a1515" strokeWidth="2" fill="none" opacity="0.8" />
+              {/* Hair strands texture */}
+              <path d="M 70 80 Q 80 100, 75 130" stroke="#0a0805" strokeWidth="1" fill="none" opacity="0.6" />
+              <path d="M 270 85 Q 260 105, 265 135" stroke="#0a0805" strokeWidth="1" fill="none" opacity="0.6" />
 
               {/* Head - Realistic proportions */}
-              <ellipse cx="150" cy="115" rx="62" ry="75" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1.5" filter="url(#shadow)" />
+              <ellipse cx="170" cy="155" rx="72" ry="95" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="2" />
 
-              {/* Ears */}
-              <ellipse cx="88" cy="115" rx="9" ry="18" fill="#dcc0a5" stroke="#3a2f28" strokeWidth="0.5" />
-              <ellipse cx="212" cy="115" rx="9" ry="18" fill="#dcc0a5" stroke="#3a2f28" strokeWidth="0.5" />
+              {/* Ears - Detailed */}
+              <path d="M 98 155 Q 85 155, 80 175 Q 85 185, 98 180 Z" fill="#dcc0a5" stroke="#3a3028" strokeWidth="0.8" />
+              <path d="M 242 155 Q 255 155, 260 175 Q 255 185, 242 180 Z" fill="#dcc0a5" stroke="#3a3028" strokeWidth="0.8" />
+              <ellipse cx="92" cy="170" rx="3" ry="6" fill="#c9a68f" />
+              <ellipse cx="248" cy="170" rx="3" ry="6" fill="#c9a68f" />
 
-              {/* Eyes - Intense, serious expression */}
+              {/* Eyes - Large, intense, realistic (Attack on Titan style) */}
               <g>
                 {/* Left Eye */}
-                <ellipse cx="120" cy="100" rx="14" ry="20" fill="#f5f5f5" stroke="#3a2f28" strokeWidth="1.5" />
-                <circle cx="120" cy="103" r="10" fill="#3a4a4a" />
-                <circle cx="120" cy="103" r="7" fill="#0a0a0a" />
-                <circle cx="122" cy={mouthOpen ? 100 : 99} r="3.5" fill="#fff" opacity="0.9" />
-                {/* Upper eyelid shadow for serious look */}
-                <path d="M 108 95 Q 120 91, 132 95" stroke="#c9a68f" strokeWidth="1.2" fill="none" opacity="0.7" />
+                <ellipse cx="140" cy="130" rx="16" ry="26" fill="#ffffff" stroke="#2a2015" strokeWidth="2" />
+                {/* Iris */}
+                <circle cx="140" cy="135" r="12" fill="#6b5a3d" />
+                <circle cx="140" cy="135" r="9" fill="#3a2a15" />
+                {/* Pupil */}
+                <circle cx="140" cy="135" r="6" fill="#000000" />
+                {/* Light reflection */}
+                <circle cx="142" cy={mouthOpen ? 131 : 130} r="2.5" fill="#ffffff" opacity="0.95" />
+                {/* Upper eyelid shadow */}
+                <path d="M 128 120 Q 140 115, 152 120" stroke="#c9a68f" strokeWidth="1.5" fill="none" opacity="0.6" />
                 {/* Lower eyelid definition */}
-                <path d="M 108 115 Q 120 122, 132 115" stroke="#c9a68f" strokeWidth="0.8" fill="none" opacity="0.5" />
+                <path d="M 128 150 Q 140 157, 152 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.4" />
+                {/* Eyelashes */}
+                <path d="M 130 120 L 128 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
+                <path d="M 140 115 L 140 110" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
+                <path d="M 150 120 L 152 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
 
                 {/* Right Eye */}
-                <ellipse cx="180" cy="100" rx="14" ry="20" fill="#f5f5f5" stroke="#3a2f28" strokeWidth="1.5" />
-                <circle cx="180" cy="103" r="10" fill="#3a4a4a" />
-                <circle cx="180" cy="103" r="7" fill="#0a0a0a" />
-                <circle cx="182" cy={mouthOpen ? 100 : 99} r="3.5" fill="#fff" opacity="0.9" />
-                {/* Upper eyelid shadow */}
-                <path d="M 168 95 Q 180 91, 192 95" stroke="#c9a68f" strokeWidth="1.2" fill="none" opacity="0.7" />
-                {/* Lower eyelid definition */}
-                <path d="M 168 115 Q 180 122, 192 115" stroke="#c9a68f" strokeWidth="0.8" fill="none" opacity="0.5" />
+                <ellipse cx="200" cy="130" rx="16" ry="26" fill="#ffffff" stroke="#2a2015" strokeWidth="2" />
+                <circle cx="200" cy="135" r="12" fill="#6b5a3d" />
+                <circle cx="200" cy="135" r="9" fill="#3a2a15" />
+                <circle cx="200" cy="135" r="6" fill="#000000" />
+                <circle cx="202" cy={mouthOpen ? 131 : 130} r="2.5" fill="#ffffff" opacity="0.95" />
+                <path d="M 188 120 Q 200 115, 212 120" stroke="#c9a68f" strokeWidth="1.5" fill="none" opacity="0.6" />
+                <path d="M 188 150 Q 200 157, 212 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.4" />
+                <path d="M 190 120 L 188 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
+                <path d="M 200 115 L 200 110" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
+                <path d="M 210 120 L 212 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
               </g>
 
-              {/* Nose - Realistic */}
-              <path d="M 150 105 L 147 145 L 153 145 Z" fill="#dcc0a5" stroke="none" />
-              <line x1="147" y1="145" x2="142" y2="150" stroke="#c9a68f" strokeWidth="0.6" opacity="0.6" />
-              <line x1="153" y1="145" x2="158" y2="150" stroke="#c9a68f" strokeWidth="0.6" opacity="0.6" />
+              {/* Nose - Realistic, defined */}
+              <g>
+                <path d="M 170 140 L 166 180 L 174 180 Z" fill="#dcc0a5" stroke="none" />
+                <line x1="166" y1="180" x2="160" y2="185" stroke="#c9a68f" strokeWidth="0.8" opacity="0.5" />
+                <line x1="174" y1="180" x2="180" y2="185" stroke="#c9a68f" strokeWidth="0.8" opacity="0.5" />
+              </g>
 
-              {/* Mouth - Determined expression, animates with speech */}
+              {/* Mouth - Serious, detailed, animates with speech */}
               {mouthOpen ? (
                 <>
                   {/* Open/speaking mouth */}
-                  <path d="M 130 165 Q 150 180, 170 165" stroke="#7a2835" strokeWidth="2" fill="none" strokeLinecap="round" />
-                  <path d="M 130 165 Q 150 175, 170 165 L 170 167 Q 150 177, 130 167 Z" fill="#4a1420" opacity="0.5" />
-                  <ellipse cx="150" cy="172" rx="8" ry="5" fill="#8b4452" opacity="0.4" />
+                  <path d="M 150 210 Q 170 230, 190 210" stroke="#6b2835" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                  <path d="M 150 210 Q 170 225, 190 210 L 190 212 Q 170 227, 150 212 Z" fill="#3a1420" opacity="0.6" />
+                  {/* Tongue hint */}
+                  <ellipse cx="170" cy="220" rx="9" ry="6" fill="#9b5465" opacity="0.5" />
                 </>
               ) : (
                 <>
-                  {/* Closed/neutral mouth - determined expression */}
-                  <path d="M 130 165 L 170 165" stroke="#8b4452" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M 130 165 Q 150 168, 170 165" fill="#b8776b" opacity="0.2" />
+                  {/* Closed mouth - determined, serious expression */}
+                  <path d="M 150 210 L 190 210" stroke="#8b4a5a" strokeWidth="2.5" strokeLinecap="round" />
+                  {/* Mouth line definition */}
+                  <path d="M 150 210 Q 170 214, 190 210" fill="#c9516a" opacity="0.25" />
                 </>
               )}
 
-              {/* Eyebrows - Strong, serious, determined expression */}
-              <path d="M 105 88 Q 120 82, 135 86" stroke="#0a0805" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d="M 165 86 Q 180 82, 195 88" stroke="#0a0805" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              {/* Eyebrows - Strong, serious, angled inward (intense expression) */}
+              <g>
+                {/* Left eyebrow */}
+                <path d="M 125 115 Q 140 108, 155 113" stroke="#000000" strokeWidth="3" fill="none" strokeLinecap="round" />
+                {/* Right eyebrow */}
+                <path d="M 185 113 Q 200 108, 215 115" stroke="#000000" strokeWidth="3" fill="none" strokeLinecap="round" />
+              </g>
 
-              {/* Cheekbones - Facial definition */}
-              <path d="M 88 120 Q 85 135, 88 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.3" />
-              <path d="M 212 120 Q 215 135, 212 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.3" />
+              {/* Cheekbones - Facial structure definition */}
+              <g opacity="0.3">
+                <path d="M 100 160 Q 95 180, 105 200" stroke="#c9a68f" strokeWidth="1.5" fill="none" />
+                <path d="M 240 160 Q 245 180, 235 200" stroke="#c9a68f" strokeWidth="1.5" fill="none" />
+              </g>
 
-              {/* Neck */}
-              <rect x="135" y="185" width="30" height="25" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1" />
+              {/* Facial shadows - Realism */}
+              <g opacity="0.2">
+                <ellipse cx="100" cy="180" rx="15" ry="30" fill="#6b5a4d" />
+                <ellipse cx="240" cy="180" rx="15" ry="30" fill="#6b5a4d" />
+              </g>
 
-              {/* Shoulders and Military Uniform */}
-              <path d="M 100 210 L 85 310 L 215 310 L 200 210 Z" fill="#2a1a14" stroke="#0a0805" strokeWidth="2" />
+              {/* Neck - Realistic */}
+              <rect x="155" y="245" width="30" height="35" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="1.5" />
 
-              {/* Uniform - Attack on Titan Corps emblem area */}
-              <circle cx="150" cy="235" r="25" fill="none" stroke="var(--wine)" strokeWidth="2" />
-              <path d="M 140 235 L 150 225 L 160 235" fill="var(--wine)" opacity="0.3" />
+              {/* Shoulders and Military Uniform - Wine/Gold colors */}
+              <path d="M 110 280 L 90 390 L 250 390 L 230 280 Z" fill="url(#uniformGrad)" stroke="#1a0a0f" strokeWidth="2.5" />
 
-              {/* Gold trim on uniform (wing insignia style) */}
-              <ellipse cx="120" cy="240" rx="8" ry="12" fill="none" stroke="var(--gold)" strokeWidth="1.5" transform="rotate(-30 120 240)" />
-              <ellipse cx="180" cy="240" rx="8" ry="12" fill="none" stroke="var(--gold)" strokeWidth="1.5" transform="rotate(30 180 240)" />
+              {/* Uniform - Wing emblem area (cross-looking pattern) */}
+              <g>
+                <circle cx="170" cy="310" r="30" fill="none" stroke="var(--gold)" strokeWidth="2.5" />
+                {/* Cross pattern inside */}
+                <line x1="170" y1="285" x2="170" y2="335" stroke="var(--gold)" strokeWidth="1.5" opacity="0.7" />
+                <line x1="145" y1="310" x2="195" y2="310" stroke="var(--gold)" strokeWidth="1.5" opacity="0.7" />
+              </g>
 
-              {/* Arms - Military uniform sleeves */}
+              {/* Shoulder armor detail - Wine color */}
+              <ellipse cx="105" cy="285" rx="18" ry="28" fill="none" stroke="var(--wine)" strokeWidth="2" />
+              <ellipse cx="235" cy="285" rx="18" ry="28" fill="none" stroke="var(--wine)" strokeWidth="2" />
+
+              {/* Arms - Muscular, defined uniform sleeves */}
               <g id="leftArm">
-                <path d="M 100 220 Q 65 235, 50 280" stroke="#3a2417" strokeWidth="13" fill="none" strokeLinecap="round" />
-                <circle cx="50" cy="280" r="8" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1" />
+                <path d="M 110 295 Q 75 315, 55 360" stroke="#5a3828" strokeWidth="15" fill="none" strokeLinecap="round" />
+                <circle cx="55" cy="360" r="9" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="1.5" />
               </g>
               <g id="rightArm">
-                <path d="M 200 220 Q 235 235, 250 280" stroke="#3a2417" strokeWidth="13" fill="none" strokeLinecap="round" />
-                <circle cx="250" cy="280" r="8" fill="url(#skin)" stroke="#3a2f28" strokeWidth="1" />
+                <path d="M 230 295 Q 265 315, 285 360" stroke="#5a3828" strokeWidth="15" fill="none" strokeLinecap="round" />
+                <circle cx="285" cy="360" r="9" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="1.5" />
               </g>
 
-              {/* Uniform sleeves detail */}
-              <ellipse cx="50" cy="260" rx="7" ry="15" fill="none" stroke="var(--wine)" strokeWidth="0.8" opacity="0.5" />
-              <ellipse cx="250" cy="260" rx="7" ry="15" fill="none" stroke="var(--wine)" strokeWidth="0.8" opacity="0.5" />
+              {/* Uniform sleeve cuffs - Gold trim */}
+              <g opacity="0.8">
+                <rect x="40" y="355" width="30" height="8" fill="none" stroke="var(--gold)" strokeWidth="1.5" rx="2" />
+                <rect x="270" y="355" width="30" height="8" fill="none" stroke="var(--gold)" strokeWidth="1.5" rx="2" />
+              </g>
             </svg>
           </div>
 
@@ -374,22 +413,22 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
                 fontSize: '1.1rem',
                 borderRadius: '8px',
                 border: 'none',
-                background: 'var(--wine)',
-                color: 'var(--bone)',
+                background: 'var(--gold)',
+                color: '#1a1410',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 6px 20px rgba(107,31,46,.3)',
+                boxShadow: '0 6px 20px rgba(184,147,90,.4)',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-3px)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(107,31,46,.5)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(184,147,90,.6)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(107,31,46,.3)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(184,147,90,.4)';
               }}
             >
               ▶️ VER VÍDEO
@@ -408,17 +447,17 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 6px 20px rgba(107,31,46,.3)',
+                boxShadow: '0 6px 20px rgba(107,31,46,.4)',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-3px)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(107,31,46,.5)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(107,31,46,.6)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(107,31,46,.3)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(107,31,46,.4)';
               }}
             >
               ⏹️ DETENER
