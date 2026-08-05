@@ -12,7 +12,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
   const [currentSubtitleEn, setCurrentSubtitleEn] = useState('');
   const [progress, setProgress] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
-  const [mouthOpen, setMouthOpen] = useState(false);
+  const [visibleIcons, setVisibleIcons] = useState<number[]>([]);
 
   const synth = useRef<SpeechSynthesisUtterance | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -61,9 +61,10 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     setCurrentSubtitleEs(currentEs);
     setCurrentSubtitleEn(currentEn);
 
-    // Mouth animation: open/close in cycles while speaking
-    const mouthCycle = Math.sin(elapsed * 4) > 0.3;
-    setMouthOpen(mouthCycle);
+    // Show icons progressively throughout the video
+    const progressPercent = totalDurationRef.current > 0 ? (elapsed / totalDurationRef.current) * 100 : 0;
+    const iconsToShow = Math.min(Math.floor(progressPercent / 20), 5);
+    setVisibleIcons(Array.from({ length: iconsToShow }, (_, i) => i));
   }
 
   function playIntroduction() {
@@ -88,6 +89,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     setCurrentSubtitleEs('');
     setCurrentSubtitleEn('');
     setProgress(0);
+    setVisibleIcons([]);
 
     utterance.onstart = () => {
       timerRef.current = setInterval(() => {
@@ -100,7 +102,6 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     utterance.onend = () => {
       if (timerRef.current) clearInterval(timerRef.current);
       setIsPlaying(false);
-      setMouthOpen(false);
     };
 
     synth.current = utterance;
@@ -113,223 +114,189 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     if (timerRef.current) clearInterval(timerRef.current);
     setCurrentSubtitleEs('');
     setCurrentSubtitleEn('');
-    setMouthOpen(false);
+    setVisibleIcons([]);
   }
+
+  // Icon colors by skill type
+  const iconColors: Record<string, string> = {
+    'reading': '#6b1f2e',
+    'writing': '#b8935a',
+    'speaking': '#2a2320',
+    'listening': '#6b1f2e',
+  };
+
+  const skillLower = (intro.icon || '').toLowerCase();
+  const iconColor = Object.values(iconColors)[visibleIcons.length % 4] || '#6b1f2e';
+
+  // Educational icons related to each skill
+  const skillIcons: Record<string, string[]> = {
+    'reading': ['📖', '📝', '📄', '🔤', '✨'],
+    'writing': ['✏️', '📝', '🖊️', '💭', '✨'],
+    'speaking': ['🗣️', '🎙️', '💬', '🎯', '✨'],
+    'listening': ['👂', '🎧', '🔊', '🎵', '✨'],
+  };
+
+  const getSkillIcons = () => {
+    const intro_lower = intro.topic.toLowerCase();
+    if (intro_lower.includes('lectura') || intro_lower.includes('reading')) return skillIcons.reading;
+    if (intro_lower.includes('escrit') || intro_lower.includes('writing')) return skillIcons.writing;
+    if (intro_lower.includes('habl') || intro_lower.includes('speaking')) return skillIcons.speaking;
+    if (intro_lower.includes('escuch') || intro_lower.includes('listening')) return skillIcons.listening;
+    return skillIcons.reading;
+  };
+
+  const icons = getSkillIcons();
 
   return (
     <div className="exercise-overlay">
       <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '1200px', height: '95vh', overflow: 'hidden', background: 'var(--bone)', borderRadius: '16px', boxShadow: '0 20px 60px rgba(107,31,46,.3)' }}>
         <button className="modal-close" aria-label="Close" onClick={onStartExercise} style={{ zIndex: 100 }}>✕</button>
 
-        {/* Main Video Section - Website Color Scheme */}
+        {/* Main Video Section - Minimalist Design */}
         <div style={{ flex: 1, background: 'linear-gradient(135deg, var(--bone) 0%, var(--bone-dim) 50%, rgba(184,147,90,.1) 100%)', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Background Effects */}
+          {/* Animated background grid */}
           {isPlaying && (
-            <>
-              <div style={{ position: 'absolute', width: '200%', height: '200%', top: '-50%', left: '-50%', background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(184,147,90,.05) 10px, rgba(184,147,90,.05) 20px)', animation: 'scan 8s linear infinite' }} />
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    position: 'absolute',
-                    width: `${150 + i * 50}px`,
-                    height: `${150 + i * 50}px`,
-                    border: `2px solid rgba(184,147,90, ${0.15 - i * 0.05})`,
-                    borderRadius: '50%',
-                    animation: `rotate ${10 + i * 2}s linear infinite`,
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                />
-              ))}
-            </>
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'repeating-linear-gradient(0deg, rgba(184,147,90,.03) 0px, rgba(184,147,90,.03) 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, rgba(184,147,90,.03) 0px, rgba(184,147,90,.03) 1px, transparent 1px, transparent 40px)',
+              opacity: 0.5,
+            }} />
           )}
 
-          {/* Realistic Attack on Titan Character - Eren/Mikasa style */}
-          <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
-            <svg width="340" height="420" viewBox="0 0 340 420" style={{ filter: isPlaying ? 'drop-shadow(0 0 30px rgba(184,147,90,.5))' : 'none' }}>
-              <defs>
-                <linearGradient id="darkHairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#0d0a08" />
-                  <stop offset="100%" stopColor="#000000" />
-                </linearGradient>
-                <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#f5e6d3" />
-                  <stop offset="100%" stopColor="#e8d4bf" />
-                </linearGradient>
-                <linearGradient id="uniformGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="var(--wine)" />
-                  <stop offset="100%" stopColor="#4a1420" />
-                </linearGradient>
-              </defs>
-
-              {/* Hair - Dark, detailed, Attack on Titan style */}
-              <path d="M 50 80 Q 30 45, 170 35 Q 310 45, 290 110 L 285 160 Q 170 190, 55 160 Z" fill="url(#darkHairGrad)" stroke="#000000" strokeWidth="1.5" />
-              {/* Hair highlights/shadows */}
-              <path d="M 100 60 Q 110 45, 130 50" stroke="#1a1515" strokeWidth="2" fill="none" opacity="0.8" />
-              <path d="M 210 50 Q 230 45, 250 60" stroke="#1a1515" strokeWidth="2" fill="none" opacity="0.8" />
-              {/* Hair strands texture */}
-              <path d="M 70 80 Q 80 100, 75 130" stroke="#0a0805" strokeWidth="1" fill="none" opacity="0.6" />
-              <path d="M 270 85 Q 260 105, 265 135" stroke="#0a0805" strokeWidth="1" fill="none" opacity="0.6" />
-
-              {/* Head - Realistic proportions */}
-              <ellipse cx="170" cy="155" rx="72" ry="95" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="2" />
-
-              {/* Ears - Detailed */}
-              <path d="M 98 155 Q 85 155, 80 175 Q 85 185, 98 180 Z" fill="#dcc0a5" stroke="#3a3028" strokeWidth="0.8" />
-              <path d="M 242 155 Q 255 155, 260 175 Q 255 185, 242 180 Z" fill="#dcc0a5" stroke="#3a3028" strokeWidth="0.8" />
-              <ellipse cx="92" cy="170" rx="3" ry="6" fill="#c9a68f" />
-              <ellipse cx="248" cy="170" rx="3" ry="6" fill="#c9a68f" />
-
-              {/* Eyes - Large, intense, realistic (Attack on Titan style) */}
-              <g>
-                {/* Left Eye */}
-                <ellipse cx="140" cy="130" rx="16" ry="26" fill="#ffffff" stroke="#2a2015" strokeWidth="2" />
-                {/* Iris */}
-                <circle cx="140" cy="135" r="12" fill="#6b5a3d" />
-                <circle cx="140" cy="135" r="9" fill="#3a2a15" />
-                {/* Pupil */}
-                <circle cx="140" cy="135" r="6" fill="#000000" />
-                {/* Light reflection */}
-                <circle cx="142" cy={mouthOpen ? 131 : 130} r="2.5" fill="#ffffff" opacity="0.95" />
-                {/* Upper eyelid shadow */}
-                <path d="M 128 120 Q 140 115, 152 120" stroke="#c9a68f" strokeWidth="1.5" fill="none" opacity="0.6" />
-                {/* Lower eyelid definition */}
-                <path d="M 128 150 Q 140 157, 152 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.4" />
-                {/* Eyelashes */}
-                <path d="M 130 120 L 128 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
-                <path d="M 140 115 L 140 110" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
-                <path d="M 150 120 L 152 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
-
-                {/* Right Eye */}
-                <ellipse cx="200" cy="130" rx="16" ry="26" fill="#ffffff" stroke="#2a2015" strokeWidth="2" />
-                <circle cx="200" cy="135" r="12" fill="#6b5a3d" />
-                <circle cx="200" cy="135" r="9" fill="#3a2a15" />
-                <circle cx="200" cy="135" r="6" fill="#000000" />
-                <circle cx="202" cy={mouthOpen ? 131 : 130} r="2.5" fill="#ffffff" opacity="0.95" />
-                <path d="M 188 120 Q 200 115, 212 120" stroke="#c9a68f" strokeWidth="1.5" fill="none" opacity="0.6" />
-                <path d="M 188 150 Q 200 157, 212 150" stroke="#c9a68f" strokeWidth="1" fill="none" opacity="0.4" />
-                <path d="M 190 120 L 188 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
-                <path d="M 200 115 L 200 110" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
-                <path d="M 210 120 L 212 115" stroke="#1a1410" strokeWidth="1" opacity="0.8" />
-              </g>
-
-              {/* Nose - Realistic, defined */}
-              <g>
-                <path d="M 170 140 L 166 180 L 174 180 Z" fill="#dcc0a5" stroke="none" />
-                <line x1="166" y1="180" x2="160" y2="185" stroke="#c9a68f" strokeWidth="0.8" opacity="0.5" />
-                <line x1="174" y1="180" x2="180" y2="185" stroke="#c9a68f" strokeWidth="0.8" opacity="0.5" />
-              </g>
-
-              {/* Mouth - Serious, detailed, animates with speech */}
-              {mouthOpen ? (
-                <>
-                  {/* Open/speaking mouth */}
-                  <path d="M 150 210 Q 170 230, 190 210" stroke="#6b2835" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                  <path d="M 150 210 Q 170 225, 190 210 L 190 212 Q 170 227, 150 212 Z" fill="#3a1420" opacity="0.6" />
-                  {/* Tongue hint */}
-                  <ellipse cx="170" cy="220" rx="9" ry="6" fill="#9b5465" opacity="0.5" />
-                </>
-              ) : (
-                <>
-                  {/* Closed mouth - determined, serious expression */}
-                  <path d="M 150 210 L 190 210" stroke="#8b4a5a" strokeWidth="2.5" strokeLinecap="round" />
-                  {/* Mouth line definition */}
-                  <path d="M 150 210 Q 170 214, 190 210" fill="#c9516a" opacity="0.25" />
-                </>
-              )}
-
-              {/* Eyebrows - Strong, serious, angled inward (intense expression) */}
-              <g>
-                {/* Left eyebrow */}
-                <path d="M 125 115 Q 140 108, 155 113" stroke="#000000" strokeWidth="3" fill="none" strokeLinecap="round" />
-                {/* Right eyebrow */}
-                <path d="M 185 113 Q 200 108, 215 115" stroke="#000000" strokeWidth="3" fill="none" strokeLinecap="round" />
-              </g>
-
-              {/* Cheekbones - Facial structure definition */}
-              <g opacity="0.3">
-                <path d="M 100 160 Q 95 180, 105 200" stroke="#c9a68f" strokeWidth="1.5" fill="none" />
-                <path d="M 240 160 Q 245 180, 235 200" stroke="#c9a68f" strokeWidth="1.5" fill="none" />
-              </g>
-
-              {/* Facial shadows - Realism */}
-              <g opacity="0.2">
-                <ellipse cx="100" cy="180" rx="15" ry="30" fill="#6b5a4d" />
-                <ellipse cx="240" cy="180" rx="15" ry="30" fill="#6b5a4d" />
-              </g>
-
-              {/* Neck - Realistic */}
-              <rect x="155" y="245" width="30" height="35" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="1.5" />
-
-              {/* Shoulders and Military Uniform - Wine/Gold colors */}
-              <path d="M 110 280 L 90 390 L 250 390 L 230 280 Z" fill="url(#uniformGrad)" stroke="#1a0a0f" strokeWidth="2.5" />
-
-              {/* Uniform - Wing emblem area (cross-looking pattern) */}
-              <g>
-                <circle cx="170" cy="310" r="30" fill="none" stroke="var(--gold)" strokeWidth="2.5" />
-                {/* Cross pattern inside */}
-                <line x1="170" y1="285" x2="170" y2="335" stroke="var(--gold)" strokeWidth="1.5" opacity="0.7" />
-                <line x1="145" y1="310" x2="195" y2="310" stroke="var(--gold)" strokeWidth="1.5" opacity="0.7" />
-              </g>
-
-              {/* Shoulder armor detail - Wine color */}
-              <ellipse cx="105" cy="285" rx="18" ry="28" fill="none" stroke="var(--wine)" strokeWidth="2" />
-              <ellipse cx="235" cy="285" rx="18" ry="28" fill="none" stroke="var(--wine)" strokeWidth="2" />
-
-              {/* Arms - Muscular, defined uniform sleeves */}
-              <g id="leftArm">
-                <path d="M 110 295 Q 75 315, 55 360" stroke="#5a3828" strokeWidth="15" fill="none" strokeLinecap="round" />
-                <circle cx="55" cy="360" r="9" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="1.5" />
-              </g>
-              <g id="rightArm">
-                <path d="M 230 295 Q 265 315, 285 360" stroke="#5a3828" strokeWidth="15" fill="none" strokeLinecap="round" />
-                <circle cx="285" cy="360" r="9" fill="url(#skinGrad)" stroke="#3a3028" strokeWidth="1.5" />
-              </g>
-
-              {/* Uniform sleeve cuffs - Gold trim */}
-              <g opacity="0.8">
-                <rect x="40" y="355" width="30" height="8" fill="none" stroke="var(--gold)" strokeWidth="1.5" rx="2" />
-                <rect x="270" y="355" width="30" height="8" fill="none" stroke="var(--gold)" strokeWidth="1.5" rx="2" />
-              </g>
-            </svg>
+          {/* Topic Title */}
+          <div style={{ position: 'relative', zIndex: 10, marginBottom: '3rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: '800', color: 'var(--wine)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '2px' }}>
+              📚 Introducción
+            </div>
+            <h1
+              style={{
+                color: 'var(--wine)',
+                fontSize: '3.2rem',
+                margin: 0,
+                animation: isPlaying ? 'slideDown 0.8s ease-out' : 'none',
+                textShadow: '2px 2px 4px rgba(58,15,25,.1)',
+                fontWeight: 'bold',
+                letterSpacing: '1px',
+                lineHeight: 1.2,
+              }}
+            >
+              {intro.topic}
+            </h1>
           </div>
 
-          {/* Title */}
-          <h1
-            style={{
-              color: 'var(--wine)',
-              fontSize: '2.8rem',
-              marginBottom: '1rem',
-              textAlign: 'center',
-              animation: isPlaying ? 'slideDown 0.8s ease-out' : 'none',
-              zIndex: 10,
-              textShadow: '2px 2px 4px rgba(58,15,25,.1)',
-              fontWeight: 'bold',
-              letterSpacing: '1px',
-            }}
-          >
-            {intro.topic}
-          </h1>
+          {/* Animated Icons Grid */}
+          <div style={{
+            position: 'relative',
+            zIndex: 10,
+            marginBottom: '2rem',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            gap: '2rem',
+            maxWidth: '600px',
+          }}>
+            {icons.map((icon, idx) => (
+              <div
+                key={idx}
+                style={{
+                  fontSize: '3.5rem',
+                  animation: visibleIcons.includes(idx) ? `popIn ${0.4 + idx * 0.1}s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards` : 'none',
+                  opacity: visibleIcons.includes(idx) ? 1 : 0,
+                  transform: visibleIcons.includes(idx) ? 'scale(1) rotate(0deg)' : 'scale(0) rotate(-180deg)',
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {icon}
+              </div>
+            ))}
+          </div>
+
+          {/* Key concepts that appear */}
+          <div style={{
+            position: 'relative',
+            zIndex: 10,
+            marginBottom: '2rem',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '1rem',
+            maxWidth: '800px',
+          }}>
+            {isPlaying && visibleIcons.length > 2 && (
+              <>
+                <span style={{
+                  display: 'inline-block',
+                  padding: '0.6rem 1.2rem',
+                  background: 'rgba(107,31,46,.1)',
+                  color: 'var(--wine)',
+                  borderRadius: '999px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  border: '2px solid var(--wine)',
+                  animation: 'fadeIn 0.5s ease',
+                }}>
+                  {intro.icon} Tema Clave
+                </span>
+              </>
+            )}
+            {isPlaying && visibleIcons.length > 3 && (
+              <span style={{
+                display: 'inline-block',
+                padding: '0.6rem 1.2rem',
+                background: 'rgba(184,147,90,.1)',
+                color: 'var(--gold)',
+                borderRadius: '999px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                border: '2px solid var(--gold)',
+                animation: 'fadeIn 0.5s ease',
+              }}>
+                ✨ Aprende Nuevo
+              </span>
+            )}
+            {isPlaying && visibleIcons.length > 4 && (
+              <span style={{
+                display: 'inline-block',
+                padding: '0.6rem 1.2rem',
+                background: 'rgba(42,35,32,.1)',
+                color: 'var(--charcoal)',
+                borderRadius: '999px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                border: '2px solid var(--charcoal)',
+                animation: 'fadeIn 0.5s ease',
+              }}>
+                🎯 Ejercicio
+              </span>
+            )}
+          </div>
 
           <style>{`
-            @keyframes scan {
-              0% { transform: translateY(-100%); }
-              100% { transform: translateY(100%); }
-            }
-            @keyframes rotate {
-              0% { transform: translate(-50%, -50%) rotate(0deg); }
-              100% { transform: translate(-50%, -50%) rotate(360deg); }
+            @keyframes popIn {
+              0% {
+                opacity: 0;
+                transform: scale(0) rotate(-180deg);
+              }
+              60% {
+                transform: scale(1.2) rotate(10deg);
+              }
+              100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+              }
             }
             @keyframes slideDown {
               from { transform: translateY(-40px); opacity: 0; }
               to { transform: translateY(0); opacity: 1; }
             }
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
           `}</style>
         </div>
 
-        {/* Subtitles - Synced to actual timeline data */}
+        {/* Subtitles - SYNCED PERFECTLY */}
         <div style={{ background: 'linear-gradient(90deg, rgba(107,31,46,.08) 0%, rgba(184,147,90,.05) 100%)', padding: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', minHeight: '200px', borderTop: `4px solid var(--wine)` }}>
           {/* Spanish Subtitles */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
