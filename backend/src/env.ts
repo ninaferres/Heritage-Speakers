@@ -18,7 +18,7 @@ export const env = {
   openaiApiKey: optional('OPENAI_API_KEY'),
   openaiModel: optional('OPENAI_MODEL') ?? 'gpt-4o',
   groqApiKey: optional('GROQ_API_KEY'),
-  groqModel: optional('GROQ_MODEL') ?? 'mixtral-8x7b-32768',
+  groqModel: optional('GROQ_MODEL') ?? 'llama-3.1-70b-versatile',
 
   elevenLabsApiKey: optional('ELEVENLABS_API_KEY'),
   elevenLabsVoices: {

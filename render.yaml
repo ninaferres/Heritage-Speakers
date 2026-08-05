@@ -20,7 +20,7 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
-        value: mixtral-8x7b-32768
+        value: llama-3.1-70b-versatile
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: ANTHROPIC_MODEL

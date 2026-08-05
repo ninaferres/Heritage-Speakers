@@ -2,34 +2,82 @@ import { LogoMark } from './Logo';
 
 export function Hero() {
   return (
-    <header className="hero">
-      <div className="ambient">
-        <svg width="320" height="205" style={{ top: -30, left: -60 }}>
-          <path d="M29.64 107.75 C81.64 28.01 133.64 28.01 185.64 107.75" fill="none" stroke="#6b1f2e" strokeWidth={18.2} strokeLinecap="round" />
-          <path d="M58.24 107.75 C91.17 62.68 124.10 62.68 157.04 107.75" fill="none" stroke="#b8935a" strokeWidth={13} strokeLinecap="round" />
-        </svg>
-        <svg width="240" height="154" style={{ bottom: -20, right: -40 }}>
-          <path d="M29.64 107.75 C81.64 28.01 133.64 28.01 185.64 107.75" fill="none" stroke="#6b1f2e" strokeWidth={18.2} strokeLinecap="round" />
-          <path d="M58.24 107.75 C91.17 62.68 124.10 62.68 157.04 107.75" fill="none" stroke="#b8935a" strokeWidth={13} strokeLinecap="round" />
-        </svg>
+    <header className="hero" style={{
+      background: 'linear-gradient(135deg, rgba(214, 184, 153, 0.15) 0%, rgba(107, 31, 46, 0.08) 100%)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Decorative floating elements */}
+      <div style={{
+        position: 'absolute',
+        top: '10%',
+        right: '5%',
+        fontSize: '4rem',
+        opacity: 0.15,
+        animation: 'float 6s ease-in-out infinite',
+      }}>
+        🌟
       </div>
-      <div className="wrap hero-inner">
+      <div style={{
+        position: 'absolute',
+        bottom: '15%',
+        left: '8%',
+        fontSize: '3.5rem',
+        opacity: 0.12,
+        animation: 'float 8s ease-in-out infinite 1s',
+      }}>
+        📚
+      </div>
+      <div style={{
+        position: 'absolute',
+        top: '20%',
+        left: '12%',
+        fontSize: '3rem',
+        opacity: 0.1,
+        animation: 'float 7s ease-in-out infinite 2s',
+      }}>
+        🎭
+      </div>
+
+      <div className="wrap hero-inner" style={{ position: 'relative', zIndex: 1 }}>
         <div className="logo-pill">
           <LogoMark variant="bone" width={80} height={55} />
           <span>Heritage Speakers</span>
         </div>
 
-        <h1>Reclaim the language you grew up with</h1>
-        <p className="hero-subtitle">Where childhood memories meet adult mastery</p>
-        <p className="hero-description">
-          You grew up understanding it. Now strengthen it, skill by skill. Spanish learning designed
-          specifically for heritage speakers ready to own their inheritance.
-        </p>
-        <div className="cta-row">
-          <a href="#levels" className="btn btn-gold">Start now</a>
-          <a href="#how" className="btn btn-outline">See how it works</a>
+        <div style={{ marginTop: '2rem', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '2.8rem', lineHeight: 1.2, marginBottom: '0.5rem' }}>
+            Reclaim the language you grew up with
+          </h1>
+          <p className="hero-subtitle" style={{ fontSize: '1.1rem', color: 'var(--wine)', fontWeight: 600 }}>
+            Learning as joyful as childhood memories
+          </p>
         </div>
+
+        <p className="hero-description" style={{ maxWidth: '600px', marginBottom: '2rem', lineHeight: 1.6 }}>
+          You grew up understanding it. Now <strong>strengthen it skill by skill.</strong> Interactive exercises designed for heritage speakers who want to own their language—no textbook formality, just real progression.
+        </p>
+
+        <div className="cta-row" style={{ gap: '1rem' }}>
+          <a href="#levels" className="btn btn-gold" style={{ fontSize: '1.05rem', padding: '0.9rem 1.8rem' }}>
+            ✨ Start learning
+          </a>
+          <a href="#how" className="btn btn-outline" style={{ fontSize: '1.05rem' }}>
+            See how it works
+          </a>
+        </div>
+
+        <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--muted)' }}>
+          No ads. No subscriptions. Just heritage speakers helping heritage speakers.
+        </p>
       </div>
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+      `}</style>
     </header>
   );
 }
