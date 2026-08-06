@@ -71,7 +71,22 @@ export async function evaluateSpeaking(params: {
   return res.json();
 }
 
-// Use Web Speech API for text-to-speech (free, no server required)
+// Use ElevenLabs TTS via backend for high-quality speech synthesis
+export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob | null> {
+  try {
+    const response = await fetch(`${API_BASE}/tts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
+      body: JSON.stringify(params),
+    });
+    if (!response.ok) return null;
+    return await response.blob();
+  } catch {
+    return null;
+  }
+}
+
+// Fallback: Use Web Speech API for text-to-speech (free, no server required)
 export function synthesizeSpeech(params: { text: string; accent: AccentId; lang?: 'es' | 'ru' }): { play: () => void; stop: () => void; isSupported: boolean } {
   const isSupported = 'speechSynthesis' in window;
 

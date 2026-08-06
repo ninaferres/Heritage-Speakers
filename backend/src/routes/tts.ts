@@ -5,7 +5,7 @@ import { synthesizeSpeech } from '../services/elevenlabs.js';
 
 const ttsSchema = z.object({
   text: z.string().min(1).max(4000),
-  accent: z.enum(['es-ES', 'es-MX', 'es-AR', 'es-CO']),
+  accent: z.enum(['es-ES', 'es-MX', 'es-AR', 'es-CO', 'ru-RU', 'ru-Moscow']),
 });
 
 export const ttsRouter = Router();

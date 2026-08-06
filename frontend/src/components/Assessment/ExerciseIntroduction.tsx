@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ExerciseIntro } from '../../data/exerciseIntros';
+import { synthesizeSpeechTTS } from '../../api/client';
+import { AccentId } from '../../data/types';
 
 interface Props {
   intro: ExerciseIntro;
@@ -7,7 +9,7 @@ interface Props {
   learningLanguage?: string;
 }
 
-export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
+export function ExerciseIntroduction({ intro, onStartExercise, learningLanguage }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSubtitleEs, setCurrentSubtitleEs] = useState('');
   const [currentSubtitleEn, setCurrentSubtitleEn] = useState('');
@@ -15,8 +17,9 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
   const [totalDuration, setTotalDuration] = useState(0);
   const [floatingEmojis, setFloatingEmojis] = useState<Array<{ id: number; emoji: string; x: number; y: number }>>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
 
-  const synth = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
   const totalDurationRef = useRef<number>(0);
@@ -24,7 +27,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
   useEffect(() => {
     return () => {
-      window.speechSynthesis.cancel();
+      if (audioRef.current) audioRef.current.pause();
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
@@ -64,65 +67,75 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
     }
   }
 
-  function playIntroduction() {
-    window.speechSynthesis.cancel();
+  async function playIntroduction() {
+    if (audioRef.current) audioRef.current.pause();
     if (timerRef.current) clearInterval(timerRef.current);
 
+    setIsLoadingAudio(true);
     const fullText = `${intro.explanationEs} ${intro.example || ''}`;
-    const utterance = new SpeechSynthesisUtterance(fullText);
-    utterance.lang = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
 
-    // Estimate duration more accurately
-    const wordCount = fullText.split(' ').length;
-    const estimatedDuration = Math.max(8, (wordCount / 140) * 60); // More accurate WPM
-    totalDurationRef.current = estimatedDuration;
-    setTotalDuration(estimatedDuration);
+    // Get accent based on learning language
+    const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
 
-    startTimeRef.current = Date.now();
-    setIsPlaying(true);
-    setCurrentSubtitleEs('');
-    setCurrentSubtitleEn('');
-    setProgress(0);
-    setFloatingEmojis([]);
-    emojiCounterRef.current = 0;
-    setCurrentIdx(0);
+    try {
+      const audioBlob = await synthesizeSpeechTTS({ text: fullText, accent });
+      if (!audioBlob) {
+        console.error('Failed to synthesize speech');
+        setIsLoadingAudio(false);
+        return;
+      }
 
-    utterance.onstart = () => {
+      const audioUrl = URL.createObjectURL(audioBlob);
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+      }
+      audioRef.current.src = audioUrl;
+
+      // Estimate duration from audio
+      audioRef.current.onloadedmetadata = () => {
+        const duration = audioRef.current?.duration ?? 10;
+        totalDurationRef.current = duration;
+        setTotalDuration(duration);
+      };
+
+      startTimeRef.current = Date.now();
+      setIsPlaying(true);
+      setCurrentSubtitleEs('');
+      setCurrentSubtitleEn('');
+      setProgress(0);
+      setFloatingEmojis([]);
+      emojiCounterRef.current = 0;
+      setCurrentIdx(0);
+      setIsLoadingAudio(false);
+
+      audioRef.current.play();
+
       timerRef.current = setInterval(() => {
         const elapsed = (Date.now() - startTimeRef.current) / 1000;
         setProgress(elapsed);
         updateSubtitlesAndEmojis(elapsed);
-      }, 150); // Update every 150ms for better sync
-    };
+      }, 150);
 
-    utterance.onend = () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      audioRef.current.onended = () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setIsPlaying(false);
+        setFloatingEmojis([]);
+        if (intro.subtitles && intro.subtitles.length > 0) {
+          const lastSub = intro.subtitles[intro.subtitles.length - 1];
+          setCurrentSubtitleEs(lastSub.es);
+          setCurrentSubtitleEn(lastSub.en);
+          setCurrentIdx(intro.subtitles.length - 1);
+        }
+      };
+    } catch (error) {
+      console.error('Error playing introduction:', error);
+      setIsLoadingAudio(false);
       setIsPlaying(false);
-      setFloatingEmojis([]);
-      // Ensure last subtitle is visible
-      if (intro.subtitles && intro.subtitles.length > 0) {
-        const lastSub = intro.subtitles[intro.subtitles.length - 1];
-        setCurrentSubtitleEs(lastSub.es);
-        setCurrentSubtitleEn(lastSub.en);
-        setCurrentIdx(intro.subtitles.length - 1);
-      }
-    };
-
-    utterance.onerror = (event) => {
-      console.log('Speech synthesis error:', event);
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsPlaying(false);
-    };
-
-    synth.current = utterance;
-    window.speechSynthesis.speak(utterance);
+    }
   }
 
   function stopPlayback() {
-    window.speechSynthesis.cancel();
+    if (audioRef.current) audioRef.current.pause();
     setIsPlaying(false);
     if (timerRef.current) clearInterval(timerRef.current);
     setCurrentSubtitleEs('');
@@ -328,6 +341,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
           {!isPlaying ? (
             <button
               onClick={playIntroduction}
+              disabled={isLoadingAudio}
               style={{
                 flex: 1,
                 padding: '1.3rem',
@@ -337,22 +351,25 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
                 background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-soft) 100%)',
                 color: '#1a1410',
                 fontWeight: '800',
-                cursor: 'pointer',
+                cursor: isLoadingAudio ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 8px 25px rgba(184,147,90,.4)',
                 textTransform: 'uppercase',
                 letterSpacing: '1.5px',
+                opacity: isLoadingAudio ? 0.6 : 1,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 35px rgba(184,147,90,.6)';
+                if (!isLoadingAudio) {
+                  (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 35px rgba(184,147,90,.6)';
+                }
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(184,147,90,.4)';
               }}
             >
-              ▶️ VER VÍDEO
+              {isLoadingAudio ? '⏳ Generando audio...' : '▶️ VER VÍDEO'}
             </button>
           ) : (
             <button

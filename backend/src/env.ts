@@ -26,6 +26,8 @@ export const env = {
     'es-MX': optional('ELEVENLABS_VOICE_MX'),
     'es-AR': optional('ELEVENLABS_VOICE_AR'),
     'es-CO': optional('ELEVENLABS_VOICE_CO'),
+    'ru-RU': optional('ELEVENLABS_VOICE_RU'),
+    'ru-Moscow': optional('ELEVENLABS_VOICE_RU_MOSCOW'),
   } as Record<string, string | undefined>,
 };
 
