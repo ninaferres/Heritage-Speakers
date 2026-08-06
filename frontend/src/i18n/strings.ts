@@ -39,6 +39,12 @@ export type StringKey =
   | 'howItWorks.step3Body'
   | 'host.name'
   | 'host.bio'
+  | 'about.title'
+  | 'about.eyebrow'
+  | 'about.ninaStory'
+  | 'about.ninaVision'
+  | 'about.ninaWhyRosa'
+  | 'about.ninaCall'
   | 'finalCta.title'
   | 'finalCta.description'
   | 'finalCta.buttonLabel'
@@ -99,6 +105,12 @@ export const EN: Record<StringKey, string> = {
   'howItWorks.step3Body': 'Move up one skill at a time. Reach C2 and switch to Maintain to keep it sharp.',
   'host.name': 'Meet Nina',
   'host.bio': 'I grew up in a family where we spoke Spanish, Catalan, and Russian. I use Spanish and Catalan every day here in Catalonia, but Russian is the language I only speak with my family. It\'s that language, the one that connects me to my roots, that inspired me to build Heritage Speakers. I know what it feels like to understand a language but struggle to speak it fluently. I know the fear of losing it. That\'s why I created this: so your heritage language stays alive, not something you lose.',
+  'about.eyebrow': 'About Heritage Speakers',
+  'about.title': 'Built by someone who gets it',
+  'about.ninaStory': 'I\'m Nina, and my heritage is more than just where my family comes from—it\'s woven into who I am. Growing up, our home was a linguistic tapestry: Spanish with my parents, Catalan with my friends here in Catalonia, Russian with my grandparents. That mix shaped everything about how I think, how I communicate, how I belong.',
+  'about.ninaVision': 'Heritage Speakers exists because I refused to let Russian become a language I only half-remember. I watched friends struggle with the same thing: understanding everything, frozen when it\'s time to speak or write. That gap, that shame, that fear of losing part of your identity—I built this platform to close it. To give you the tools to claim the language that claims you.',
+  'about.ninaWhyRosa': 'The rose color you see everywhere? It represents warmth, strength, and the roots we hold dear. It\'s intentional. Everything here is. Because reclaiming your heritage language isn\'t just a language goal—it\'s an act of identity, of connection, of love for where you come from.',
+  'about.ninaCall': 'Your heritage language is waiting. Not because you have to, but because you deserve to speak it the way you understand it. Let\'s build that together.',
   'finalCta.title': 'Your heritage language is waiting',
   'finalCta.description': 'Sign up and we\'ll set up your four skill tracks.',
   'finalCta.buttonLabel': 'Start now →',
@@ -160,6 +172,12 @@ export const ES: Record<StringKey, string> = {
   'howItWorks.step3Body': 'Sube una habilidad a la vez. Alcanza C2 y cambia a Mantener para mantenerla aguda.',
   'host.name': 'Conoce a Nina',
   'host.bio': 'Crecí en una familia donde hablábamos español, catalán y ruso. Uso español y catalán todos los días aquí en Cataluña, pero el ruso es el idioma que solo hablo con mi familia. Es ese idioma, el que me conecta con mis raíces, lo que me inspiró a crear Heritage Speakers. Sé lo que se siente entender un idioma pero luchar por hablarlo con fluidez. Conozco el miedo a perderlo. Por eso creé esto: para que tu idioma de herencia siga vivo, no algo que pierdas.',
+  'about.eyebrow': 'Acerca de Heritage Speakers',
+  'about.title': 'Construido por alguien que lo entiende',
+  'about.ninaStory': 'Soy Nina, y mi herencia es mucho más que de dónde viene mi familia—está tejida en quién soy. Crecí en un hogar que era un tapiz lingüístico: español con mis padres, catalán con mis amigos aquí en Cataluña, ruso con mis abuelos. Esa mezcla moldeó todo sobre cómo pienso, cómo me comunico, cómo pertenezco.',
+  'about.ninaVision': 'Heritage Speakers existe porque me negué a dejar que el ruso se convirtiera en un idioma que solo semi-recuerdo. Vi a amigos luchar con lo mismo: entienden todo, pero se quedan congelados cuando es hora de hablar o escribir. Esa brecha, esa vergüenza, ese miedo a perder parte de tu identidad—construí esta plataforma para cerrarla. Para darte las herramientas de reclamar el idioma que te reclama a ti.',
+  'about.ninaWhyRosa': '¿El color rosa que ves en todas partes? Representa calidez, fortaleza y las raíces que guardamos con cuidado. Es intencional. Todo aquí lo es. Porque reclamar tu idioma de herencia no es solo un objetivo lingüístico—es un acto de identidad, de conexión, de amor por de dónde vienes.',
+  'about.ninaCall': 'Tu idioma de herencia te está esperando. No porque tengas que, sino porque mereces hablarlo de la forma que lo entiendes. Construyámoslo juntos.',
   'finalCta.title': 'Tu idioma de herencia te está esperando',
   'finalCta.description': 'Regístrate y configuraremos tus cuatro pistas de habilidades.',
   'finalCta.buttonLabel': 'Comenzar ahora →',

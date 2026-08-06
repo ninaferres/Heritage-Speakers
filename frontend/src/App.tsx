@@ -5,7 +5,7 @@ import { LanguageSelector } from './components/LanguageSelector';
 import { LevelsSection } from './components/LevelsSection';
 import { BenefitsSection } from './components/BenefitsSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
-import { HostSection } from './components/HostSection';
+import { AboutSection } from './components/AboutSection';
 import { FinalCtaSection } from './components/FinalCtaSection';
 import { Footer } from './components/Footer';
 import { AssessmentModal } from './components/Assessment/AssessmentModal';
@@ -26,7 +26,7 @@ export default function App() {
       <LevelsSection />
       <BenefitsSection />
       <HowItWorksSection />
-      <HostSection />
+      <AboutSection />
       <FinalCtaSection />
       <Footer />
       {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
