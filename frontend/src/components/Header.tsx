@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BrandLockup } from './Logo';
 import { UI_LANGUAGES, UILanguageCode } from '../i18n/languages';
 import { useLanguage } from '../context/LanguageContext';
+import { getString } from '../i18n/strings';
 import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { COPY } from '../i18n/copy';
@@ -11,6 +12,14 @@ export function Header() {
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
   const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
+
+  const scrollToAbout = () => {
+    const aboutSection = document.querySelector('.about');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth' });
+      setNavOpen(false);
+    }
+  };
 
   return (
     <>
@@ -101,21 +110,42 @@ export function Header() {
             </div>
 
             <div>
-              <div className="nav-section-label">Learn a Language</div>
+              <div className="nav-section-label">{uiLanguage === 'es' ? 'Idiomas' : 'Languages'}</div>
               <select
                 className="lang-select"
                 value={learningLanguage || ''}
                 onChange={(e) => e.target.value && setLearningLanguage(e.target.value as any)}
                 aria-label="Choose language to learn"
               >
-                <option value="">Select a language...</option>
+                <option value="">{uiLanguage === 'es' ? 'Selecciona un idioma...' : 'Select a language...'}</option>
                 {availableLearningLanguages.map((opt) => (
                   <option key={opt.code} value={opt.code} disabled={opt.status !== 'active'}>
                     {opt.nativeLabel} {opt.status !== 'active' ? '— coming soon' : ''}
                   </option>
                 ))}
               </select>
-              <p className="lang-hint">More heritage languages are on the way.</p>
+              <p className="lang-hint">{uiLanguage === 'es' ? 'Más idiomas de herencia en camino.' : 'More heritage languages are on the way.'}</p>
+            </div>
+
+            <div>
+              <div className="nav-section-label">{uiLanguage === 'es' ? 'Acerca de' : 'About'}</div>
+              <button
+                onClick={scrollToAbout}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  fontSize: '0.95rem',
+                  border: 'none',
+                  borderRadius: '8px',
+                  background: 'var(--wine)',
+                  color: 'var(--bone)',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  marginBottom: '0.5rem',
+                }}
+              >
+                {getString('about.title', uiLanguage)}
+              </button>
             </div>
 
             <div>

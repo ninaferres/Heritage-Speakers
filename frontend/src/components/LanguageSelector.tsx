@@ -81,7 +81,7 @@ export function LanguageSelector() {
               transition: 'all 0.2s ease',
             }}
           >
-            {uiLanguage === 'es' ? '🇷🇺 Ruso' : '🇷🇺 Russian'}
+            {uiLanguage === 'es' ? 'Ruso' : 'Russian'}
           </button>
         </div>
       </div>
