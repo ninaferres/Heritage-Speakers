@@ -17,7 +17,7 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
   const { learningLanguage } = useLanguage();
   const exercise = learningLanguage ? getExercise(learningLanguage, skill, level) : null;
   const { label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
 
   if (showIntro && exercise && learningLanguage) {
     const skillLower = skill.toLowerCase();
