@@ -12,16 +12,23 @@ const ICONS: Record<SkillId, () => JSX.Element> = {
   Writing: WritingIcon,
 };
 
-function SkillCard({ id, sub }: { id: SkillId; sub: string }) {
+function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLanguage: 'en' | 'es' }) {
   const [level, setLevel] = useState<CefrLevel>('A1');
   const { requestExercise } = useExerciseGate();
   const Icon = ICONS[id];
   const isMaintain = level === 'C2';
 
+  const skillNames: Record<SkillId, { es: string; en: string }> = {
+    Speaking: { es: 'Habla', en: 'Speaking' },
+    Reading: { es: 'Lectura', en: 'Reading' },
+    Listening: { es: 'Escucha', en: 'Listening' },
+    Writing: { es: 'Escritura', en: 'Writing' },
+  };
+
   return (
     <div className="skill-card">
       <div className="skill-icon"><Icon /></div>
-      <h3>{id}</h3>
+      <h3>{skillNames[id][uiLanguage]}</h3>
       <div className="sub">{sub}</div>
       <div className="chips">
         {CEFR_LEVELS.map((lvl) => (
@@ -35,17 +42,17 @@ function SkillCard({ id, sub }: { id: SkillId; sub: string }) {
         ))}
       </div>
       <span className="level-up">
-        {isMaintain ? <span className="maintain">Maintaining C2 ✓</span> : `Level up from ${level} →`}
+        {isMaintain ? <span className="maintain">{uiLanguage === 'es' ? 'Manteniendo C2 ✓' : 'Maintaining C2 ✓'}</span> : `${uiLanguage === 'es' ? 'Sube de nivel desde ' : 'Level up from '}${level} →`}
       </span>
       <button className="btn btn-gold btn-small" style={{ marginTop: '1.25rem' }} onClick={() => requestExercise(id, level)}>
-        Try a {level} exercise
+        {uiLanguage === 'es' ? `Intenta un ejercicio ${level}` : `Try a ${level} exercise`}
       </button>
     </div>
   );
 }
 
 export function LevelsSection() {
-  const { learningLanguage } = useLanguage();
+  const { learningLanguage, uiLanguage } = useLanguage();
   return (
     <section className="block levels" id="levels">
       <div className="wrap">
@@ -61,7 +68,7 @@ export function LevelsSection() {
         {learningLanguage ? (
           <div className="level-grid">
             {SKILLS.map((s) => (
-              <SkillCard key={s.id} id={s.id} sub={s.sub} />
+              <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
             ))}
           </div>
         ) : (
