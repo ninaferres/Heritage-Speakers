@@ -4,6 +4,9 @@ import { getString } from '../i18n/strings';
 export function LanguageSelector() {
   const { uiLanguage, learningLanguage, setLearningLanguage } = useLanguage();
 
+  const languageToLearn = uiLanguage === 'es' ? 'ru' : 'es';
+  const languageName = uiLanguage === 'es' ? 'Ruso' : 'Spanish';
+
   return (
     <div style={{
       textAlign: 'center',
@@ -19,21 +22,21 @@ export function LanguageSelector() {
       </p>
 
       <button
-        onClick={() => setLearningLanguage('ru')}
+        onClick={() => setLearningLanguage(languageToLearn as any)}
         style={{
           display: 'inline-block',
           padding: '0.75rem 2rem',
           fontSize: '1rem',
-          border: `2px solid ${learningLanguage === 'ru' ? 'var(--gold)' : 'var(--wine)'}`,
+          border: `2px solid ${learningLanguage === languageToLearn ? 'var(--gold)' : 'var(--wine)'}`,
           borderRadius: '50px',
-          background: learningLanguage === 'ru' ? 'var(--gold)' : 'transparent',
-          color: learningLanguage === 'ru' ? 'var(--ink)' : 'var(--wine)',
+          background: learningLanguage === languageToLearn ? 'var(--gold)' : 'transparent',
+          color: learningLanguage === languageToLearn ? 'var(--ink)' : 'var(--wine)',
           fontWeight: '600',
           cursor: 'pointer',
           transition: 'all 0.3s ease',
         }}
       >
-        {uiLanguage === 'es' ? 'Ruso' : 'Russian'}
+        {languageName}
       </button>
 
       {learningLanguage && (
