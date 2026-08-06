@@ -12,12 +12,16 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ProductionEvaluation | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [showGuidance, setShowGuidance] = useState(true);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function startRecording() {
     setMicError(null);
+    setRecordingTime(0);
     if (!navigator.mediaDevices?.getUserMedia) {
       setMicError('Your browser does not support microphone recording.');
       return;
@@ -34,10 +38,16 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
         setAudioBlob(blob);
         setAudioUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach((t) => t.stop());
+        if (timerRef.current) clearInterval(timerRef.current);
       };
       recorder.start();
       mediaRecorderRef.current = recorder;
       setRecording(true);
+      setShowGuidance(false);
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime((t) => t + 1);
+      }, 1000);
     } catch {
       setMicError('Microphone access was denied. Please allow microphone access to record your answer.');
     }
@@ -46,6 +56,7 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
   function stopRecording() {
     mediaRecorderRef.current?.stop();
     setRecording(false);
+    if (timerRef.current) clearInterval(timerRef.current);
   }
 
   async function submit() {
@@ -62,23 +73,78 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
     }
   }
 
+  function retake() {
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingTime(0);
+    setShowGuidance(true);
+  }
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div>
-      <div className="exercise-block">
-        <h4>Prompt</h4>
-        <p>{exercise.prompt}</p>
-        <p style={{ marginTop: '.6rem', color: 'var(--muted)', fontSize: '.9rem' }}>Suggested length: {exercise.suggestedDuration}</p>
+      <div className="exercise-block" style={{ background: 'linear-gradient(135deg, rgba(107,31,46,.05) 0%, rgba(184,147,90,.05) 100%)', borderLeftColor: 'var(--wine)' }}>
+        <h4 style={{ color: 'var(--wine)' }}>🎤 Speak naturally and fluently</h4>
+        <p style={{ fontSize: '1.05rem', fontWeight: '500', lineHeight: '1.8', marginBottom: '1rem' }}>{exercise.prompt}</p>
+        <p style={{ marginTop: '1rem', color: 'var(--muted)', fontSize: '.9rem' }}>
+          💡 Suggested length: {exercise.suggestedDuration}
+        </p>
       </div>
+
+      {showGuidance && !recording && !audioUrl && (
+        <div style={{
+          background: 'rgba(184,147,90,.08)',
+          padding: '1.5rem',
+          borderRadius: '10px',
+          marginBottom: '1.5rem',
+          borderLeft: '4px solid var(--gold)',
+        }}>
+          <p style={{ margin: '0 0 0.8rem 0', fontWeight: '600', color: 'var(--wine)' }}>📋 Tips for better recording:</p>
+          <ul style={{ margin: '0', paddingLeft: '1.5rem', color: 'var(--ink)', fontSize: '.95rem', lineHeight: '1.8' }}>
+            <li>Speak clearly and at a natural pace</li>
+            <li>Take your time — quality over speed</li>
+            <li>Focus on pronunciation and grammar</li>
+            <li>Feel free to use natural pauses</li>
+          </ul>
+        </div>
+      )}
 
       {micError && <div className="error-box" style={{ marginBottom: '1rem' }}>{micError}</div>}
 
       {!result && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-start' }}>
-          <button className={`record-btn ${recording ? 'recording' : ''}`} onClick={recording ? stopRecording : startRecording}>
-            {recording ? '⏺ Stop recording' : '🎤 Start recording'}
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              className={`record-btn ${recording ? 'recording' : ''}`}
+              onClick={recording ? stopRecording : startRecording}
+              style={{
+                flex: 1,
+                padding: '1rem',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+              }}
+            >
+              {recording ? `⏹️ Stop (${formatTime(recordingTime)})` : '🎤 Start Recording'}
+            </button>
+          </div>
+
           {audioUrl && !recording && (
-            <audio controls src={audioUrl} style={{ width: '100%' }} />
+            <div style={{
+              background: 'rgba(107,31,46,.05)',
+              padding: '1.2rem',
+              borderRadius: '10px',
+              borderLeft: '4px solid var(--wine)',
+            }}>
+              <p style={{ margin: '0 0 0.8rem 0', fontSize: '.9rem', fontWeight: '700', color: 'var(--wine)', textTransform: 'uppercase' }}>
+                Your Recording ({formatTime(recordingTime)})
+              </p>
+              <audio controls src={audioUrl} style={{ width: '100%', borderRadius: '6px' }} />
+            </div>
           )}
         </div>
       )}
@@ -86,14 +152,19 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
       {error && <div className="error-box" style={{ marginTop: '1rem' }}>{error}</div>}
 
       {!result && audioBlob && !recording && (
-        <button className="btn btn-wine" style={{ marginTop: '1rem' }} disabled={loading} onClick={submit}>
-          {loading ? 'Evaluating…' : 'Submit recording for evaluation'}
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+          <button className="btn btn-wine" style={{ flex: 1 }} disabled={loading} onClick={submit}>
+            {loading ? 'Evaluating…' : '✓ Submit for Evaluation'}
+          </button>
+          <button className="btn btn-outline" style={{ flex: 1 }} onClick={retake} disabled={loading}>
+            🔄 Retake
+          </button>
+        </div>
       )}
 
       {loading && (
-        <div className="loading-inline">
-          <span className="spinner" /> Transcribing and analyzing pronunciation, grammar and vocabulary…
+        <div className="loading-inline" style={{ marginTop: '1.5rem' }}>
+          <span className="spinner" /> Analyzing pronunciation, grammar, vocabulary and fluency…
         </div>
       )}
 
