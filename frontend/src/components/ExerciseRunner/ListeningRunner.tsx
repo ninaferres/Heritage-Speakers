@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { ListeningExercise, CefrLevel, AccentId } from '../../data/types';
-import { evaluateListening, synthesizeSpeech } from '../../api/client';
+import { evaluateListening, synthesizeSpeechTTS } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 import { ACCENTS } from '../../data/accents';
@@ -16,26 +16,46 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ComprehensionEvaluation | null>(null);
-  const ttsRef = useRef<ReturnType<typeof synthesizeSpeech> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentQuestion = exercise.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === exercise.questions.length - 1;
   const currentAnswered = answers[currentQuestionIndex]?.trim().length > 0;
 
-  function playAudio() {
+  async function playAudio() {
     if (!accent) {
       setError('Audio playback is not available for this exercise language.');
       return;
     }
-    const lang = learningLanguage === 'ru' ? 'ru' : 'es';
-    ttsRef.current = synthesizeSpeech({ text: exercise.transcript, accent, lang });
-    if (!ttsRef.current.isSupported) {
-      setError('Speech synthesis is not supported in your browser. Please use Chrome, Firefox, Safari, or Edge.');
-      return;
-    }
     setIsPlaying(true);
-    ttsRef.current.play();
-    setTimeout(() => setIsPlaying(false), 2000);
+    setError(null);
+    try {
+      const audioBlob = await synthesizeSpeechTTS({ text: exercise.transcript, accent });
+      if (!audioBlob) {
+        setError('Failed to generate audio. Please try again.');
+        setIsPlaying(false);
+        return;
+      }
+
+      const audioUrl = URL.createObjectURL(audioBlob);
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+      }
+      audioRef.current.src = audioUrl;
+      audioRef.current.play();
+
+      audioRef.current.onended = () => {
+        setIsPlaying(false);
+      };
+
+      audioRef.current.onerror = () => {
+        setError('Error playing audio. Please try again.');
+        setIsPlaying(false);
+      };
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error playing audio');
+      setIsPlaying(false);
+    }
   }
 
   async function handleNext() {
