@@ -19,6 +19,28 @@ export function Header() {
           <BrandLockup variant="wine" />
 
           <div className="nav-actions">
+            <select
+              className="lang-select"
+              value={uiLanguage}
+              onChange={(e) => setUILanguage(e.target.value as UILanguageCode)}
+              aria-label="Select interface language"
+              style={{
+                padding: '0.5rem 0.75rem',
+                fontSize: '0.9rem',
+                border: '2px solid var(--wine)',
+                borderRadius: '6px',
+                background: 'var(--bone)',
+                color: 'var(--ink)',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              {UI_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.nativeLabel}
+                </option>
+              ))}
+            </select>
             <button
               className={`hamburger-btn ${navOpen ? 'open' : ''}`}
               aria-label={navOpen ? 'Close menu' : 'Open menu'}
