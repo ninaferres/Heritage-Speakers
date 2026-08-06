@@ -18,12 +18,12 @@ export default function App() {
     <ExerciseGateProvider>
       <Header />
       <Hero onOpenAssessment={() => setAssessmentOpen(true)} />
+      <LevelsSection />
       <section style={{ padding: '2rem 0', background: 'var(--bone)' }}>
         <div className="wrap">
           <LanguageSelector />
         </div>
       </section>
-      <LevelsSection />
       <BenefitsSection />
       <HowItWorksSection />
       <AboutSection />
