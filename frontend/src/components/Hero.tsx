@@ -1,6 +1,10 @@
 import { LogoMark } from './Logo';
+import { useLanguage } from '../context/LanguageContext';
+import { getString } from '../i18n/strings';
 
 export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
+  const { uiLanguage } = useLanguage();
+
   return (
     <header className="hero">
       <div className="wrap hero-inner">
@@ -9,20 +13,21 @@ export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
           <span>Heritage Speakers</span>
         </div>
 
-        <h1>Reclaim the language you grew up with</h1>
-        <p className="hero-subtitle">Where childhood memories meet adult mastery</p>
+        <h1>{getString('hero.tagline', uiLanguage)}</h1>
+        <p className="hero-subtitle">{getString('hero.subtitle', uiLanguage)}</p>
         <p className="hero-description">
-          You grew up understanding it. Now strengthen it, skill by skill. Spanish learning designed
-          specifically for heritage speakers ready to own their inheritance.
+          {uiLanguage === 'es'
+            ? 'Creciste entendiéndolo. Ahora fortalécelo, habilidad por habilidad. Aprendizaje de ruso diseñado específicamente para hablantes de herencia listos para reclamar su legado.'
+            : 'You grew up understanding it. Now strengthen it, skill by skill. Spanish learning designed specifically for heritage speakers ready to own their inheritance.'}
         </p>
         <div className="cta-row">
-          <a href="#levels" className="btn btn-gold">Start now</a>
+          <a href="#levels" className="btn btn-gold">{uiLanguage === 'es' ? 'Comenzar ahora' : 'Start now'}</a>
           <button
             onClick={onOpenAssessment}
             className="btn btn-outline"
             style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}
           >
-            Determine your level
+            {uiLanguage === 'es' ? 'Determina tu nivel' : 'Determine your level'}
           </button>
         </div>
       </div>

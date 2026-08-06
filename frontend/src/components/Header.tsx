@@ -25,12 +25,12 @@ export function Header() {
               onChange={(e) => setUILanguage(e.target.value as UILanguageCode)}
               aria-label="Select interface language"
               style={{
-                padding: '0.5rem 0.75rem',
+                padding: '0.6rem 1rem',
                 fontSize: '0.9rem',
-                border: '2px solid var(--wine)',
-                borderRadius: '6px',
-                background: 'var(--bone)',
-                color: 'var(--ink)',
+                border: 'none',
+                borderRadius: '8px',
+                background: 'var(--wine)',
+                color: 'var(--bone)',
                 fontWeight: '600',
                 cursor: 'pointer',
               }}
