@@ -7,7 +7,7 @@ import { ACCENTS } from '../../data/accents';
 
 export function ListeningRunner({ exercise, level }: { exercise: ListeningExercise; level: CefrLevel }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [accent, setAccent] = useState<AccentId>(exercise.defaultAccent);
+  const [accent, setAccent] = useState<AccentId | undefined>(exercise.defaultAccent);
   const [isPlaying, setIsPlaying] = useState(false);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,10 @@ export function ListeningRunner({ exercise, level }: { exercise: ListeningExerci
   const currentAnswered = answers[currentQuestionIndex]?.trim().length > 0;
 
   function playAudio() {
+    if (!accent) {
+      setError('Audio playback is not available for this exercise language.');
+      return;
+    }
     ttsRef.current = synthesizeSpeech({ text: exercise.transcript, accent });
     if (!ttsRef.current.isSupported) {
       setError('Speech synthesis is not supported in your browser. Please use Chrome, Firefox, Safari, or Edge.');

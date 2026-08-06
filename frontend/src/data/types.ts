@@ -46,7 +46,7 @@ export interface ListeningExercise {
   title: string;
   /** Script synthesized via the backend TTS endpoint at runtime — not a static audio file. */
   transcript: string;
-  defaultAccent: AccentId;
+  defaultAccent?: AccentId;
   questions: ExerciseQuestion[];
 }
 export interface WritingExercise {
