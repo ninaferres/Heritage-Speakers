@@ -19,28 +19,48 @@ export function Header() {
           <BrandLockup variant="wine" />
 
           <div className="nav-actions">
-            <select
-              className="lang-select"
-              value={uiLanguage}
-              onChange={(e) => setUILanguage(e.target.value as UILanguageCode)}
-              aria-label="Select interface language"
+            <div
+              className="lang-toggle"
               style={{
-                padding: '0.6rem 1rem',
-                fontSize: '0.9rem',
-                border: 'none',
-                borderRadius: '8px',
-                background: 'var(--wine)',
-                color: 'var(--bone)',
+                display: 'flex',
+                gap: '0.5rem',
+                alignItems: 'center',
+                color: 'var(--wine)',
                 fontWeight: '600',
+                fontSize: '0.9rem',
                 cursor: 'pointer',
               }}
             >
-              {UI_LANGUAGES.map((lang) => (
-                <option key={lang.code} value={lang.code}>
-                  {lang.nativeLabel}
-                </option>
-              ))}
-            </select>
+              <button
+                onClick={() => setUILanguage('es')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: uiLanguage === 'es' ? 'var(--wine)' : 'var(--wine)',
+                  fontWeight: uiLanguage === 'es' ? '700' : '600',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  padding: 0,
+                }}
+              >
+                Español
+              </button>
+              <span>|</span>
+              <button
+                onClick={() => setUILanguage('en')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: uiLanguage === 'en' ? 'var(--wine)' : 'var(--wine)',
+                  fontWeight: uiLanguage === 'en' ? '700' : '600',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  padding: 0,
+                }}
+              >
+                English
+              </button>
+            </div>
             <button
               className={`hamburger-btn ${navOpen ? 'open' : ''}`}
               aria-label={navOpen ? 'Close menu' : 'Open menu'}
