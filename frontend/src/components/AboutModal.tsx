@@ -22,9 +22,23 @@ export function AboutModal({ onClose }: { onClose: () => void }) {
         minHeight: '100vh',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-          <h1 style={{ color: 'var(--wine)', margin: 0, fontSize: '2.5rem' }}>
-            {getString('about.title', uiLanguage)}
-          </h1>
+          <div>
+            <h1 style={{ color: 'var(--wine)', margin: '0 0 1.5rem 0', fontSize: '2.5rem' }}>
+              {getString('about.title', uiLanguage)}
+            </h1>
+            <img
+              src="/images/nina.jpg"
+              alt="Nina"
+              style={{
+                width: '200px',
+                height: '200px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '4px solid var(--wine)',
+                marginBottom: '1.5rem',
+              }}
+            />
+          </div>
           <button
             onClick={onClose}
             style={{
