@@ -5,20 +5,19 @@ import { useLanguage } from '../context/LanguageContext';
 import { getString } from '../i18n/strings';
 import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
+import { AboutModal } from './AboutModal';
 import { COPY } from '../i18n/copy';
 
 export function Header() {
   const [navOpen, setNavOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
 
-  const scrollToAbout = () => {
-    const aboutSection = document.querySelector('.about');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
-      setNavOpen(false);
-    }
+  const handleOpenAbout = () => {
+    setAboutOpen(true);
+    setNavOpen(false);
   };
 
   return (
@@ -130,7 +129,7 @@ export function Header() {
             <div>
               <div className="nav-section-label">{uiLanguage === 'es' ? 'Acerca de' : 'About'}</div>
               <button
-                onClick={scrollToAbout}
+                onClick={handleOpenAbout}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
@@ -172,6 +171,10 @@ export function Header() {
 
       {authMode && (
         <AuthModal initialMode={authMode} onClose={() => setAuthMode(null)} onAuthenticated={() => setAuthMode(null)} />
+      )}
+
+      {aboutOpen && (
+        <AboutModal onClose={() => setAboutOpen(false)} />
       )}
     </>
   );
