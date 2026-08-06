@@ -5,9 +5,12 @@ import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 import { ACCENTS } from '../../data/accents';
 
-export function ListeningRunner({ exercise, level }: { exercise: ListeningExercise; level: CefrLevel }) {
+export function ListeningRunner({ exercise, level, learningLanguage }: { exercise: ListeningExercise; level: CefrLevel; learningLanguage?: string }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [accent, setAccent] = useState<AccentId | undefined>(exercise.defaultAccent);
+  const [accent, setAccent] = useState<AccentId | undefined>(() => {
+    if (learningLanguage === 'ru') return 'ru-RU';
+    return exercise.defaultAccent;
+  });
   const [isPlaying, setIsPlaying] = useState(false);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
@@ -24,7 +27,8 @@ export function ListeningRunner({ exercise, level }: { exercise: ListeningExerci
       setError('Audio playback is not available for this exercise language.');
       return;
     }
-    ttsRef.current = synthesizeSpeech({ text: exercise.transcript, accent });
+    const lang = learningLanguage === 'ru' ? 'ru' : 'es';
+    ttsRef.current = synthesizeSpeech({ text: exercise.transcript, accent, lang });
     if (!ttsRef.current.isSupported) {
       setError('Speech synthesis is not supported in your browser. Please use Chrome, Firefox, Safari, or Edge.');
       return;
@@ -81,7 +85,10 @@ export function ListeningRunner({ exercise, level }: { exercise: ListeningExerci
           <h4>Audio</h4>
           <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <select className="accent-select" value={accent} onChange={(e) => setAccent(e.target.value as AccentId)}>
-              {ACCENTS.map((a) => (
+              {ACCENTS.filter((a) => {
+                const isRussian = learningLanguage === 'ru';
+                return isRussian ? a.id.startsWith('ru') : a.id.startsWith('es');
+              }).map((a) => (
                 <option key={a.id} value={a.id}>{a.label}</option>
               ))}
             </select>

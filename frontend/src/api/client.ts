@@ -72,8 +72,12 @@ export async function evaluateSpeaking(params: {
 }
 
 // Use Web Speech API for text-to-speech (free, no server required)
-export function synthesizeSpeech(params: { text: string; accent: AccentId }): { play: () => void; stop: () => void; isSupported: boolean } {
+export function synthesizeSpeech(params: { text: string; accent: AccentId; lang?: 'es' | 'ru' }): { play: () => void; stop: () => void; isSupported: boolean } {
   const isSupported = 'speechSynthesis' in window;
+
+  // Determine language from accent if not explicitly provided
+  const language = params.lang || (params.accent.startsWith('ru') ? 'ru' : 'es');
+  const langCode = language === 'ru' ? 'ru-RU' : 'es-ES';
 
   return {
     isSupported,
@@ -85,21 +89,24 @@ export function synthesizeSpeech(params: { text: string; accent: AccentId }): { 
 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(params.text);
-      utterance.lang = 'es-ES';
+      utterance.lang = langCode;
       utterance.rate = 0.9;
       utterance.pitch = 1;
 
-      // Select voice based on accent (best-effort fallback to Spanish)
+      // Select voice based on accent (best-effort fallback)
       const voices = window.speechSynthesis.getVoices();
       const accentMap: Record<AccentId, string[]> = {
         'es-ES': ['Spanish', 'Castilian'],
         'es-MX': ['Mexican', 'Spanish - Mexico'],
         'es-AR': ['Argentinian', 'Spanish - Argentina'],
         'es-CO': ['Colombian', 'Spanish - Colombia'],
+        'ru-RU': ['Russian', 'Russkiy'],
+        'ru-Moscow': ['Russian', 'Russkiy', 'Moscow'],
       };
 
-      const preferredVoiceNames = accentMap[params.accent] || ['Spanish'];
-      const voice = voices.find((v) => preferredVoiceNames.some((name) => v.name.includes(name))) || voices.find((v) => v.lang.startsWith('es'));
+      const preferredVoiceNames = accentMap[params.accent] || (language === 'ru' ? ['Russian'] : ['Spanish']);
+      const langPrefix = language === 'ru' ? 'ru' : 'es';
+      const voice = voices.find((v) => preferredVoiceNames.some((name) => v.name.includes(name))) || voices.find((v) => v.lang.startsWith(langPrefix));
       if (voice) utterance.voice = voice;
 
       window.speechSynthesis.speak(utterance);

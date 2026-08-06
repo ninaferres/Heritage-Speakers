@@ -35,6 +35,7 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
         <ExerciseIntroduction
           intro={intro}
           onStartExercise={() => setShowIntro(false)}
+          learningLanguage={learningLanguage}
         />
       );
     }
@@ -62,7 +63,7 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
 
             {exercise.skill === 'Writing' && <WritingRunner exercise={exercise} level={level} />}
             {exercise.skill === 'Reading' && <ReadingRunner exercise={exercise} level={level} />}
-            {exercise.skill === 'Listening' && <ListeningRunner exercise={exercise} level={level} />}
+            {exercise.skill === 'Listening' && <ListeningRunner exercise={exercise} level={level} learningLanguage={learningLanguage} />}
             {exercise.skill === 'Speaking' && <SpeakingRunner exercise={exercise} level={level} />}
           </>
         )}

@@ -33,7 +33,7 @@ export interface ListeningAssessmentQuestion {
 export type ExerciseQuestion = OpenQuestion | MultipleChoiceQuestion | MatchingQuestion | SpeakingAssessmentQuestion | ListeningAssessmentQuestion;
 
 /** Regional Spanish accent used for Listening TTS audio (advanced levels rotate through these). */
-export type AccentId = 'es-ES' | 'es-MX' | 'es-AR' | 'es-CO';
+export type AccentId = 'es-ES' | 'es-MX' | 'es-AR' | 'es-CO' | 'ru-RU' | 'ru-Moscow';
 
 export interface ReadingExercise {
   skill: 'Reading';

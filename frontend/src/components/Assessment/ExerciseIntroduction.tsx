@@ -4,6 +4,7 @@ import { ExerciseIntro } from '../../data/exerciseIntros';
 interface Props {
   intro: ExerciseIntro;
   onStartExercise: () => void;
+  learningLanguage?: string;
 }
 
 export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
@@ -69,7 +70,7 @@ export function ExerciseIntroduction({ intro, onStartExercise }: Props) {
 
     const fullText = `${intro.explanationEs} ${intro.example || ''}`;
     const utterance = new SpeechSynthesisUtterance(fullText);
-    utterance.lang = 'es-ES';
+    utterance.lang = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 1;
