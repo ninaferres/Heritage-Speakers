@@ -8,14 +8,34 @@ export function LanguageSelector() {
   const languageName = uiLanguage === 'es' ? 'Ruso' : 'Spanish';
 
   return (
-    <div style={{
+    <div id="language-selector" style={{
       textAlign: 'center',
-      padding: '1rem 0',
+      padding: '2rem 1rem',
+      background: 'rgba(107,31,46,0.05)',
+      borderRadius: '12px',
+      border: '2px solid var(--wine)',
+      animation: 'pulse 2s infinite',
     }}>
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { border-color: var(--wine); background: rgba(107,31,46,0.05); }
+          50% { border-color: var(--gold); background: rgba(184,147,90,0.1); }
+        }
+      `}</style>
       <p style={{
         color: 'var(--wine)',
-        marginBottom: '1rem',
-        fontSize: '0.95rem',
+        marginBottom: '0.5rem',
+        fontSize: '0.85rem',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+      }}>
+        {uiLanguage === 'es' ? '👇 Haz clic aquí para comenzar' : '👇 Click here to start'}
+      </p>
+      <p style={{
+        color: 'var(--wine)',
+        marginBottom: '1.5rem',
+        fontSize: '1.05rem',
         fontWeight: '600',
       }}>
         {uiLanguage === 'es' ? '¿Qué idioma quieres aprender?' : 'What language do you want to learn?'}

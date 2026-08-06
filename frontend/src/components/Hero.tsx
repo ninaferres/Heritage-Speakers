@@ -21,7 +21,7 @@ export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
             : 'You grew up understanding it. Now strengthen it, skill by skill. Spanish learning designed specifically for heritage speakers ready to own their inheritance.'}
         </p>
         <div className="cta-row">
-          <a href="#levels" className="btn btn-gold">{uiLanguage === 'es' ? 'Comenzar ahora' : 'Start now'}</a>
+          <a href="#language-selector" className="btn btn-gold">{uiLanguage === 'es' ? 'Comenzar ahora' : 'Start now'}</a>
           <button
             onClick={onOpenAssessment}
             className="btn btn-outline"
