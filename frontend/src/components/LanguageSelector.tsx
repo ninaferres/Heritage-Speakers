@@ -64,30 +64,25 @@ export function LanguageSelector() {
             textTransform: 'uppercase',
             letterSpacing: '1px'
           }}>
-            Learn a Language
+            {uiLanguage === 'es' ? '¿Qué idioma quieres aprender?' : 'What language do you want to learn?'}
           </label>
-          <select
-            value={learningLanguage || ''}
-            onChange={(e) => e.target.value && setLearningLanguage(e.target.value as any)}
+          <button
+            onClick={() => setLearningLanguage('ru')}
             style={{
               width: '100%',
               padding: '0.75rem',
               fontSize: '1rem',
-              border: `2px solid ${learningLanguage ? 'var(--gold)' : 'var(--wine)'}`,
+              border: `2px solid ${learningLanguage === 'ru' ? 'var(--gold)' : 'var(--wine)'}`,
               borderRadius: '8px',
-              background: 'var(--bone)',
-              color: learningLanguage ? 'var(--wine)' : 'var(--muted)',
+              background: learningLanguage === 'ru' ? 'var(--gold)' : 'var(--bone)',
+              color: learningLanguage === 'ru' ? 'var(--ink)' : 'var(--wine)',
               fontWeight: '600',
               cursor: 'pointer',
+              transition: 'all 0.2s ease',
             }}
           >
-            <option value="">Select a language to learn...</option>
-            {availableLearningLanguages.map((lang) => (
-              <option key={lang.code} value={lang.code} disabled={lang.status !== 'active'}>
-                {lang.nativeLabel} {lang.status !== 'active' ? '— coming soon' : ''}
-              </option>
-            ))}
-          </select>
+            {uiLanguage === 'es' ? '🇷🇺 Ruso' : '🇷🇺 Russian'}
+          </button>
         </div>
       </div>
 
