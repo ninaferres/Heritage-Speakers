@@ -18,7 +18,7 @@ export default function App() {
       <Header />
       <Hero onOpenAssessment={() => setAssessmentOpen(true)} />
       <LevelsSection />
-      <section style={{ padding: '2rem 0', background: 'var(--bone)' }}>
+      <section style={{ padding: '1rem 0', background: 'var(--bone)' }}>
         <div className="wrap">
           <LanguageSelector />
         </div>
