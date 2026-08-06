@@ -1,3 +1,6 @@
+import { useLanguage } from '../context/LanguageContext';
+import { getString } from '../i18n/strings';
+
 function IconClock() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -27,35 +30,37 @@ function IconLayers() {
 const STEPS = [
   {
     icon: IconClock,
-    title: 'Set your starting levels',
-    body: 'Tell us where each skill sits today. Four honest starting points, no guessing one single level.',
+    titleKey: 'howItWorks.step1Title',
+    bodyKey: 'howItWorks.step1Body',
   },
   {
     icon: IconTarget2,
-    title: 'Practice with guided sessions',
-    body: 'Each session targets one skill at one CEFR level. Always at the right edge: never too easy, never overwhelming.',
+    titleKey: 'howItWorks.step2Title',
+    bodyKey: 'howItWorks.step2Body',
   },
   {
     icon: IconLayers,
-    title: 'Level up or maintain',
-    body: 'Move up one skill at a time. Reach C2 and switch to Maintain to keep it sharp.',
+    titleKey: 'howItWorks.step3Title',
+    bodyKey: 'howItWorks.step3Body',
   },
 ];
 
 export function HowItWorksSection() {
+  const { uiLanguage } = useLanguage();
+
   return (
     <section className="block how" id="how">
       <div className="wrap">
         <div className="head">
-          <span className="eyebrow">How it works</span>
-          <h2>Three steps, then you're moving</h2>
+          <span className="eyebrow">{getString('howItWorks.eyebrow', uiLanguage)}</span>
+          <h2>{getString('howItWorks.title', uiLanguage)}</h2>
         </div>
         <div className="steps">
           {STEPS.map((s) => (
-            <div className="step" key={s.title}>
+            <div className="step" key={s.titleKey}>
               <div className="s-icon"><s.icon /></div>
-              <h3>{s.title}</h3>
-              <p>{s.body}</p>
+              <h3>{getString(s.titleKey as any, uiLanguage)}</h3>
+              <p>{getString(s.bodyKey as any, uiLanguage)}</p>
             </div>
           ))}
         </div>

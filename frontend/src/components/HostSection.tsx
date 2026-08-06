@@ -1,4 +1,9 @@
+import { useLanguage } from '../context/LanguageContext';
+import { getString } from '../i18n/strings';
+
 export function HostSection() {
+  const { uiLanguage } = useLanguage();
+
   return (
     <section className="block host">
       <div className="wrap">
@@ -10,13 +15,9 @@ export function HostSection() {
             </svg>
           </div>
           <div>
-            <h3>Meet Nina</h3>
+            <h3>{getString('host.name', uiLanguage)}</h3>
             <p>
-              I grew up in a family where we spoke Spanish, Catalan, and Russian. I use Spanish and Catalan every day
-              here in Catalonia, but Russian is the language I only speak with my family. It's that language, the one
-              that connects me to my roots, that inspired me to build Heritage Speakers. I know what it feels like to
-              understand a language but struggle to speak it fluently. I know the fear of losing it. That's why I
-              created this: so your heritage language stays alive, not something you lose.
+              {getString('host.bio', uiLanguage)}
             </p>
           </div>
         </div>

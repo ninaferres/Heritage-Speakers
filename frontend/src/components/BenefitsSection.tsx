@@ -1,3 +1,6 @@
+import { useLanguage } from '../context/LanguageContext';
+import { getString } from '../i18n/strings';
+
 function IconTarget() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -28,36 +31,38 @@ function IconBars() {
 const BENEFITS = [
   {
     icon: IconTarget,
-    title: 'Grow each skill at its own pace',
-    body: 'Your listening might be years ahead of your writing. We meet each skill exactly where it is, no averaging down.',
+    titleKey: 'benefits.benefit1Title',
+    bodyKey: 'benefits.benefit1Body',
   },
   {
     icon: IconPulse,
-    title: 'Close the understanding-to-using gap',
-    body: 'You already hear it. Half-speak it. We help you read and write with the same confidence you bring to listening.',
+    titleKey: 'benefits.benefit2Title',
+    bodyKey: 'benefits.benefit2Body',
   },
   {
     icon: IconBars,
-    title: 'Track real CEFR progress',
-    body: 'Watch each skill climb the scale, or hold steady at C2. Progress you can point to, skill by skill.',
+    titleKey: 'benefits.benefit3Title',
+    bodyKey: 'benefits.benefit3Body',
   },
 ];
 
 export function BenefitsSection() {
+  const { uiLanguage } = useLanguage();
+
   return (
     <section className="block benefits">
       <div className="wrap">
         <div className="head">
-          <span className="eyebrow">What you'll get</span>
-          <h2>Three things that change how you show up</h2>
-          <p>At work, at home, on paper.</p>
+          <span className="eyebrow">{getString('benefits.eyebrow', uiLanguage)}</span>
+          <h2>{getString('benefits.title', uiLanguage)}</h2>
+          <p>{getString('benefits.description', uiLanguage)}</p>
         </div>
         <div className="benefit-grid">
           {BENEFITS.map((b) => (
-            <div className="benefit" key={b.title}>
+            <div className="benefit" key={b.titleKey}>
               <div className="b-icon"><b.icon /></div>
-              <h3>{b.title}</h3>
-              <p>{b.body}</p>
+              <h3>{getString(b.titleKey as any, uiLanguage)}</h3>
+              <p>{getString(b.bodyKey as any, uiLanguage)}</p>
             </div>
           ))}
         </div>

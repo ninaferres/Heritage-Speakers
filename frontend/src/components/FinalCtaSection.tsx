@@ -1,9 +1,12 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { getString } from '../i18n/strings';
 import { AuthModal } from './AuthModal';
 
 export function FinalCtaSection() {
   const { user } = useAuth();
+  const { uiLanguage } = useLanguage();
   const [showAuth, setShowAuth] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -19,14 +22,14 @@ export function FinalCtaSection() {
   return (
     <section className="final" id="signup">
       <div className="wrap">
-        <h2>Your heritage language is waiting</h2>
-        <p>Sign up and we'll set up your four skill tracks.</p>
+        <h2>{getString('finalCta.title', uiLanguage)}</h2>
+        <p>{getString('finalCta.description', uiLanguage)}</p>
 
         {user || done ? (
-          <p style={{ color: 'var(--bone)', fontWeight: 600 }}>You're all set — scroll up to pick a skill and level to get started.</p>
+          <p style={{ color: 'var(--bone)', fontWeight: 600 }}>{getString('finalCta.successMessage', uiLanguage)}</p>
         ) : (
           <form className="signup" onSubmit={handleSubmit}>
-            <button className="btn btn-gold" type="submit">Start now →</button>
+            <button className="btn btn-gold" type="submit">{getString('finalCta.buttonLabel', uiLanguage)}</button>
           </form>
         )}
       </div>
