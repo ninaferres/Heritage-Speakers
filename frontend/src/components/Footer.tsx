@@ -1,6 +1,7 @@
 import { LogoBadge } from './Logo';
 import { useLanguage } from '../context/LanguageContext';
 import { getUILanguage } from '../i18n/languages';
+import { getString } from '../i18n/strings';
 
 export function Footer() {
   const { uiLanguage } = useLanguage();
@@ -13,7 +14,7 @@ export function Footer() {
           <span className="brand-name">Heritage Speakers</span>
         </span>
         <span className="langs">{ui?.label}</span>
-        <span className="copy">© 2026 Heritage Speakers</span>
+        <span className="copy">{getString('footer.copyright', uiLanguage)}</span>
       </div>
     </footer>
   );
