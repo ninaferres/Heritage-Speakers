@@ -4,7 +4,6 @@ import { CefrLevel, SkillId } from '../data/types';
 import { SpeakingIcon, ReadingIcon, ListeningIcon, WritingIcon } from './icons/SkillIcons';
 import { useExerciseGate } from '../context/ExerciseGateContext';
 import { useLanguage } from '../context/LanguageContext';
-import { getString } from '../i18n/strings';
 
 const ICONS: Record<SkillId, () => JSX.Element> = {
   Speaking: SpeakingIcon,
@@ -13,7 +12,7 @@ const ICONS: Record<SkillId, () => JSX.Element> = {
   Writing: WritingIcon,
 };
 
-function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLanguage: 'en' | 'es' }) {
+function SkillCard({ id, sub }: { id: SkillId; sub: string }) {
   const [level, setLevel] = useState<CefrLevel>('A1');
   const { requestExercise } = useExerciseGate();
   const Icon = ICONS[id];
@@ -36,42 +35,41 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLangua
         ))}
       </div>
       <span className="level-up">
-        {isMaintain ? <span className="maintain">{uiLanguage === 'es' ? 'Manteniendo C2 ✓' : 'Maintaining C2 ✓'}</span> : `${uiLanguage === 'es' ? 'Sube de nivel desde ' : 'Level up from '}${level} →`}
+        {isMaintain ? <span className="maintain">Maintaining C2 ✓</span> : `Level up from ${level} →`}
       </span>
       <button className="btn btn-gold btn-small" style={{ marginTop: '1.25rem' }} onClick={() => requestExercise(id, level)}>
-        {uiLanguage === 'es' ? `Intenta un ejercicio ${level}` : `Try a ${level} exercise`}
+        Try a {level} exercise
       </button>
     </div>
   );
 }
 
 export function LevelsSection() {
-  const { learningLanguage, uiLanguage } = useLanguage();
+  const { learningLanguage } = useLanguage();
   return (
     <section className="block levels" id="levels">
       <div className="wrap">
         <div className="head">
-          <span className="eyebrow">{getString('levels.eyebrow', uiLanguage)}</span>
-          <h2>{getString('levels.title', uiLanguage)}</h2>
+          <span className="eyebrow">Your own level in every language</span>
+          <h2>You're not one level, you're four</h2>
           <p>
-            {getString('levels.description', uiLanguage)}
+            Define your level for Speaking, Reading, Listening, and Writing on the CEFR scale (A1–C2). Each skill
+            progresses on its own. Listening C1 but writing B1? That's the point.
           </p>
         </div>
 
         {learningLanguage ? (
           <div className="level-grid">
             {SKILLS.map((s) => (
-              <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
+              <SkillCard key={s.id} id={s.id} sub={s.sub} />
             ))}
           </div>
         ) : (
-          <p className="footnote">{getString('levels.selectLanguage', uiLanguage)}</p>
+          <p className="footnote">Please select a language to learn from the menu to start practicing.</p>
         )}
 
         <p className="footnote">
-          {uiLanguage === 'es'
-            ? 'Cuando alcances C2 en cualquier habilidad, el sistema cambia a Mantener en lugar de subir de nivel.'
-            : 'When you reach C2 in any skill, the system switches to Maintain instead of level up.'}
+          When you reach <b>C2</b> in any skill, the system switches to <b>Maintain</b> instead of level up.
         </p>
       </div>
     </section>
