@@ -18,7 +18,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [uiLanguage, setUILanguageState] = useState<UILanguageCode>(() => {
     if (typeof window === 'undefined') return DEFAULT_UI_LANGUAGE;
     const saved = window.localStorage.getItem(UI_LANGUAGE_STORAGE_KEY) as UILanguageCode | null;
-    return (saved === 'en' || saved === 'es') ? saved : DEFAULT_UI_LANGUAGE;
+    if (saved === 'en' || saved === 'es') return saved;
+
+    // Auto-detect from browser language
+    const browserLang = navigator.language || navigator.languages?.[0] || '';
+    if (browserLang.startsWith('es')) return 'es';
+    return DEFAULT_UI_LANGUAGE;
   });
 
   const [learningLanguage, setLearningLanguageState] = useState<LearningLanguageCode | null>(() => {
