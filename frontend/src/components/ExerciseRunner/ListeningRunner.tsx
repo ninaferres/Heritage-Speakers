@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { ListeningExercise, CefrLevel, AccentId } from '../../data/types';
 import { evaluateListening, synthesizeSpeechTTS } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
@@ -11,6 +11,14 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
     if (learningLanguage === 'ru') return 'ru-RU';
     return exercise.defaultAccent;
   });
+
+  useEffect(() => {
+    if (learningLanguage === 'ru') {
+      setAccent('ru-RU');
+    } else if (learningLanguage === 'es') {
+      setAccent(exercise.defaultAccent || 'es-ES');
+    }
+  }, [learningLanguage, exercise.defaultAccent]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
