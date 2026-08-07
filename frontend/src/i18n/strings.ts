@@ -66,7 +66,22 @@ export type StringKey =
   | 'assessment.of'
   | 'assessment.previous'
   | 'assessment.next'
-  | 'assessment.finishAndSeeResult';
+  | 'assessment.finishAndSeeResult'
+  | 'speaking.header'
+  | 'speaking.suggestedLength'
+  | 'speaking.tipsTitle'
+  | 'speaking.tipsClear'
+  | 'speaking.tipsTime'
+  | 'speaking.tipsFocus'
+  | 'speaking.tipsPauses'
+  | 'speaking.startRecording'
+  | 'speaking.stopRecording'
+  | 'speaking.yourRecording'
+  | 'speaking.submit'
+  | 'speaking.evaluating'
+  | 'speaking.retake'
+  | 'speaking.analyzing'
+  | 'speaking.micDenied';
 
 export const EN: Record<StringKey, string> = {
   'header.logo': 'Heritage Speakers',
@@ -133,6 +148,21 @@ export const EN: Record<StringKey, string> = {
   'assessment.previous': '← Previous',
   'assessment.next': 'Next →',
   'assessment.finishAndSeeResult': 'Finish & See Result',
+  'speaking.header': '🎤 Speak naturally and fluently',
+  'speaking.suggestedLength': '💡 Suggested length:',
+  'speaking.tipsTitle': '📋 Tips for better recording:',
+  'speaking.tipsClear': 'Speak clearly and at a natural pace',
+  'speaking.tipsTime': 'Take your time — quality over speed',
+  'speaking.tipsFocus': 'Focus on pronunciation and grammar',
+  'speaking.tipsPauses': 'Feel free to use natural pauses',
+  'speaking.startRecording': '🎤 Start Recording',
+  'speaking.stopRecording': '⏹️ Stop',
+  'speaking.yourRecording': 'Your Recording',
+  'speaking.submit': '✓ Submit for Evaluation',
+  'speaking.evaluating': 'Evaluating…',
+  'speaking.retake': '🔄 Retake',
+  'speaking.analyzing': 'Analyzing pronunciation, grammar, vocabulary and fluency…',
+  'speaking.micDenied': 'Microphone access was denied. Please allow microphone access to record your answer.',
 };
 
 export const ES: Record<StringKey, string> = {
@@ -200,6 +230,21 @@ export const ES: Record<StringKey, string> = {
   'assessment.previous': '← Anterior',
   'assessment.next': 'Siguiente →',
   'assessment.finishAndSeeResult': 'Terminar y Ver Resultado',
+  'speaking.header': '🎤 Habla naturalmente y con fluidez',
+  'speaking.suggestedLength': '💡 Duración sugerida:',
+  'speaking.tipsTitle': '📋 Consejos para una mejor grabación:',
+  'speaking.tipsClear': 'Habla claramente y a un ritmo natural',
+  'speaking.tipsTime': 'Tómate tu tiempo — calidad sobre velocidad',
+  'speaking.tipsFocus': 'Enfócate en pronunciación y gramática',
+  'speaking.tipsPauses': 'Siéntete libre de usar pausas naturales',
+  'speaking.startRecording': '🎤 Comenzar Grabación',
+  'speaking.stopRecording': '⏹️ Detener',
+  'speaking.yourRecording': 'Tu Grabación',
+  'speaking.submit': '✓ Enviar para Evaluación',
+  'speaking.evaluating': 'Evaluando…',
+  'speaking.retake': '🔄 Reintentar',
+  'speaking.analyzing': 'Analizando pronunciación, gramática, vocabulario y fluidez…',
+  'speaking.micDenied': 'Se denegó el acceso al micrófono. Por favor, permite el acceso al micrófono para grabar tu respuesta.',
 };
 
 export function getString(key: StringKey, uiLanguage: 'en' | 'es'): string {

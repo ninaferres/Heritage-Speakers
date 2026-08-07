@@ -8,9 +8,6 @@ import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { MatchingQuestion } from './MatchingQuestion';
 import { SpeakingAssessmentQuestionRunner } from './SpeakingAssessmentQuestionRunner';
 import { ListeningAssessmentQuestionRunner } from './ListeningAssessmentQuestionRunner';
-import { ExerciseIntroduction } from './ExerciseIntroduction';
-import { exerciseIntros } from '../../data/exerciseIntros';
-import { exerciseIntrosRu, getExerciseIntroRu } from '../../data/exerciseIntros.ru';
 
 const SKILLS: SkillId[] = ['Speaking', 'Reading', 'Listening', 'Writing'];
 const LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -22,7 +19,6 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string | Record<number, number>>>({});
   const [detectedLevel, setDetectedLevel] = useState<CefrLevel | null>(null);
-  const [shownIntroTypes, setShownIntroTypes] = useState<Set<string>>(new Set());
 
   const getQuestionsFunc = !learningLanguage ? () => [] : (learningLanguage === 'ru' ? getAssessmentQuestionsRu : getAssessmentQuestions);
 
@@ -56,22 +52,6 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
 
   function handleSpeakingAnswered(audioBlob: Blob) {
     setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: 'recorded' }));
-  }
-
-  function shouldShowIntro(): boolean {
-    if (!currentQuestion || stage !== 'test') return false;
-    // Only show intros for assessment question types that have intros defined
-    if (currentQuestion.type !== 'speaking-assessment' && currentQuestion.type !== 'listening-assessment') {
-      return false;
-    }
-    const introKey = `${currentQuestion.type}-${currentQuestion.level}`;
-    return !shownIntroTypes.has(introKey);
-  }
-
-  function handleIntroComplete() {
-    if (!currentQuestion) return;
-    const introKey = `${currentQuestion.type}-${currentQuestion.level}`;
-    setShownIntroTypes((prev) => new Set([...prev, introKey]));
   }
 
   function handleNext() {
@@ -241,28 +221,6 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
 
   if (!currentQuestion) {
     return null;
-  }
-
-  if (shouldShowIntro()) {
-    const introType = currentQuestion.type;
-    const introLevel = currentQuestion.level;
-    let intro = null;
-
-    if (learningLanguage === 'ru') {
-      intro = getExerciseIntroRu(introType, introLevel);
-    } else if (learningLanguage === 'es') {
-      const introKey = introType as keyof typeof exerciseIntros;
-      intro = exerciseIntros[introKey]?.[introLevel];
-    }
-
-    if (intro) {
-      return (
-        <ExerciseIntroduction
-          intro={intro}
-          onStartExercise={handleIntroComplete}
-        />
-      );
-    }
   }
 
   const currentAnswer = answers[currentQuestionIndex];

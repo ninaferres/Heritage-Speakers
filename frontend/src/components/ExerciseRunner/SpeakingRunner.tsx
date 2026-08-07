@@ -3,8 +3,11 @@ import { SpeakingExercise, CefrLevel } from '../../data/types';
 import { evaluateSpeaking } from '../../api/client';
 import { ProductionEvaluation } from '../../data/feedback';
 import { ProductionFeedback } from './FeedbackPanel';
+import { useLanguage } from '../../context/LanguageContext';
+import { getString } from '../../i18n/strings';
 
 export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise; level: CefrLevel }) {
+  const { uiLanguage } = useLanguage();
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -49,7 +52,7 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
         setRecordingTime((t) => t + 1);
       }, 1000);
     } catch {
-      setMicError('Microphone access was denied. Please allow microphone access to record your answer.');
+      setMicError(getString('speaking.micDenied', uiLanguage));
     }
   }
 
@@ -89,10 +92,10 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
   return (
     <div>
       <div className="exercise-block" style={{ background: 'linear-gradient(135deg, rgba(107,31,46,.05) 0%, rgba(184,147,90,.05) 100%)', borderLeftColor: 'var(--wine)' }}>
-        <h4 style={{ color: 'var(--wine)' }}>🎤 Speak naturally and fluently</h4>
+        <h4 style={{ color: 'var(--wine)' }}>{getString('speaking.header', uiLanguage)}</h4>
         <p style={{ fontSize: '1.05rem', fontWeight: '500', lineHeight: '1.8', marginBottom: '1rem' }}>{exercise.prompt}</p>
         <p style={{ marginTop: '1rem', color: 'var(--muted)', fontSize: '.9rem' }}>
-          💡 Suggested length: {exercise.suggestedDuration}
+          {getString('speaking.suggestedLength', uiLanguage)} {exercise.suggestedDuration}
         </p>
       </div>
 
@@ -104,12 +107,12 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
           marginBottom: '1.5rem',
           borderLeft: '4px solid var(--gold)',
         }}>
-          <p style={{ margin: '0 0 0.8rem 0', fontWeight: '600', color: 'var(--wine)' }}>📋 Tips for better recording:</p>
+          <p style={{ margin: '0 0 0.8rem 0', fontWeight: '600', color: 'var(--wine)' }}>{getString('speaking.tipsTitle', uiLanguage)}</p>
           <ul style={{ margin: '0', paddingLeft: '1.5rem', color: 'var(--ink)', fontSize: '.95rem', lineHeight: '1.8' }}>
-            <li>Speak clearly and at a natural pace</li>
-            <li>Take your time — quality over speed</li>
-            <li>Focus on pronunciation and grammar</li>
-            <li>Feel free to use natural pauses</li>
+            <li>{getString('speaking.tipsClear', uiLanguage)}</li>
+            <li>{getString('speaking.tipsTime', uiLanguage)}</li>
+            <li>{getString('speaking.tipsFocus', uiLanguage)}</li>
+            <li>{getString('speaking.tipsPauses', uiLanguage)}</li>
           </ul>
         </div>
       )}
@@ -129,7 +132,7 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
                 fontWeight: '700',
               }}
             >
-              {recording ? `⏹️ Stop (${formatTime(recordingTime)})` : '🎤 Start Recording'}
+              {recording ? `⏹️ ${getString('speaking.stopRecording', uiLanguage)} (${formatTime(recordingTime)})` : getString('speaking.startRecording', uiLanguage)}
             </button>
           </div>
 
@@ -141,7 +144,7 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
               borderLeft: '4px solid var(--wine)',
             }}>
               <p style={{ margin: '0 0 0.8rem 0', fontSize: '.9rem', fontWeight: '700', color: 'var(--wine)', textTransform: 'uppercase' }}>
-                Your Recording ({formatTime(recordingTime)})
+                {getString('speaking.yourRecording', uiLanguage)} ({formatTime(recordingTime)})
               </p>
               <audio controls src={audioUrl} style={{ width: '100%', borderRadius: '6px' }} />
             </div>
@@ -154,17 +157,17 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
       {!result && audioBlob && !recording && (
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
           <button className="btn btn-wine" style={{ flex: 1 }} disabled={loading} onClick={submit}>
-            {loading ? 'Evaluating…' : '✓ Submit for Evaluation'}
+            {loading ? getString('speaking.evaluating', uiLanguage) : getString('speaking.submit', uiLanguage)}
           </button>
           <button className="btn btn-outline" style={{ flex: 1 }} onClick={retake} disabled={loading}>
-            🔄 Retake
+            {getString('speaking.retake', uiLanguage)}
           </button>
         </div>
       )}
 
       {loading && (
         <div className="loading-inline" style={{ marginTop: '1.5rem' }}>
-          <span className="spinner" /> Analyzing pronunciation, grammar, vocabulary and fluency…
+          <span className="spinner" /> {getString('speaking.analyzing', uiLanguage)}
         </div>
       )}
 
