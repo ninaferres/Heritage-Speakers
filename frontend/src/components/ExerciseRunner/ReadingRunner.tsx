@@ -3,8 +3,11 @@ import { ReadingExercise, CefrLevel } from '../../data/types';
 import { evaluateReading } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
+import { useLanguage } from '../../context/LanguageContext';
+import { getString } from '../../i18n/strings';
 
 export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; level: CefrLevel }) {
+  const { uiLanguage, learningLanguage } = useLanguage();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
@@ -28,7 +31,7 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
     setLoading(true);
     setError(null);
     try {
-      const res = await evaluateReading({ level, passage: exercise.passage, questions: exercise.questions, answers });
+      const res = await evaluateReading({ level, passage: exercise.passage, questions: exercise.questions, answers, learningLanguage });
       setResult(res);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong evaluating your answers.');
@@ -45,13 +48,13 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Progress indicator */}
       <div style={{ marginBottom: '1.5rem', color: 'var(--muted)', fontSize: '.9rem' }}>
-        Question {currentQuestionIndex + 1} of {exercise.questions.length}
+        {getString('reading.question', uiLanguage)} {currentQuestionIndex + 1} {getString('reading.of', uiLanguage)} {exercise.questions.length}
       </div>
 
       {/* Text (shown once at top) */}
       {currentQuestionIndex === 0 && (
         <div className="exercise-block" style={{ marginBottom: '2rem' }}>
-          <h4>Text</h4>
+          <h4>{getString('reading.text', uiLanguage)}</h4>
           <p>{exercise.passage}</p>
         </div>
       )}
@@ -64,13 +67,13 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
             <textarea
               className="exercise-textarea"
               style={{ minHeight: 120 }}
-              placeholder="Write your answer here..."
+              placeholder={getString('reading.placeholder', uiLanguage)}
               value={answers[currentQuestionIndex]}
               disabled={Boolean(result)}
               onChange={(e) => setAnswers((a) => a.map((v, idx) => (idx === currentQuestionIndex ? e.target.value : v)))}
               autoFocus
             />
-            {currentQuestion.hint && <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginTop: '.4rem' }}>Hint: {currentQuestion.hint}</p>}
+            {currentQuestion.hint && <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginTop: '.4rem' }}>{getString('reading.hint', uiLanguage)} {currentQuestion.hint}</p>}
           </>
         )}
       </div>
@@ -84,7 +87,7 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
           disabled={currentQuestionIndex === 0 || loading}
           onClick={() => setCurrentQuestionIndex((i) => i - 1)}
         >
-          ← Previous
+          {getString('reading.previous', uiLanguage)}
         </button>
         <button
           className="btn btn-wine"
@@ -92,13 +95,13 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
           disabled={loading || !currentAnswered}
           onClick={handleNext}
         >
-          {loading ? 'Evaluating…' : isLastQuestion ? 'Finish & Review' : 'Next →'}
+          {loading ? getString('reading.evaluating', uiLanguage) : isLastQuestion ? getString('reading.finish', uiLanguage) : getString('reading.next', uiLanguage)}
         </button>
       </div>
 
       {loading && (
         <div className="loading-inline" style={{ marginTop: '1rem' }}>
-          <span className="spinner" /> Checking comprehension…
+          <span className="spinner" /> {getString('reading.checking', uiLanguage)}
         </div>
       )}
     </div>

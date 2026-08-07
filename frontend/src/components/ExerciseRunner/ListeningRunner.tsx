@@ -4,8 +4,11 @@ import { evaluateListening, synthesizeSpeechTTS } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 import { ACCENTS } from '../../data/accents';
+import { useLanguage } from '../../context/LanguageContext';
+import { getString } from '../../i18n/strings';
 
 export function ListeningRunner({ exercise, level, learningLanguage }: { exercise: ListeningExercise; level: CefrLevel; learningLanguage?: string | null }) {
+  const { uiLanguage } = useLanguage();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [accent, setAccent] = useState<AccentId | undefined>(() => {
     if (learningLanguage === 'ru') return 'ru-RU';
@@ -32,7 +35,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
 
   async function playAudio() {
     if (!accent) {
-      setError('Audio playback is not available for this exercise language.');
+      setError(getString('listening.unavailable', uiLanguage));
       return;
     }
     setIsPlaying(true);
@@ -74,7 +77,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
     setLoading(true);
     setError(null);
     try {
-      const res = await evaluateListening({ level, transcript: exercise.transcript, questions: exercise.questions, answers });
+      const res = await evaluateListening({ level, transcript: exercise.transcript, questions: exercise.questions, answers, learningLanguage });
       setResult(res);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong evaluating your answers.');
@@ -88,7 +91,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
       <>
         <ComprehensionFeedback result={result} />
         <div className="exercise-block" style={{ marginTop: '1.2rem' }}>
-          <h4>Transcript</h4>
+          <h4>{getString('listening.transcript', uiLanguage)}</h4>
           <p style={{ whiteSpace: 'pre-line' }}>{exercise.transcript}</p>
         </div>
       </>
@@ -99,13 +102,13 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Progress indicator */}
       <div style={{ marginBottom: '1.5rem', color: 'var(--muted)', fontSize: '.9rem' }}>
-        Question {currentQuestionIndex + 1} of {exercise.questions.length}
+        {getString('listening.question', uiLanguage)} {currentQuestionIndex + 1} {getString('listening.of', uiLanguage)} {exercise.questions.length}
       </div>
 
       {/* Audio player (shown on first question only) */}
       {currentQuestionIndex === 0 && (
         <div className="exercise-block" style={{ borderLeftColor: 'var(--wine)', marginBottom: '2rem' }}>
-          <h4>Audio</h4>
+          <h4>{getString('listening.audio', uiLanguage)}</h4>
           <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <select className="accent-select" value={accent} onChange={(e) => setAccent(e.target.value as AccentId)}>
               {ACCENTS.filter((a) => {
@@ -118,7 +121,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
               ))}
             </select>
             <button className="btn btn-gold btn-small" onClick={playAudio} disabled={isPlaying}>
-              {isPlaying ? 'Playing…' : 'Play audio'}
+              {isPlaying ? getString('listening.playing', uiLanguage) : getString('listening.play', uiLanguage)}
             </button>
           </div>
         </div>
@@ -132,13 +135,13 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
             <textarea
               className="exercise-textarea"
               style={{ minHeight: 120 }}
-              placeholder="Write your answer here..."
+              placeholder={getString('listening.placeholder', uiLanguage)}
               value={answers[currentQuestionIndex]}
               disabled={Boolean(result)}
               onChange={(e) => setAnswers((a) => a.map((v, idx) => (idx === currentQuestionIndex ? e.target.value : v)))}
               autoFocus
             />
-            {currentQuestion.hint && <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginTop: '.4rem' }}>Hint: {currentQuestion.hint}</p>}
+            {currentQuestion.hint && <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginTop: '.4rem' }}>{getString('listening.hint', uiLanguage)} {currentQuestion.hint}</p>}
           </>
         )}
       </div>
@@ -152,7 +155,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
           disabled={currentQuestionIndex === 0 || loading}
           onClick={() => setCurrentQuestionIndex((i) => i - 1)}
         >
-          ← Previous
+          {getString('listening.previous', uiLanguage)}
         </button>
         <button
           className="btn btn-wine"
@@ -160,13 +163,13 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
           disabled={loading || !currentAnswered}
           onClick={handleNext}
         >
-          {loading ? 'Evaluating…' : isLastQuestion ? 'Finish & Review' : 'Next →'}
+          {loading ? getString('listening.evaluating', uiLanguage) : isLastQuestion ? getString('listening.finish', uiLanguage) : getString('listening.next', uiLanguage)}
         </button>
       </div>
 
       {loading && (
         <div className="loading-inline" style={{ marginTop: '1rem' }}>
-          <span className="spinner" /> Checking listening accuracy…
+          <span className="spinner" /> {getString('listening.checking', uiLanguage)}
         </div>
       )}
     </div>

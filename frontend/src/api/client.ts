@@ -10,6 +10,10 @@ async function authHeaders(): Promise<Record<string, string>> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function normalizeLearningLanguage(lang?: string | null): 'es' | 'ru' {
+  return lang === 'ru' ? 'ru' : 'es';
+}
+
 async function postJson<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
@@ -27,8 +31,9 @@ export async function evaluateWriting(params: {
   level: CefrLevel;
   prompt: string;
   text: string;
+  learningLanguage?: string | null;
 }): Promise<ProductionEvaluation> {
-  return postJson('/evaluate/writing', params);
+  return postJson('/evaluate/writing', { ...params, learningLanguage: normalizeLearningLanguage(params.learningLanguage) });
 }
 
 export async function evaluateReading(params: {
@@ -36,8 +41,9 @@ export async function evaluateReading(params: {
   passage: string;
   questions: ExerciseQuestion[];
   answers: string[];
+  learningLanguage?: string | null;
 }): Promise<ComprehensionEvaluation> {
-  return postJson('/evaluate/reading', params);
+  return postJson('/evaluate/reading', { ...params, learningLanguage: normalizeLearningLanguage(params.learningLanguage) });
 }
 
 export async function evaluateListening(params: {
@@ -45,18 +51,21 @@ export async function evaluateListening(params: {
   transcript: string;
   questions: ExerciseQuestion[];
   answers: string[];
+  learningLanguage?: string | null;
 }): Promise<ComprehensionEvaluation> {
-  return postJson('/evaluate/listening', params);
+  return postJson('/evaluate/listening', { ...params, learningLanguage: normalizeLearningLanguage(params.learningLanguage) });
 }
 
 export async function evaluateSpeaking(params: {
   level: CefrLevel;
   prompt: string;
   audioBlob: Blob;
+  learningLanguage?: string | null;
 }): Promise<ProductionEvaluation> {
   const form = new FormData();
   form.append('level', params.level);
   form.append('prompt', params.prompt);
+  form.append('learningLanguage', normalizeLearningLanguage(params.learningLanguage));
   form.append('audio', params.audioBlob, 'recording.webm');
 
   const res = await fetch(`${API_BASE}/evaluate/speaking`, {
@@ -72,7 +81,7 @@ export async function evaluateSpeaking(params: {
 }
 
 // Use ElevenLabs TTS via backend for high-quality speech synthesis
-export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob | null> {
+export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob> {
   try {
     const response = await fetch(`${API_BASE}/tts`, {
       method: 'POST',
@@ -92,48 +101,3 @@ export async function synthesizeSpeechTTS(params: { text: string; accent: Accent
   }
 }
 
-// Fallback: Use Web Speech API for text-to-speech (free, no server required)
-export function synthesizeSpeech(params: { text: string; accent: AccentId; lang?: 'es' | 'ru' }): { play: () => void; stop: () => void; isSupported: boolean } {
-  const isSupported = 'speechSynthesis' in window;
-
-  // Determine language from accent if not explicitly provided
-  const language = params.lang || (params.accent.startsWith('ru') ? 'ru' : 'es');
-  const langCode = language === 'ru' ? 'ru-RU' : 'es-ES';
-
-  return {
-    isSupported,
-    play() {
-      if (!isSupported) {
-        console.error('Speech Synthesis API not supported in this browser');
-        return;
-      }
-
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(params.text);
-      utterance.lang = langCode;
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-
-      // Select voice based on accent (best-effort fallback)
-      const voices = window.speechSynthesis.getVoices();
-      const accentMap: Record<AccentId, string[]> = {
-        'es-ES': ['Spanish', 'Castilian'],
-        'es-MX': ['Mexican', 'Spanish - Mexico'],
-        'es-AR': ['Argentinian', 'Spanish - Argentina'],
-        'es-CO': ['Colombian', 'Spanish - Colombia'],
-        'ru-RU': ['Russian', 'Russkiy'],
-        'ru-Moscow': ['Russian', 'Russkiy', 'Moscow'],
-      };
-
-      const preferredVoiceNames = accentMap[params.accent] || (language === 'ru' ? ['Russian'] : ['Spanish']);
-      const langPrefix = language === 'ru' ? 'ru' : 'es';
-      const voice = voices.find((v) => preferredVoiceNames.some((name) => v.name.includes(name))) || voices.find((v) => v.lang.startsWith(langPrefix));
-      if (voice) utterance.voice = voice;
-
-      window.speechSynthesis.speak(utterance);
-    },
-    stop() {
-      if (isSupported) window.speechSynthesis.cancel();
-    },
-  };
-}

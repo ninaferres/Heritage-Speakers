@@ -81,7 +81,74 @@ export type StringKey =
   | 'speaking.evaluating'
   | 'speaking.retake'
   | 'speaking.analyzing'
-  | 'speaking.micDenied';
+  | 'speaking.micDenied'
+  | 'writing.prompt'
+  | 'writing.placeholder'
+  | 'writing.wordCount'
+  | 'writing.submit'
+  | 'writing.evaluating'
+  | 'writing.analyzing'
+  | 'reading.text'
+  | 'reading.question'
+  | 'reading.of'
+  | 'reading.placeholder'
+  | 'reading.hint'
+  | 'reading.previous'
+  | 'reading.next'
+  | 'reading.finish'
+  | 'reading.evaluating'
+  | 'reading.checking'
+  | 'listening.audio'
+  | 'listening.play'
+  | 'listening.playing'
+  | 'listening.question'
+  | 'listening.of'
+  | 'listening.placeholder'
+  | 'listening.hint'
+  | 'listening.previous'
+  | 'listening.next'
+  | 'listening.finish'
+  | 'listening.evaluating'
+  | 'listening.checking'
+  | 'listening.transcript'
+  | 'listening.unavailable'
+  | 'assessSpeaking.start'
+  | 'assessSpeaking.recording'
+  | 'assessSpeaking.stop'
+  | 'assessSpeaking.saved'
+  | 'assessSpeaking.play'
+  | 'assessSpeaking.pause'
+  | 'assessSpeaking.reRecord'
+  | 'assessSpeaking.micDenied'
+  | 'assessListening.play'
+  | 'assessListening.listen'
+  | 'assessListening.replays'
+  | 'assessListening.playing'
+  | 'assessListening.stop'
+  | 'assessListening.generating'
+  | 'assessListening.selectAnswer'
+  | 'skill.Speaking'
+  | 'skill.Reading'
+  | 'skill.Listening'
+  | 'skill.Writing'
+  | 'assessment.yourLevelIs'
+  | 'exercise.sessionLength'
+  | 'feedback.cefrEstimate'
+  | 'feedback.transcript'
+  | 'feedback.detailedCorrections'
+  | 'feedback.pronunciationAccent'
+  | 'feedback.nativeReformulation'
+  | 'feedback.correct'
+  | 'feedback.needsWork'
+  | 'feedback.modelAnswer'
+  | 'feedback.category.grammar'
+  | 'feedback.category.syntax'
+  | 'feedback.category.orthography'
+  | 'feedback.category.vocabulary'
+  | 'feedback.category.verbTenseMood'
+  | 'feedback.category.preposition'
+  | 'feedback.category.pronunciation'
+  | 'feedback.category.other';
 
 export const EN: Record<StringKey, string> = {
   'header.logo': 'Heritage Speakers',
@@ -163,6 +230,73 @@ export const EN: Record<StringKey, string> = {
   'speaking.retake': '🔄 Retake',
   'speaking.analyzing': 'Analyzing pronunciation, grammar, vocabulary and fluency…',
   'speaking.micDenied': 'Microphone access was denied. Please allow microphone access to record your answer.',
+  'writing.prompt': 'Prompt',
+  'writing.placeholder': 'Write your answer here…',
+  'writing.wordCount': 'words (target:',
+  'writing.submit': 'Submit for evaluation',
+  'writing.evaluating': 'Evaluating…',
+  'writing.analyzing': 'Analyzing grammar, syntax and word choice…',
+  'reading.text': 'Text',
+  'reading.question': 'Question',
+  'reading.of': 'of',
+  'reading.placeholder': 'Write your answer here…',
+  'reading.hint': 'Hint:',
+  'reading.previous': '← Previous',
+  'reading.next': 'Next →',
+  'reading.finish': 'Finish & Review',
+  'reading.evaluating': 'Evaluating…',
+  'reading.checking': 'Checking comprehension…',
+  'listening.audio': 'Audio',
+  'listening.play': 'Play audio',
+  'listening.playing': 'Playing…',
+  'listening.question': 'Question',
+  'listening.of': 'of',
+  'listening.placeholder': 'Write your answer here…',
+  'listening.hint': 'Hint:',
+  'listening.previous': '← Previous',
+  'listening.next': 'Next →',
+  'listening.finish': 'Finish & Review',
+  'listening.evaluating': 'Evaluating…',
+  'listening.checking': 'Checking listening accuracy…',
+  'listening.transcript': 'Transcript',
+  'listening.unavailable': 'Audio playback is not available for this exercise language.',
+  'assessSpeaking.start': '🎙️ Start Recording',
+  'assessSpeaking.recording': 'Recording',
+  'assessSpeaking.stop': '⏹️ Stop Recording',
+  'assessSpeaking.saved': 'Recording saved',
+  'assessSpeaking.play': '▶️ Play',
+  'assessSpeaking.pause': '⏸️ Pause',
+  'assessSpeaking.reRecord': '🔄 Re-record',
+  'assessSpeaking.micDenied': 'Please allow microphone access to record your response.',
+  'assessListening.play': '🔊 Play Audio',
+  'assessListening.listen': 'listen',
+  'assessListening.replays': 'replays',
+  'assessListening.playing': '🔊 Playing…',
+  'assessListening.stop': 'Stop',
+  'assessListening.generating': 'Generating audio…',
+  'assessListening.selectAnswer': 'Select the correct answer',
+  'skill.Speaking': 'Speaking',
+  'skill.Reading': 'Reading',
+  'skill.Listening': 'Listening',
+  'skill.Writing': 'Writing',
+  'assessment.yourLevelIs': 'level is',
+  'exercise.sessionLength': '15-minute session',
+  'feedback.cefrEstimate': 'CEFR estimate:',
+  'feedback.transcript': 'Transcript',
+  'feedback.detailedCorrections': 'Detailed corrections',
+  'feedback.pronunciationAccent': 'Pronunciation & accent',
+  'feedback.nativeReformulation': 'Native-level reformulation',
+  'feedback.correct': '✓ Correct',
+  'feedback.needsWork': '✗ Needs work',
+  'feedback.modelAnswer': 'Model answer:',
+  'feedback.category.grammar': 'Grammar',
+  'feedback.category.syntax': 'Syntax',
+  'feedback.category.orthography': 'Orthography',
+  'feedback.category.vocabulary': 'Word choice',
+  'feedback.category.verbTenseMood': 'Verb tense / mood',
+  'feedback.category.preposition': 'Preposition',
+  'feedback.category.pronunciation': 'Pronunciation',
+  'feedback.category.other': 'Note',
 };
 
 export const ES: Record<StringKey, string> = {
@@ -245,6 +379,73 @@ export const ES: Record<StringKey, string> = {
   'speaking.retake': '🔄 Reintentar',
   'speaking.analyzing': 'Analizando pronunciación, gramática, vocabulario y fluidez…',
   'speaking.micDenied': 'Se denegó el acceso al micrófono. Por favor, permite el acceso al micrófono para grabar tu respuesta.',
+  'writing.prompt': 'Enunciado',
+  'writing.placeholder': 'Escribe tu respuesta aquí…',
+  'writing.wordCount': 'palabras (objetivo:',
+  'writing.submit': 'Enviar para evaluación',
+  'writing.evaluating': 'Evaluando…',
+  'writing.analyzing': 'Analizando gramática, sintaxis y vocabulario…',
+  'reading.text': 'Texto',
+  'reading.question': 'Pregunta',
+  'reading.of': 'de',
+  'reading.placeholder': 'Escribe tu respuesta aquí…',
+  'reading.hint': 'Pista:',
+  'reading.previous': '← Anterior',
+  'reading.next': 'Siguiente →',
+  'reading.finish': 'Terminar y Revisar',
+  'reading.evaluating': 'Evaluando…',
+  'reading.checking': 'Comprobando comprensión…',
+  'listening.audio': 'Audio',
+  'listening.play': 'Reproducir audio',
+  'listening.playing': 'Reproduciendo…',
+  'listening.question': 'Pregunta',
+  'listening.of': 'de',
+  'listening.placeholder': 'Escribe tu respuesta aquí…',
+  'listening.hint': 'Pista:',
+  'listening.previous': '← Anterior',
+  'listening.next': 'Siguiente →',
+  'listening.finish': 'Terminar y Revisar',
+  'listening.evaluating': 'Evaluando…',
+  'listening.checking': 'Comprobando comprensión auditiva…',
+  'listening.transcript': 'Transcripción',
+  'listening.unavailable': 'La reproducción de audio no está disponible para este idioma de ejercicio.',
+  'assessSpeaking.start': '🎙️ Comenzar Grabación',
+  'assessSpeaking.recording': 'Grabando',
+  'assessSpeaking.stop': '⏹️ Detener Grabación',
+  'assessSpeaking.saved': 'Grabación guardada',
+  'assessSpeaking.play': '▶️ Reproducir',
+  'assessSpeaking.pause': '⏸️ Pausar',
+  'assessSpeaking.reRecord': '🔄 Regrabar',
+  'assessSpeaking.micDenied': 'Por favor, permite el acceso al micrófono para grabar tu respuesta.',
+  'assessListening.play': '🔊 Reproducir Audio',
+  'assessListening.listen': 'escuchar',
+  'assessListening.replays': 'repeticiones',
+  'assessListening.playing': '🔊 Reproduciendo…',
+  'assessListening.stop': 'Detener',
+  'assessListening.generating': 'Generando audio…',
+  'assessListening.selectAnswer': 'Selecciona la respuesta correcta',
+  'skill.Speaking': 'Habla',
+  'skill.Reading': 'Lectura',
+  'skill.Listening': 'Escucha',
+  'skill.Writing': 'Escritura',
+  'assessment.yourLevelIs': 'es',
+  'exercise.sessionLength': 'sesión de 15 minutos',
+  'feedback.cefrEstimate': 'Estimación CEFR:',
+  'feedback.transcript': 'Transcripción',
+  'feedback.detailedCorrections': 'Correcciones detalladas',
+  'feedback.pronunciationAccent': 'Pronunciación y acento',
+  'feedback.nativeReformulation': 'Reformulación a nivel nativo',
+  'feedback.correct': '✓ Correcto',
+  'feedback.needsWork': '✗ Necesita mejorar',
+  'feedback.modelAnswer': 'Respuesta modelo:',
+  'feedback.category.grammar': 'Gramática',
+  'feedback.category.syntax': 'Sintaxis',
+  'feedback.category.orthography': 'Ortografía',
+  'feedback.category.vocabulary': 'Elección de palabras',
+  'feedback.category.verbTenseMood': 'Tiempo / modo verbal',
+  'feedback.category.preposition': 'Preposición',
+  'feedback.category.pronunciation': 'Pronunciación',
+  'feedback.category.other': 'Nota',
 };
 
 export function getString(key: StringKey, uiLanguage: 'en' | 'es'): string {

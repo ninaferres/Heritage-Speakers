@@ -2,6 +2,7 @@ import { CefrLevel, SkillId } from '../../data/types';
 import { useLanguage } from '../../context/LanguageContext';
 import { getExercise } from '../../data/exercises.es';
 import { useCountdown } from '../../hooks/useCountdown';
+import { getString, StringKey } from '../../i18n/strings';
 import { WritingRunner } from './WritingRunner';
 import { ReadingRunner } from './ReadingRunner';
 import { ListeningRunner } from './ListeningRunner';
@@ -10,7 +11,7 @@ import { SpeakingRunner } from './SpeakingRunner';
 const SESSION_SECONDS = 15 * 60;
 
 export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; level: CefrLevel; onClose: () => void }) {
-  const { learningLanguage } = useLanguage();
+  const { learningLanguage, uiLanguage } = useLanguage();
   const exercise = learningLanguage ? getExercise(learningLanguage, skill, level) : null;
   const { label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
 
@@ -24,15 +25,15 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
 
         {!exercise ? (
           <>
-            <span className="exercise-head-eyebrow">{skill} · {level}</span>
-            <h2>Exercise not available yet</h2>
-            <p className="exercise-meta">We're still building out content for this combination. Try a different level for now.</p>
+            <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
+            <h2>{getString('exercise.notAvailable', uiLanguage)}</h2>
+            <p className="exercise-meta">{getString('exercise.tryDifferent', uiLanguage)}</p>
           </>
         ) : (
           <>
-            <span className="exercise-head-eyebrow">{skill} · {level}</span>
+            <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
             <h2>{exercise.title}</h2>
-            <p className="exercise-meta">CEFR {level} · 15-minute session</p>
+            <p className="exercise-meta">CEFR {level} · {getString('exercise.sessionLength', uiLanguage)}</p>
 
             {exercise.skill === 'Writing' && <WritingRunner exercise={exercise} level={level} />}
             {exercise.skill === 'Reading' && <ReadingRunner exercise={exercise} level={level} />}

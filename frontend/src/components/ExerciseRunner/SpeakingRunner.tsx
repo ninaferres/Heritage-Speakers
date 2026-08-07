@@ -7,7 +7,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getString } from '../../i18n/strings';
 
 export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise; level: CefrLevel }) {
-  const { uiLanguage } = useLanguage();
+  const { uiLanguage, learningLanguage } = useLanguage();
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -67,7 +67,7 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
     setLoading(true);
     setError(null);
     try {
-      const res = await evaluateSpeaking({ level, prompt: exercise.prompt, audioBlob });
+      const res = await evaluateSpeaking({ level, prompt: exercise.prompt, audioBlob, learningLanguage });
       setResult(res);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong evaluating your recording.');

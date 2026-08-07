@@ -3,7 +3,7 @@ import { SkillId, CefrLevel } from '../../data/types';
 import { getAssessmentQuestions } from '../../data/assessment.es';
 import { getAssessmentQuestionsRu } from '../../data/assessment.ru';
 import { useLanguage } from '../../context/LanguageContext';
-import { getString } from '../../i18n/strings';
+import { getString, StringKey } from '../../i18n/strings';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { MatchingQuestion } from './MatchingQuestion';
 import { SpeakingAssessmentQuestionRunner } from './SpeakingAssessmentQuestionRunner';
@@ -156,7 +156,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
                   (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--wine)';
                 }}
               >
-                {skill}
+                {getString(`skill.${skill}` as StringKey, uiLanguage)}
               </button>
             ))}
           </div>
@@ -174,7 +174,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
             {getString('assessment.yourLevel', uiLanguage)}: <span style={{ color: 'var(--gold)', fontSize: '1.4em' }}>{detectedLevel}</span>
           </h2>
           <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--muted)' }}>
-            {selectedSkill} · CEFR Level {detectedLevel}
+            {getString(`skill.${selectedSkill}` as StringKey, uiLanguage)} · CEFR {detectedLevel}
           </p>
 
           <div style={{
@@ -188,7 +188,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
               📊 {getString('assessment.complete', uiLanguage)}
             </p>
             <p style={{ color: 'var(--charcoal)', lineHeight: 1.6 }}>
-              {getString('assessment.basedOnAnswers', uiLanguage)} {selectedSkill.toLowerCase()} {uiLanguage === 'es' ? 'es' : 'level is'} <strong>{detectedLevel}</strong>.
+              {getString('assessment.basedOnAnswers', uiLanguage)} {getString(`skill.${selectedSkill}` as StringKey, uiLanguage).toLowerCase()} {getString('assessment.yourLevelIs', uiLanguage)} <strong>{detectedLevel}</strong>.
             </p>
           </div>
 
@@ -204,14 +204,14 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
               }}
               style={{ flex: 1 }}
             >
-              Test Another Skill
+              {getString('assessment.testAnother', uiLanguage)}
             </button>
             <button
               className="btn btn-wine"
               onClick={onClose}
               style={{ flex: 1 }}
             >
-              Start Exercises
+              {getString('assessment.startExercises', uiLanguage)}
             </button>
           </div>
         </div>
@@ -233,7 +233,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
 
         <div style={{ marginBottom: '2rem' }}>
           <div style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1rem' }}>
-            {getString('assessment.question', uiLanguage)} {currentQuestionIndex + 1} {getString('assessment.of', uiLanguage)} {totalQuestions} · {selectedSkill} · {currentQuestion.level}
+            {getString('assessment.question', uiLanguage)} {currentQuestionIndex + 1} {getString('assessment.of', uiLanguage)} {totalQuestions} · {getString(`skill.${selectedSkill}` as StringKey, uiLanguage)} · {currentQuestion.level}
           </div>
           <div style={{
             height: '6px',

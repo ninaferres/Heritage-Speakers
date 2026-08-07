@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { SpeakingAssessmentQuestion } from '../../data/types';
+import { useLanguage } from '../../context/LanguageContext';
+import { getString } from '../../i18n/strings';
 
 interface Props {
   question: SpeakingAssessmentQuestion;
@@ -8,6 +10,7 @@ interface Props {
 }
 
 export function SpeakingAssessmentQuestionRunner({ question, onAnswered, disabled }: Props) {
+  const { uiLanguage } = useLanguage();
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [hasRecording, setHasRecording] = useState(false);
@@ -65,7 +68,7 @@ export function SpeakingAssessmentQuestionRunner({ question, onAnswered, disable
       mediaRecorder.start();
     } catch (err) {
       console.error('Microphone access denied:', err);
-      alert('Please allow microphone access to record your response');
+      alert(getString('assessSpeaking.micDenied', uiLanguage));
     }
   }
 
@@ -134,7 +137,7 @@ export function SpeakingAssessmentQuestionRunner({ question, onAnswered, disable
               if (!disabled) (e.currentTarget as HTMLButtonElement).style.background = 'var(--wine)';
             }}
           >
-            🎙️ Start Recording
+            {getString('assessSpeaking.start', uiLanguage)}
           </button>
         )}
 
@@ -163,14 +166,14 @@ export function SpeakingAssessmentQuestionRunner({ question, onAnswered, disable
                 (e.currentTarget as HTMLButtonElement).style.background = '#d32f2f';
               }}
             >
-              ⏹️ Stop Recording
+              {getString('assessSpeaking.stop', uiLanguage)}
             </button>
           </div>
         )}
 
         {hasRecording && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-            <p style={{ color: 'var(--muted)', margin: 0 }}>Recording saved</p>
+            <p style={{ color: 'var(--muted)', margin: 0 }}>{getString('assessSpeaking.saved', uiLanguage)}</p>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button
                 onClick={togglePlayback}
@@ -192,7 +195,7 @@ export function SpeakingAssessmentQuestionRunner({ question, onAnswered, disable
                   (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
                 }}
               >
-                {isPlaying ? '⏸️ Pause' : '▶️ Play'}
+                {isPlaying ? getString('assessSpeaking.pause', uiLanguage) : getString('assessSpeaking.play', uiLanguage)}
               </button>
               <button
                 onClick={reRecord}
@@ -214,7 +217,7 @@ export function SpeakingAssessmentQuestionRunner({ question, onAnswered, disable
                   (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
                 }}
               >
-                🔄 Re-record
+                {getString('assessSpeaking.reRecord', uiLanguage)}
               </button>
             </div>
           </div>

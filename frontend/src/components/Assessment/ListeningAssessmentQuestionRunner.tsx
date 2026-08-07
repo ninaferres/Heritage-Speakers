@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
-import { ListeningAssessmentQuestion } from '../../data/types';
+import { useState, useRef, useEffect } from 'react';
+import { ListeningAssessmentQuestion, AccentId } from '../../data/types';
+import { synthesizeSpeechTTS } from '../../api/client';
+import { useLanguage } from '../../context/LanguageContext';
+import { getString } from '../../i18n/strings';
 
 interface Props {
   question: ListeningAssessmentQuestion;
@@ -9,32 +12,49 @@ interface Props {
 }
 
 export function ListeningAssessmentQuestionRunner({ question, selected, onSelect, disabled }: Props) {
+  const { uiLanguage, learningLanguage } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [playCount, setPlayCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     return () => {
-      window.speechSynthesis.cancel();
+      audioRef.current?.pause();
     };
   }, []);
 
-  function playAudio() {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(question.audioText);
-    utterance.lang = 'es-ES';
-    utterance.rate = 0.9;
-
-    utterance.onstart = () => setIsPlaying(true);
-    utterance.onend = () => {
-      setIsPlaying(false);
-      setPlayCount((prev) => prev + 1);
-    };
-
-    window.speechSynthesis.speak(utterance);
+  async function playAudio() {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
+      const audioBlob = await synthesizeSpeechTTS({ text: question.audioText, accent });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+      }
+      audioRef.current.src = audioUrl;
+      audioRef.current.onended = () => {
+        setIsPlaying(false);
+        setPlayCount((prev) => prev + 1);
+      };
+      audioRef.current.onerror = () => {
+        setError('Error playing audio. Please try again.');
+        setIsPlaying(false);
+      };
+      setIsLoading(false);
+      setIsPlaying(true);
+      audioRef.current.play();
+    } catch (err) {
+      setIsLoading(false);
+      setError(err instanceof Error ? err.message : 'Failed to generate audio. Please try again.');
+    }
   }
 
   function stopAudio() {
-    window.speechSynthesis.cancel();
+    audioRef.current?.pause();
     setIsPlaying(false);
   }
 
@@ -55,7 +75,7 @@ export function ListeningAssessmentQuestionRunner({ question, selected, onSelect
         {!isPlaying ? (
           <button
             onClick={playAudio}
-            disabled={disabled}
+            disabled={disabled || isLoading}
             style={{
               padding: '1rem 2rem',
               fontSize: '1rem',
@@ -64,9 +84,9 @@ export function ListeningAssessmentQuestionRunner({ question, selected, onSelect
               background: 'var(--wine)',
               color: 'var(--bone)',
               fontWeight: '600',
-              cursor: disabled ? 'not-allowed' : 'pointer',
+              cursor: disabled || isLoading ? 'not-allowed' : 'pointer',
               transition: 'all .2s ease',
-              opacity: disabled ? 0.5 : 1,
+              opacity: disabled || isLoading ? 0.5 : 1,
             }}
             onMouseEnter={(e) => {
               if (!disabled) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(107,31,46,.9)';
@@ -75,12 +95,14 @@ export function ListeningAssessmentQuestionRunner({ question, selected, onSelect
               if (!disabled) (e.currentTarget as HTMLButtonElement).style.background = 'var(--wine)';
             }}
           >
-            🔊 Play Audio ({playCount > 0 ? `${playCount} replays` : 'listen'})
+            {isLoading
+              ? getString('assessListening.generating', uiLanguage)
+              : `${getString('assessListening.play', uiLanguage)} (${playCount > 0 ? `${playCount} ${getString('assessListening.replays', uiLanguage)}` : getString('assessListening.listen', uiLanguage)})`}
           </button>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
             <div style={{ fontSize: '1.5rem', color: 'var(--wine)', fontWeight: 'bold' }}>
-              🔊 Playing...
+              {getString('assessListening.playing', uiLanguage)}
             </div>
             <button
               onClick={stopAudio}
@@ -95,15 +117,17 @@ export function ListeningAssessmentQuestionRunner({ question, selected, onSelect
                 cursor: 'pointer',
               }}
             >
-              Stop
+              {getString('assessListening.stop', uiLanguage)}
             </button>
           </div>
         )}
+
+        {error && <p style={{ color: '#d32f2f', marginTop: '1rem', fontSize: '.9rem' }}>{error}</p>}
       </div>
 
       <div>
         <p style={{ color: 'var(--muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-          Select the correct answer
+          {getString('assessListening.selectAnswer', uiLanguage)}
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {question.options.map((option) => (

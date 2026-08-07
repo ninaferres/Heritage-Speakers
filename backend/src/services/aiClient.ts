@@ -85,7 +85,7 @@ async function callOpenAI<T>({ system, user, schema, schemaName }: StructuredReq
   return JSON.parse(raw) as T;
 }
 
-async function callGroq<T>({ system, user, schemaName }: StructuredRequest): Promise<T> {
+async function callGroq<T>({ system, user, schema, schemaName }: StructuredRequest): Promise<T> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -95,8 +95,12 @@ async function callGroq<T>({ system, user, schemaName }: StructuredRequest): Pro
     body: JSON.stringify({
       model: env.groqModel,
       temperature: GRADING_TEMPERATURE,
+      response_format: { type: 'json_object' },
       messages: [
-        { role: 'system', content: `${system}\n\nRespond with valid JSON matching the ${schemaName} structure.` },
+        {
+          role: 'system',
+          content: `${system}\n\nRespond with ONLY a single valid JSON object matching this schema (no markdown, no code fences, no extra text):\n${JSON.stringify(schema)}`,
+        },
         { role: 'user', content: user },
       ],
     }),
@@ -110,5 +114,9 @@ async function callGroq<T>({ system, user, schemaName }: StructuredRequest): Pro
   const data = (await res.json()) as { choices: Array<{ message: { content: string } }> };
   const raw = data.choices[0]?.message?.content;
   if (!raw) throw new Error('Groq response did not include structured content.');
-  return JSON.parse(raw) as T;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    throw new Error(`Groq returned invalid JSON for ${schemaName}: ${raw.slice(0, 300)}`);
+  }
 }

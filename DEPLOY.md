@@ -14,12 +14,17 @@ need its URL when you set up the frontend.
    - `SUPABASE_ANON_KEY` → your `sb_publishable_...` key
    - `SUPABASE_SERVICE_ROLE_KEY` → your `sb_secret_...` key (not used yet, fine to add now)
    - `CORS_ORIGIN` → type `*` for now (you'll tighten this in step 3 below)
-   - `ANTHROPIC_API_KEY` → your Anthropic key (leave blank if you don't have one yet —
-     grading will just return "not configured" until you add it)
+   - `GROQ_API_KEY` → your Groq key (default `AI_PROVIDER` is `groq`; leave blank if you
+     don't have one yet — grading will just return "not configured" until you add it).
+     **Important**: this must go in the `GROQ_API_KEY` field specifically, not
+     `ANTHROPIC_API_KEY` — the app reads whichever key matches `AI_PROVIDER`, so a Groq
+     key stored under the wrong variable name is silently ignored.
+   - `ANTHROPIC_API_KEY` → only needed if you set `AI_PROVIDER=anthropic` instead of `groq`
    - `OPENAI_API_KEY` → needed for Whisper (Speaking exercises); also usable for grading
      if you set `AI_PROVIDER=openai` instead
-   - `ELEVENLABS_API_KEY` + the four `ELEVENLABS_VOICE_*` voice IDs → needed for
-     Listening audio; leave blank for now if you don't have one yet
+   - `ELEVENLABS_API_KEY` + all six `ELEVENLABS_VOICE_*` voice IDs (four Spanish accents
+     plus `ELEVENLABS_VOICE_RU` and `ELEVENLABS_VOICE_RU_MOSCOW` for Russian) → needed for
+     Listening audio and the exercise intro; leave blank for now if you don't have them yet
 4. Click **Apply**. First deploy takes a few minutes. When it's done, copy the
    public URL Render gives the service (something like
    `https://heritage-speakers-api.onrender.com`).

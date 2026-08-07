@@ -1,4 +1,5 @@
 import { env, isSttConfigured } from '../env.js';
+import { ExerciseLanguage } from '../prompts/systemPrompts.js';
 
 export class SttNotConfiguredError extends Error {
   constructor() {
@@ -8,13 +9,13 @@ export class SttNotConfiguredError extends Error {
 }
 
 /** Transcribes a recorded answer with OpenAI Whisper so it can be fed into the grading model. */
-export async function transcribeAudio(buffer: Buffer, filename: string, mimeType: string): Promise<string> {
+export async function transcribeAudio(buffer: Buffer, filename: string, mimeType: string, language: ExerciseLanguage = 'es'): Promise<string> {
   if (!isSttConfigured) throw new SttNotConfiguredError();
 
   const form = new FormData();
   form.append('file', new Blob([buffer], { type: mimeType }), filename);
   form.append('model', 'whisper-1');
-  form.append('language', 'es');
+  form.append('language', language);
 
   const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
     method: 'POST',
