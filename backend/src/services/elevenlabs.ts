@@ -32,6 +32,11 @@ export async function synthesizeSpeech(text: string, accent: string): Promise<Bu
 
   if (!res.ok) {
     const detail = await res.text();
+    console.error(`ElevenLabs TTS failed for accent "${accent}" with voice ID "${voiceId}":`, {
+      status: res.status,
+      statusText: res.statusText,
+      detail,
+    });
     throw new Error(`ElevenLabs TTS request failed (${res.status}): ${detail}`);
   }
 

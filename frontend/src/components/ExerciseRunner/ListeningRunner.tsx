@@ -39,11 +39,6 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
     setError(null);
     try {
       const audioBlob = await synthesizeSpeechTTS({ text: exercise.transcript, accent });
-      if (!audioBlob) {
-        setError('Failed to generate audio. Please try again.');
-        setIsPlaying(false);
-        return;
-      }
 
       const audioUrl = URL.createObjectURL(audioBlob);
       if (!audioRef.current) {
@@ -61,7 +56,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
         setIsPlaying(false);
       };
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error playing audio');
+      setError(err instanceof Error ? err.message : 'Failed to generate audio. Please try again.');
       setIsPlaying(false);
     }
   }

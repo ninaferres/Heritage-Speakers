@@ -79,10 +79,16 @@ export async function synthesizeSpeechTTS(params: { text: string; accent: Accent
       headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
       body: JSON.stringify(params),
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      const detail = await response.json().catch(() => ({}));
+      const errorMsg = detail.error || `TTS request failed (${response.status})`;
+      throw new Error(errorMsg);
+    }
     return await response.blob();
-  } catch {
-    return null;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to generate audio';
+    console.error('TTS Error:', message);
+    throw new Error(message);
   }
 }
 
