@@ -5,7 +5,7 @@ import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 import { ACCENTS } from '../../data/accents';
 
-export function ListeningRunner({ exercise, level, learningLanguage }: { exercise: ListeningExercise; level: CefrLevel; learningLanguage?: string }) {
+export function ListeningRunner({ exercise, level, learningLanguage }: { exercise: ListeningExercise; level: CefrLevel; learningLanguage?: string | null }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [accent, setAccent] = useState<AccentId | undefined>(() => {
     if (learningLanguage === 'ru') return 'ru-RU';
