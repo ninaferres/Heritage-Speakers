@@ -114,8 +114,10 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
           <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <select className="accent-select" value={accent} onChange={(e) => setAccent(e.target.value as AccentId)}>
               {ACCENTS.filter((a) => {
-                const isRussian = learningLanguage === 'ru';
-                return isRussian ? a.id.startsWith('ru') : a.id.startsWith('es');
+                // Filter based on current accent selection
+                if (accent?.startsWith('ru')) return a.id.startsWith('ru');
+                if (learningLanguage === 'ru') return a.id.startsWith('ru');
+                return a.id.startsWith('es');
               }).map((a) => (
                 <option key={a.id} value={a.id}>{a.label}</option>
               ))}
