@@ -79,6 +79,17 @@ exercises now store a transcript script instead of an audio URL; the runner call
 (`eleven_multilingual_v2`) in the learner's choice of four regional Spanish accents
 (Peninsular, Mexican, Argentine, Colombian) — nothing to go stale.
 
+### Network requirements
+
+The backend makes outbound HTTPS requests to:
+- `api.elevenlabs.io` for text-to-speech (listening exercises + assessment intro)
+- `api.openai.com` for speech-to-text transcription and optionally AI grading
+- `api.anthropic.com` for AI grading (if using Anthropic as the provider)
+
+If you're running in a restricted network environment (VPN, corporate firewall, or
+cloud provider with egress policy), you may need to allowlist these hosts. See
+`TTS_TROUBLESHOOTING.md` for diagnostic steps and solutions.
+
 ## Setup
 
 ### 1. Supabase (auth)
