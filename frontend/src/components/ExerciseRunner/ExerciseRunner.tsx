@@ -1,7 +1,6 @@
 import { CefrLevel, SkillId } from '../../data/types';
 import { useLanguage } from '../../context/LanguageContext';
 import { getExercise } from '../../data/exercises.es';
-import { getExercise as getExerciseRu } from '../../data/exercises.ru';
 import { useCountdown } from '../../hooks/useCountdown';
 import { WritingRunner } from './WritingRunner';
 import { ReadingRunner } from './ReadingRunner';
@@ -12,8 +11,7 @@ const SESSION_SECONDS = 15 * 60;
 
 export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; level: CefrLevel; onClose: () => void }) {
   const { learningLanguage } = useLanguage();
-  const getExerciseFunc = learningLanguage === 'ru' ? getExerciseRu : getExercise;
-  const exercise = learningLanguage ? getExerciseFunc(learningLanguage, skill, level) : null;
+  const exercise = learningLanguage ? getExercise(learningLanguage, skill, level) : null;
   const { label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
 
   return (
