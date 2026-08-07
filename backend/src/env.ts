@@ -14,7 +14,7 @@ export const env = {
 
   aiProvider: (optional('AI_PROVIDER') ?? 'groq') as 'anthropic' | 'openai' | 'groq',
   anthropicApiKey: optional('ANTHROPIC_API_KEY'),
-  anthropicModel: optional('ANTHROPIC_MODEL') ?? 'claude-sonnet-4-5',
+  anthropicModel: optional('ANTHROPIC_MODEL') ?? 'claude-sonnet-5',
   openaiApiKey: optional('OPENAI_API_KEY'),
   openaiModel: optional('OPENAI_MODEL') ?? 'gpt-4o',
   groqApiKey: optional('GROQ_API_KEY'),
