@@ -20,8 +20,9 @@ need its URL when you set up the frontend.
      `ANTHROPIC_API_KEY` — the app reads whichever key matches `AI_PROVIDER`, so a Groq
      key stored under the wrong variable name is silently ignored.
    - `ANTHROPIC_API_KEY` → only needed if you set `AI_PROVIDER=anthropic` instead of `groq`
-   - `OPENAI_API_KEY` → needed for Whisper (Speaking exercises); also usable for grading
-     if you set `AI_PROVIDER=openai` instead
+   - `OPENAI_API_KEY` → optional. Speaking transcription (Whisper) uses your `GROQ_API_KEY`
+     for free if it's set; `OPENAI_API_KEY` is only used as a fallback (and costs money —
+     OpenAI's Whisper API is pay-as-you-go, unlike Groq's free tier)
    - `ELEVENLABS_API_KEY` + all six `ELEVENLABS_VOICE_*` voice IDs (four Spanish accents
      plus `ELEVENLABS_VOICE_RU` and `ELEVENLABS_VOICE_RU_MOSCOW` for Russian) → needed for
      Listening audio and the exercise intro; leave blank for now if you don't have them yet
@@ -67,10 +68,12 @@ this, "Continue with Google" will redirect back to an unauthorized-URL error.
 - **Works as soon as steps 1–2 are done**: the full site, the hamburger menu,
   language selector, and real account creation / login (email+password; Google
   OAuth once step 4 is done too).
-- **Needs `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`**: Writing/Reading/Listening/Speaking
-  grading. Without it, submitting an exercise shows a clear "AI grading is not
-  configured yet" message instead of crashing.
-- **Needs `OPENAI_API_KEY`**: Speaking transcription (Whisper).
+- **Needs `GROQ_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`** (matching `AI_PROVIDER`):
+  Writing/Reading/Listening/Speaking grading. Without it, submitting an exercise shows
+  a clear "AI grading is not configured yet" message instead of crashing.
+- **Needs `GROQ_API_KEY` (free) or `OPENAI_API_KEY` (paid)**: Speaking transcription
+  (Whisper). Groq is used automatically when set, since it's free; OpenAI is only used
+  as a fallback if no Groq key is present.
 - **Needs `ELEVENLABS_API_KEY` + voice IDs**: Listening audio generation.
 
 You can deploy now with just the Supabase keys and add the AI/audio keys to

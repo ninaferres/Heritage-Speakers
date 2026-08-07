@@ -38,5 +38,5 @@ export const isGradingConfigured =
     : env.aiProvider === 'openai'
       ? Boolean(env.openaiApiKey)
       : Boolean(env.groqApiKey);
-export const isSttConfigured = Boolean(env.openaiApiKey);
+export const isSttConfigured = Boolean(env.groqApiKey || env.openaiApiKey);
 export const isTtsConfigured = Boolean(env.elevenLabsApiKey);
