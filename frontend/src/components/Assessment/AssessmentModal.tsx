@@ -3,6 +3,7 @@ import { SkillId, CefrLevel } from '../../data/types';
 import { getAssessmentQuestions } from '../../data/assessment.es';
 import { getAssessmentQuestionsRu } from '../../data/assessment.ru';
 import { useLanguage } from '../../context/LanguageContext';
+import { getString } from '../../i18n/strings';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { MatchingQuestion } from './MatchingQuestion';
 import { SpeakingAssessmentQuestionRunner } from './SpeakingAssessmentQuestionRunner';
@@ -15,7 +16,7 @@ const SKILLS: SkillId[] = ['Speaking', 'Reading', 'Listening', 'Writing'];
 const LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 export function AssessmentModal({ onClose }: { onClose: () => void }) {
-  const { learningLanguage } = useLanguage();
+  const { learningLanguage, uiLanguage } = useLanguage();
   const [stage, setStage] = useState<'skill-select' | 'intro' | 'test' | 'result'>('skill-select');
   const [selectedSkill, setSelectedSkill] = useState<SkillId | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -139,10 +140,10 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
         <div className="exercise-card" style={{ maxWidth: '600px' }}>
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
           <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
-            Determine Your Level
+            {getString('assessment.determineLevel', uiLanguage)}
           </h2>
           <p style={{ marginBottom: '2rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            Choose a skill to assess. The test takes about 5 minutes and uses quick questions (no writing required).
+            {getString('assessment.choose', uiLanguage)}. {getString('assessment.takes5Minutes', uiLanguage)}
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -190,7 +191,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
         <div className="exercise-card" style={{ maxWidth: '600px' }}>
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
           <h2 style={{ marginBottom: '1rem', color: 'var(--wine-ink)', textAlign: 'center' }}>
-            Your Level: <span style={{ color: 'var(--gold)', fontSize: '1.4em' }}>{detectedLevel}</span>
+            {getString('assessment.yourLevel', uiLanguage)}: <span style={{ color: 'var(--gold)', fontSize: '1.4em' }}>{detectedLevel}</span>
           </h2>
           <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--muted)' }}>
             {selectedSkill} · CEFR Level {detectedLevel}
@@ -204,11 +205,10 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
             borderLeft: '4px solid var(--gold)',
           }}>
             <p style={{ marginBottom: '0.5rem', fontWeight: '600', color: 'var(--wine-ink)' }}>
-              📊 Assessment Complete
+              📊 {getString('assessment.complete', uiLanguage)}
             </p>
             <p style={{ color: 'var(--charcoal)', lineHeight: 1.6 }}>
-              Based on your answers, we've determined your {selectedSkill.toLowerCase()} level is <strong>{detectedLevel}</strong>.
-              You can now start exercises at this level or explore other levels.
+              {getString('assessment.basedOnAnswers', uiLanguage)} {selectedSkill.toLowerCase()} {uiLanguage === 'es' ? 'es' : 'level is'} <strong>{detectedLevel}</strong>.
             </p>
           </div>
 
@@ -275,7 +275,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
 
         <div style={{ marginBottom: '2rem' }}>
           <div style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1rem' }}>
-            Question {currentQuestionIndex + 1} of {totalQuestions} · {selectedSkill} · {currentQuestion.level}
+            {getString('assessment.question', uiLanguage)} {currentQuestionIndex + 1} {getString('assessment.of', uiLanguage)} {totalQuestions} · {selectedSkill} · {currentQuestion.level}
           </div>
           <div style={{
             height: '6px',
@@ -339,7 +339,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
             disabled={currentQuestionIndex === 0}
             onClick={() => setCurrentQuestionIndex((i) => i - 1)}
           >
-            ← Previous
+            {getString('assessment.previous', uiLanguage)}
           </button>
           <button
             className="btn btn-wine"
@@ -347,7 +347,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
             disabled={!isAnswered}
             onClick={handleNext}
           >
-            {isLastQuestion ? 'Finish & See Result' : 'Next →'}
+            {isLastQuestion ? getString('assessment.finishAndSeeResult', uiLanguage) : getString('assessment.next', uiLanguage)}
           </button>
         </div>
       </div>
