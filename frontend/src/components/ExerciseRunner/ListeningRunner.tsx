@@ -15,8 +15,8 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
   useEffect(() => {
     if (learningLanguage === 'ru') {
       setAccent('ru-RU');
-    } else if (learningLanguage === 'es') {
-      setAccent(exercise.defaultAccent || 'es-ES');
+    } else if (learningLanguage === 'es' && exercise.defaultAccent) {
+      setAccent(exercise.defaultAccent);
     }
   }, [learningLanguage, exercise.defaultAccent]);
   const [isPlaying, setIsPlaying] = useState(false);
