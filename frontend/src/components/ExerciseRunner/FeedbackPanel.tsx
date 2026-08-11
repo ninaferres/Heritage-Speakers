@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { ComprehensionEvaluation, ProductionEvaluation } from '../../data/feedback';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString, StringKey } from '../../i18n/strings';
@@ -20,24 +21,125 @@ function scoreTier(score: number): { key: StringKey; color: string } {
   return { key: 'feedback.tier.keepPracticing', color: 'var(--wine)' };
 }
 
-function ScoreBar({ score }: { score: number }) {
+const CONFETTI_EMOJIS = ['🎉', '✨', '⭐', '🎊', '💫', '🔥'];
+
+function ScoreReveal({ score }: { score: number }) {
   const { uiLanguage } = useLanguage();
+  const [displayScore, setDisplayScore] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
   const tier = scoreTier(score);
+  const clamped = Math.max(0, Math.min(100, score));
+
+  useEffect(() => {
+    setDisplayScore(0);
+    setShowConfetti(false);
+    const duration = 900;
+    const start = performance.now();
+    let raf: number;
+    function tick(now: number) {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayScore(Math.round(eased * clamped));
+      if (progress < 1) {
+        raf = requestAnimationFrame(tick);
+      } else if (clamped >= 70) {
+        setShowConfetti(true);
+      }
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clamped]);
+
+  const confettiParticles = showConfetti
+    ? Array.from({ length: 14 }).map((_, i) => {
+        const tx = (Math.random() - 0.5) * 220;
+        const ty = -70 - Math.random() * 110;
+        return { id: i, tx, ty, emoji: CONFETTI_EMOJIS[i % CONFETTI_EMOJIS.length], left: 8 + Math.random() * 84, size: 1 + Math.random() * 0.9, delay: Math.random() * 0.18, dur: 0.9 + Math.random() * 0.6 };
+      })
+    : [];
+
   return (
-    <div style={{ marginBottom: '.9rem' }}>
-      <div style={{ height: '10px', backgroundColor: 'var(--line)', borderRadius: '5px', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '.6rem 0 1.2rem' }}>
+      {confettiParticles.map((p) => (
+        <span
+          key={p.id}
+          style={
+            {
+              position: 'absolute',
+              left: `${p.left}%`,
+              top: '38%',
+              fontSize: `${p.size}rem`,
+              pointerEvents: 'none',
+              '--tx': `${p.tx}px`,
+              '--ty': `${p.ty}px`,
+              animation: `feedbackConfetti ${p.dur}s ease-out forwards`,
+              animationDelay: `${p.delay}s`,
+            } as React.CSSProperties
+          }
+        >
+          {p.emoji}
+        </span>
+      ))}
+
+      <div
+        style={{
+          width: '128px',
+          height: '128px',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: `conic-gradient(${tier.color} ${displayScore * 3.6}deg, var(--line) ${displayScore * 3.6}deg)`,
+          transition: 'background .15s linear',
+          animation: 'feedbackScorePop .5s cubic-bezier(.34,1.56,.64,1)',
+          boxShadow: clamped >= 70 ? `0 0 24px ${tier.color}55` : 'none',
+        }}
+      >
         <div
           style={{
-            height: '100%',
-            width: `${Math.max(0, Math.min(100, score))}%`,
-            backgroundColor: tier.color,
-            transition: 'width .6s ease',
+            width: '102px',
+            height: '102px',
+            borderRadius: '50%',
+            background: 'var(--bone)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-        />
+        >
+          <span style={{ fontFamily: "'Fraunces', serif", fontSize: '2.1rem', fontWeight: 800, color: tier.color, lineHeight: 1 }}>{displayScore}</span>
+          <span style={{ fontSize: '.68rem', color: 'var(--muted)', fontWeight: 600 }}>/ 100</span>
+        </div>
       </div>
-      <span style={{ display: 'inline-block', marginTop: '.4rem', fontWeight: 700, color: tier.color, fontSize: '.9rem' }}>
+
+      <span
+        style={{
+          marginTop: '.9rem',
+          fontWeight: 800,
+          fontSize: '1.2rem',
+          color: tier.color,
+          animation: 'feedbackTierPop .45s ease .45s both',
+        }}
+      >
         {getString(tier.key, uiLanguage)}
       </span>
+
+      <style>{`
+        @keyframes feedbackScorePop {
+          0% { transform: scale(.4); opacity: 0; }
+          60% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); }
+        }
+        @keyframes feedbackTierPop {
+          0% { transform: scale(.7) translateY(8px); opacity: 0; }
+          100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes feedbackConfetti {
+          0% { transform: translate(0,0) scale(.4) rotate(0deg); opacity: 1; }
+          100% { transform: translate(var(--tx), var(--ty)) scale(1.3) rotate(360deg); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -46,11 +148,10 @@ export function ProductionFeedback({ result }: { result: ProductionEvaluation })
   const { uiLanguage } = useLanguage();
   return (
     <div className="feedback-panel">
-      <div className="feedback-score">
-        <span className="num">{result.score}</span>
-        <span className="scale">/ 100 · {getString('feedback.cefrEstimate', uiLanguage)} {result.cefrEstimate}</span>
-      </div>
-      <ScoreBar score={result.score} />
+      <ScoreReveal score={result.score} />
+      <p style={{ textAlign: 'center', marginBottom: '.4rem', color: 'var(--muted)', fontSize: '.9rem' }}>
+        {getString('feedback.cefrEstimate', uiLanguage)} <strong style={{ color: 'var(--wine-ink)' }}>{result.cefrEstimate}</strong>
+      </p>
       <p style={{ marginBottom: '1rem', color: 'var(--charcoal)', lineHeight: 1.65 }}>{result.summary}</p>
 
       {result.transcript && (
@@ -103,15 +204,17 @@ export function ComprehensionFeedback({ result }: { result: ComprehensionEvaluat
   const { uiLanguage } = useLanguage();
   return (
     <div className="feedback-panel">
-      <div className="feedback-score">
-        <span className="num">{result.overallScore}</span>
-        <span className="scale">/ 100</span>
-      </div>
-      <ScoreBar score={result.overallScore} />
+      <ScoreReveal score={result.overallScore} />
       <p style={{ marginBottom: '1rem', color: 'var(--charcoal)', lineHeight: 1.65 }}>{result.summary}</p>
       <ul className="feedback-list">
         {result.perQuestion.map((q, i) => (
-          <li key={i} style={{ borderLeftColor: q.correct ? '#2e7d32' : '#b3261e' }}>
+          <li
+            key={i}
+            style={{
+              borderLeftColor: q.correct ? '#2e7d32' : '#b3261e',
+              animation: `feedbackItemIn .35s ease ${i * 0.08}s both`,
+            }}
+          >
             <span className="err-label">{q.correct ? getString('feedback.correct', uiLanguage) : getString('feedback.needsWork', uiLanguage)} — {q.question}</span>
             {q.feedback}
             {!q.correct && (
@@ -123,6 +226,12 @@ export function ComprehensionFeedback({ result }: { result: ComprehensionEvaluat
           </li>
         ))}
       </ul>
+      <style>{`
+        @keyframes feedbackItemIn {
+          0% { opacity: 0; transform: translateX(-8px); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 }
