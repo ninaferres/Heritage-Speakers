@@ -21,7 +21,7 @@ function scoreTier(score: number): { key: StringKey; color: string } {
   return { key: 'feedback.tier.keepPracticing', color: 'var(--wine)' };
 }
 
-const CONFETTI_EMOJIS = ['🎉', '✨', '⭐', '🎊', '💫', '🔥'];
+const CONFETTI_COLORS = ['var(--gold)', 'var(--wine)', '#b8860b', '#2e7d32'];
 
 function ScoreReveal({ score }: { score: number }) {
   const { uiLanguage } = useLanguage();
@@ -55,7 +55,7 @@ function ScoreReveal({ score }: { score: number }) {
     ? Array.from({ length: 14 }).map((_, i) => {
         const tx = (Math.random() - 0.5) * 220;
         const ty = -70 - Math.random() * 110;
-        return { id: i, tx, ty, emoji: CONFETTI_EMOJIS[i % CONFETTI_EMOJIS.length], left: 8 + Math.random() * 84, size: 1 + Math.random() * 0.9, delay: Math.random() * 0.18, dur: 0.9 + Math.random() * 0.6 };
+        return { id: i, tx, ty, color: CONFETTI_COLORS[i % CONFETTI_COLORS.length], left: 8 + Math.random() * 84, size: 6 + Math.random() * 5, delay: Math.random() * 0.18, dur: 0.9 + Math.random() * 0.6 };
       })
     : [];
 
@@ -69,7 +69,10 @@ function ScoreReveal({ score }: { score: number }) {
               position: 'absolute',
               left: `${p.left}%`,
               top: '38%',
-              fontSize: `${p.size}rem`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              borderRadius: '50%',
+              background: p.color,
               pointerEvents: 'none',
               '--tx': `${p.tx}px`,
               '--ty': `${p.ty}px`,
@@ -77,9 +80,7 @@ function ScoreReveal({ score }: { score: number }) {
               animationDelay: `${p.delay}s`,
             } as React.CSSProperties
           }
-        >
-          {p.emoji}
-        </span>
+        />
       ))}
 
       <div

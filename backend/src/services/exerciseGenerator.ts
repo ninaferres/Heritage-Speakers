@@ -19,6 +19,15 @@ interface GeneratedQuestion {
   question: string;
   hint: string;
 }
+// The frontend's ExerciseQuestion union is tagged by `type`; the AI only produces
+// open-ended comprehension questions, so stamp that tag on before returning —
+// without it the runner can't tell it should render an answer box at all.
+interface TaggedQuestion extends GeneratedQuestion {
+  type: 'open';
+}
+function withOpenType(questions: GeneratedQuestion[]): TaggedQuestion[] {
+  return questions.map((q) => ({ ...q, type: 'open' as const }));
+}
 interface GeneratedReading extends GeneratedExerciseBase {
   passage: string;
   questions: GeneratedQuestion[];
@@ -80,10 +89,10 @@ export async function getDailyExercise(skill: SkillId, level: CefrLevel, languag
     generated = { skill: 'Speaking', ...result };
   } else if (skill === 'Reading') {
     const result = await generateStructuredJSON<GeneratedReading>({ system, user, schema: readingExerciseSchema, schemaName: 'reading_exercise' });
-    generated = { skill: 'Reading', ...result };
+    generated = { skill: 'Reading', ...result, questions: withOpenType(result.questions) };
   } else {
     const result = await generateStructuredJSON<GeneratedListening>({ system, user, schema: listeningExerciseSchema, schemaName: 'listening_exercise' });
-    generated = { skill: 'Listening', defaultAccent: accent!, ...result };
+    generated = { skill: 'Listening', defaultAccent: accent!, ...result, questions: withOpenType(result.questions) };
   }
 
   cache.set(key, generated);

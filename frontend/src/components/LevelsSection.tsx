@@ -43,7 +43,7 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLangua
         ))}
       </div>
       <span className="level-up">
-        {isMaintain ? <span className="maintain">{uiLanguage === 'es' ? 'Manteniendo C2 ✓' : 'Maintaining C2 ✓'}</span> : `${uiLanguage === 'es' ? 'Sube de nivel desde ' : 'Level up from '}${level} →`}
+        {isMaintain ? <span className="maintain">{uiLanguage === 'es' ? 'Manteniendo C2' : 'Maintaining C2'}</span> : `${uiLanguage === 'es' ? 'Sube de nivel desde ' : 'Level up from '}${level} →`}
       </span>
       <button className="btn btn-gold btn-small" style={{ marginTop: '1.25rem' }} onClick={() => requestExercise(id, level)}>
         {uiLanguage === 'es' ? `Intenta un ejercicio ${level}` : `Try a ${level} exercise`}

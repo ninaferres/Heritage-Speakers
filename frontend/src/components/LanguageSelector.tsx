@@ -30,7 +30,7 @@ export function LanguageSelector() {
         textTransform: 'uppercase',
         letterSpacing: '1px',
       }}>
-        {uiLanguage === 'es' ? '👇 Haz clic aquí para comenzar' : '👇 Click here to start'}
+        {uiLanguage === 'es' ? 'Haz clic aquí para comenzar' : 'Click here to start'}
       </p>
       <p style={{
         color: 'var(--wine)',
@@ -66,7 +66,7 @@ export function LanguageSelector() {
           color: 'var(--wine)',
           fontWeight: '600',
         }}>
-          ✓ {uiLanguage === 'es' ? '¡Listo para aprender! Selecciona una habilidad abajo para comenzar.' : 'Ready to learn! Select a skill below to start.'}
+          {uiLanguage === 'es' ? '¡Listo para aprender! Selecciona una habilidad abajo para comenzar.' : 'Ready to learn! Select a skill below to start.'}
         </p>
       )}
     </div>

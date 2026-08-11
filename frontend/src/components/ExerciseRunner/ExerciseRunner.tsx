@@ -55,7 +55,7 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
     <div className="exercise-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="exercise-card" role="dialog" aria-modal="true">
         <span className="exercise-timer" style={{ color: timerColor }}>
-          ⏱<br />{timerLabel}
+          {timerLabel}
         </span>
         <button className="modal-close" aria-label="Close exercise" onClick={onClose}>✕</button>
 
@@ -67,8 +67,8 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
               <AnalyzingMessages
                 messages={
                   uiLanguage === 'es'
-                    ? ['Preparando tu misión de hoy…', 'Casi listo…', 'Un momento más… ✨']
-                    : ['Preparing today\'s mission…', 'Almost ready…', 'One more moment… ✨']
+                    ? ['Preparando tu misión de hoy…', 'Casi listo…', 'Un momento más…']
+                    : ['Preparing today\'s mission…', 'Almost ready…', 'One more moment…']
                 }
               />
             </div>

@@ -33,6 +33,7 @@ function levelGuidance(level: CefrLevel): string {
 const BASE_RULES = `You write CEFR-leveled exercise content for heritage speakers (people who grew up hearing the language at home but need to strengthen specific skills). Follow these rules strictly:
 - Content must be practical and grounded in everyday, real-world situations (family, work, shopping, travel, services, social media, current events). NEVER use academic, literary-theory, philosophical, or linguistics jargon (no discussion of literary movements, epistemology, ontology, semiotics, deconstruction, etc.), even at the highest levels — sophistication should come from real-world nuance and vocabulary, not academic abstraction.
 - Any number that appears in the text (times, quantities, prices, days, years) must be spelled out as words, never as digits.
+- Never use emojis anywhere in the output.
 - Output must strictly conform to the provided JSON schema. Do not include any text outside the structured output.
 - Do not repeat the exact scenario or wording from prior well-known textbook examples — invent a fresh, specific, concrete situation each time.`;
 

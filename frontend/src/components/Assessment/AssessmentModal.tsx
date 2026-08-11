@@ -259,7 +259,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
             borderLeft: '4px solid var(--gold)',
           }}>
             <p style={{ marginBottom: '0.5rem', fontWeight: '600', color: 'var(--wine-ink)' }}>
-              📊 {getString('assessment.complete', uiLanguage)}
+              {getString('assessment.complete', uiLanguage)}
             </p>
             <p style={{ color: 'var(--charcoal)', lineHeight: 1.6 }}>
               {getString('assessment.basedOnAnswers', uiLanguage)} {getString(`skill.${selectedSkill}` as StringKey, uiLanguage).toLowerCase()} {getString('assessment.yourLevelIs', uiLanguage)} <strong>{detectedLevel}</strong>.

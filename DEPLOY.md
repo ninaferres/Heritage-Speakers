@@ -31,11 +31,13 @@ need its URL when you set up the frontend.
      nothing is billed while under the free quota).
    - `GOOGLE_TTS_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` / `_RU_MOSCOW` → optional, only
      needed if you want to override the built-in default voice names. Defaults use Google's
-     Chirp3-HD tier (`es-ES-Chirp3-HD-Kore`, `es-US-Chirp3-HD-Aoede` for the Latin American
-     accents, `ru-RU-Chirp3-HD-Charon`/`-Kore` for Russian) for a more natural sound than the
-     Neural2/Wavenet tiers, still within the free monthly quota. Google doesn't offer distinct
-     per-country Latin American Spanish voices the way the previous provider did, so MX/AR/CO
-     share one generic voice unless you find and set region-specific ones yourself from the
+     Neural2/Wavenet tier (`es-ES-Neural2-A`, `es-US-Neural2-A` for the Latin American accents,
+     `ru-RU-Wavenet-A`/`-D` for Russian) — these are real per-locale voice models, so Peninsular
+     Spanish actually sounds Peninsular instead of borrowing a Latin American accent (which is
+     what happens with Chirp3-HD's named voices, since those are the same voice reused across
+     locales). Google doesn't offer distinct per-country Latin American Spanish voices the way
+     the previous provider did, so MX/AR/CO share one generic voice unless you find and set
+     region-specific ones yourself from the
      [voice list](https://cloud.google.com/text-to-speech/docs/voices).
 4. Click **Apply**. First deploy takes a few minutes. When it's done, copy the
    public URL Render gives the service (something like

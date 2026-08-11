@@ -133,7 +133,7 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
                 fontWeight: '700',
               }}
             >
-              {recording ? `⏹️ ${getString('speaking.stopRecording', uiLanguage)} (${formatTime(recordingTime)})` : getString('speaking.startRecording', uiLanguage)}
+              {recording ? `${getString('speaking.stopRecording', uiLanguage)} (${formatTime(recordingTime)})` : getString('speaking.startRecording', uiLanguage)}
             </button>
           </div>
 
