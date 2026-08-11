@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import { CefrLevel, ExerciseQuestion, AccentId } from '../data/types';
+import { CefrLevel, ExerciseQuestion, AccentId, Exercise, SkillId } from '../data/types';
 import { ComprehensionEvaluation, ProductionEvaluation } from '../data/feedback';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '/api';
@@ -80,7 +80,21 @@ export async function evaluateSpeaking(params: {
   return res.json();
 }
 
-// Use ElevenLabs TTS via backend for high-quality speech synthesis
+// Fetches (or triggers server-side generation of) today's exercise for this skill/level/language.
+// Callers should fall back to the static local exercise bank if this rejects.
+export async function fetchDailyExercise(skill: SkillId, level: CefrLevel, language: string): Promise<Exercise> {
+  const query = new URLSearchParams({ skill, level, language: language === 'ru' ? 'ru' : 'es' });
+  const res = await fetch(`${API_BASE}/exercise?${query.toString()}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Request to /exercise failed (${res.status})`);
+  }
+  return res.json();
+}
+
+// Use Google Cloud TTS via backend for high-quality speech synthesis
 export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob> {
   try {
     const response = await fetch(`${API_BASE}/tts`, {

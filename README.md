@@ -49,6 +49,24 @@ visible in the UI without being selectable. To light up a new language later:
 No other frontend code needs to change — `LevelsSection` and `ExerciseRunner`
 already read everything through the language context.
 
+### Daily-generated exercises
+
+`GET /api/exercise?skill=X&level=Y&language=Z` (`backend/src/services/exerciseGenerator.ts`)
+generates a fresh exercise via the AI provider each day, cached in memory per
+skill/level/language so every learner sees the same content on a given day
+without needing a database. The system prompt
+(`backend/src/prompts/exercisePrompts.ts`) encodes the same content rules
+established throughout this project: practical real-world scenarios only (no
+academic/literary/philosophical jargon), numbers spelled out as words, and —
+for Spanish Listening exercises — authentic regional flavor rotated by CEFR
+level (voseo for Argentina, "jitomate"/pesos for Mexico, Colombian discourse
+markers, vosotros for Spain).
+
+`ExerciseRunner.tsx` calls this endpoint first and falls back to the curated
+static bank in `data/exercises.es.ts` / `exercises.ru.ts` if generation fails
+for any reason (AI provider not configured, rate limited, network error) —
+learners are never blocked from practicing.
+
 ### AI evaluation pipeline
 
 All four skills are graded by the backend (`backend/src/services/grading.ts`)

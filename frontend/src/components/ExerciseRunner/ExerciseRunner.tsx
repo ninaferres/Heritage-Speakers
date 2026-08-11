@@ -1,8 +1,11 @@
-import { CefrLevel, SkillId } from '../../data/types';
+import { useEffect, useState } from 'react';
+import { CefrLevel, SkillId, Exercise } from '../../data/types';
 import { useLanguage } from '../../context/LanguageContext';
 import { getExercise } from '../../data/exercises.es';
+import { fetchDailyExercise } from '../../api/client';
 import { useCountdown } from '../../hooks/useCountdown';
 import { getString, StringKey } from '../../i18n/strings';
+import { AnalyzingMessages } from './AnalyzingMessages';
 import { WritingRunner } from './WritingRunner';
 import { ReadingRunner } from './ReadingRunner';
 import { ListeningRunner } from './ListeningRunner';
@@ -14,9 +17,39 @@ const SESSION_SECONDS = 5 * 60;
 
 export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; level: CefrLevel; onClose: () => void }) {
   const { learningLanguage, uiLanguage } = useLanguage();
-  const exercise = learningLanguage ? getExercise(learningLanguage, skill, level) : null;
-  const { secondsLeft, label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
+  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [loadingExercise, setLoadingExercise] = useState(true);
+  const { secondsLeft, label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS, !loadingExercise);
   const timeProgress = Math.max(0, Math.min(100, (secondsLeft / SESSION_SECONDS) * 100));
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingExercise(true);
+    setExercise(null);
+
+    async function load() {
+      const fallback = learningLanguage ? getExercise(learningLanguage, skill, level) : null;
+      if (!learningLanguage) {
+        if (!cancelled) setLoadingExercise(false);
+        return;
+      }
+      try {
+        const daily = await fetchDailyExercise(skill, level, learningLanguage);
+        if (!cancelled) setExercise(daily);
+      } catch {
+        // Daily generation unavailable (not configured, rate-limited, etc.) — fall back
+        // to the curated static bank so the learner is never blocked from practicing.
+        if (!cancelled) setExercise(fallback);
+      } finally {
+        if (!cancelled) setLoadingExercise(false);
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [skill, level, learningLanguage]);
 
   return (
     <div className="exercise-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -26,7 +59,21 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
         </span>
         <button className="modal-close" aria-label="Close exercise" onClick={onClose}>✕</button>
 
-        {!exercise ? (
+        {loadingExercise ? (
+          <>
+            <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
+            <div className="loading-inline" style={{ marginTop: '2rem' }}>
+              <span className="spinner" />
+              <AnalyzingMessages
+                messages={
+                  uiLanguage === 'es'
+                    ? ['Preparando tu misión de hoy…', 'Casi listo…', 'Un momento más… ✨']
+                    : ['Preparing today\'s mission…', 'Almost ready…', 'One more moment… ✨']
+                }
+              />
+            </div>
+          </>
+        ) : !exercise ? (
           <>
             <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
             <h2>{getString('exercise.notAvailable', uiLanguage)}</h2>
