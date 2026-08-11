@@ -20,14 +20,17 @@ export const env = {
   groqApiKey: optional('GROQ_API_KEY'),
   groqModel: optional('GROQ_MODEL') ?? 'llama-3.3-70b-versatile',
 
-  elevenLabsApiKey: optional('ELEVENLABS_API_KEY'),
-  elevenLabsVoices: {
-    'es-ES': optional('ELEVENLABS_VOICE_ES'),
-    'es-MX': optional('ELEVENLABS_VOICE_MX'),
-    'es-AR': optional('ELEVENLABS_VOICE_AR'),
-    'es-CO': optional('ELEVENLABS_VOICE_CO'),
-    'ru-RU': optional('ELEVENLABS_VOICE_RU'),
-    'ru-Moscow': optional('ELEVENLABS_VOICE_RU_MOSCOW'),
+  googleTtsApiKey: optional('GOOGLE_TTS_API_KEY'),
+  googleTtsVoices: {
+    // Defaults use widely-available Google voices. Google doesn't offer distinct per-country
+    // Latin American Spanish voices the way ElevenLabs did, so MX/AR/CO share the same generic
+    // es-US voice by default until region-specific ones are confirmed and set via env vars.
+    'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Neural2-A',
+    'es-MX': optional('GOOGLE_TTS_VOICE_MX') ?? 'es-US-Neural2-A',
+    'es-AR': optional('GOOGLE_TTS_VOICE_AR') ?? 'es-US-Neural2-A',
+    'es-CO': optional('GOOGLE_TTS_VOICE_CO') ?? 'es-US-Neural2-A',
+    'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Wavenet-A',
+    'ru-Moscow': optional('GOOGLE_TTS_VOICE_RU_MOSCOW') ?? 'ru-RU-Wavenet-D',
   } as Record<string, string | undefined>,
 };
 
@@ -39,4 +42,4 @@ export const isGradingConfigured =
       ? Boolean(env.openaiApiKey)
       : Boolean(env.groqApiKey);
 export const isSttConfigured = Boolean(env.groqApiKey || env.openaiApiKey);
-export const isTtsConfigured = Boolean(env.elevenLabsApiKey);
+export const isTtsConfigured = Boolean(env.googleTtsApiKey);

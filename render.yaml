@@ -24,22 +24,22 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: ANTHROPIC_MODEL
-        value: claude-sonnet-4-5
+        value: claude-sonnet-5
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
         value: gpt-4o
-      - key: ELEVENLABS_API_KEY
+      - key: GOOGLE_TTS_API_KEY
         sync: false
-      - key: ELEVENLABS_VOICE_ES
+      - key: GOOGLE_TTS_VOICE_ES
         sync: false
-      - key: ELEVENLABS_VOICE_MX
+      - key: GOOGLE_TTS_VOICE_MX
         sync: false
-      - key: ELEVENLABS_VOICE_AR
+      - key: GOOGLE_TTS_VOICE_AR
         sync: false
-      - key: ELEVENLABS_VOICE_CO
+      - key: GOOGLE_TTS_VOICE_CO
         sync: false
-      - key: ELEVENLABS_VOICE_RU
+      - key: GOOGLE_TTS_VOICE_RU
         sync: false
-      - key: ELEVENLABS_VOICE_RU_MOSCOW
+      - key: GOOGLE_TTS_VOICE_RU_MOSCOW
         sync: false

@@ -12,8 +12,8 @@ frontend/   React + Vite SPA. Preserves the original visual design (wine/gold/bo
             prototype, rebuilt as componentized, maintainable code.
 backend/    Node + Express API. Holds all third-party API keys server-side and
             exposes auth-gated endpoints for AI grading, speech-to-text and
-            text-to-speech. The frontend never talks to Anthropic/OpenAI/
-            ElevenLabs directly.
+            text-to-speech. The frontend never talks to Anthropic/OpenAI/Groq/
+            Google directly.
 ```
 
 ### Why a backend at all
@@ -66,8 +66,9 @@ fragment, and explain the specific linguistic rule involved (subjunctive vs.
 indicative, ser/estar, preposition choice, agreement, false friends, etc.).
 
 - **Writing**: full grammatical/syntactic/orthographic breakdown + native-level reformulation.
-- **Speaking**: the recording is transcribed by OpenAI Whisper first, then graded
-  the same way as Writing, plus a pronunciation/accent/stress notes field.
+- **Speaking**: the recording is transcribed by Whisper first (via Groq's free tier,
+  falling back to OpenAI's paid API only if no Groq key is set), then graded the
+  same way as Writing, plus a pronunciation/accent/stress notes field.
 - **Reading / Listening**: open-response comprehension answers graded against the
   source passage/transcript, with per-question feedback and a model answer.
 
@@ -75,20 +76,20 @@ indicative, ser/estar, preposition choice, agreement, false friends, etc.).
 
 The old prototype linked to third-party mp3 files that no longer resolve. Listening
 exercises now store a transcript script instead of an audio URL; the runner calls
-`POST /api/tts` on demand, which synthesizes it through ElevenLabs
-(`eleven_multilingual_v2`) in the learner's choice of four regional Spanish accents
-(Peninsular, Mexican, Argentine, Colombian) — nothing to go stale.
+`POST /api/tts` on demand, which synthesizes it through Google Cloud Text-to-Speech
+in the learner's choice of Spanish accent (Peninsular, or generic Latin American for
+Mexican/Argentine/Colombian) or Russian voice — nothing to go stale.
 
 ### Network requirements
 
 The backend makes outbound HTTPS requests to:
-- `api.elevenlabs.io` for text-to-speech (listening exercises + assessment intro)
-- `api.openai.com` for speech-to-text transcription and optionally AI grading
+- `texttospeech.googleapis.com` for text-to-speech (listening exercises)
+- `api.groq.com` for speech-to-text transcription and optionally AI grading
+- `api.openai.com` for speech-to-text transcription (fallback only) and optionally AI grading
 - `api.anthropic.com` for AI grading (if using Anthropic as the provider)
 
 If you're running in a restricted network environment (VPN, corporate firewall, or
-cloud provider with egress policy), you may need to allowlist these hosts. See
-`TTS_TROUBLESHOOTING.md` for diagnostic steps and solutions.
+cloud provider with egress policy), you may need to allowlist these hosts.
 
 ## Setup
 
@@ -109,15 +110,18 @@ or [OpenAI](https://platform.openai.com/) and set `ANTHROPIC_API_KEY` or
 
 ### 3. Speech-to-text (Speaking)
 
-Uses OpenAI Whisper — set `OPENAI_API_KEY` (same key works for grading if you
-choose the OpenAI provider, or add it alongside Anthropic for grading + Whisper
-for STT).
+Uses Whisper via Groq's free tier by default — set `GROQ_API_KEY` (the same key
+used for grading if `AI_PROVIDER=groq`). `OPENAI_API_KEY` works as a paid fallback
+if no Groq key is set.
 
 ### 4. Text-to-speech (Listening)
 
-Create an [ElevenLabs](https://elevenlabs.io/) account, pick/clone one voice per
-regional accent, and set `ELEVENLABS_API_KEY` plus `ELEVENLABS_VOICE_ES` /
-`_MX` / `_AR` / `_CO` to those voice IDs.
+Create a free [Google Cloud](https://console.cloud.google.com/) project, enable the
+"Cloud Text-to-Speech API", and create an API key restricted to it. Set
+`GOOGLE_TTS_API_KEY` to that key. Voice names default to sensible built-in values
+(`GOOGLE_TTS_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` / `_RU_MOSCOW` can override
+them) — see the [voice list](https://cloud.google.com/text-to-speech/docs/voices)
+to pick different ones.
 
 ### Running locally
 

@@ -23,9 +23,19 @@ need its URL when you set up the frontend.
    - `OPENAI_API_KEY` → optional. Speaking transcription (Whisper) uses your `GROQ_API_KEY`
      for free if it's set; `OPENAI_API_KEY` is only used as a fallback (and costs money —
      OpenAI's Whisper API is pay-as-you-go, unlike Groq's free tier)
-   - `ELEVENLABS_API_KEY` + all six `ELEVENLABS_VOICE_*` voice IDs (four Spanish accents
-     plus `ELEVENLABS_VOICE_RU` and `ELEVENLABS_VOICE_RU_MOSCOW` for Russian) → needed for
-     Listening audio and the exercise intro; leave blank for now if you don't have them yet
+   - `GOOGLE_TTS_API_KEY` → needed for Listening audio. Get one for free from
+     [Google Cloud Console](https://console.cloud.google.com/apis/credentials): create a
+     project, enable the "Cloud Text-to-Speech API", then create an API key restricted to
+     that API. Google's free tier covers a generous monthly character quota; you won't be
+     charged unless you exceed it (a card is required to create the Cloud project, but
+     nothing is billed while under the free quota).
+   - `GOOGLE_TTS_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` / `_RU_MOSCOW` → optional, only
+     needed if you want to override the built-in default voice names. Sensible defaults
+     are already baked in (`es-ES-Neural2-A`, `es-US-Neural2-A` for the Latin American
+     accents, `ru-RU-Wavenet-A`/`-D` for Russian) — Google doesn't offer distinct
+     per-country Latin American Spanish voices the way the previous provider did, so MX/AR/CO
+     share one generic voice unless you find and set region-specific ones yourself from the
+     [voice list](https://cloud.google.com/text-to-speech/docs/voices).
 4. Click **Apply**. First deploy takes a few minutes. When it's done, copy the
    public URL Render gives the service (something like
    `https://heritage-speakers-api.onrender.com`).
@@ -74,7 +84,7 @@ this, "Continue with Google" will redirect back to an unauthorized-URL error.
 - **Needs `GROQ_API_KEY` (free) or `OPENAI_API_KEY` (paid)**: Speaking transcription
   (Whisper). Groq is used automatically when set, since it's free; OpenAI is only used
   as a fallback if no Groq key is present.
-- **Needs `ELEVENLABS_API_KEY` + voice IDs**: Listening audio generation.
+- **Needs `GOOGLE_TTS_API_KEY`** (free tier): Listening audio generation.
 
 You can deploy now with just the Supabase keys and add the AI/audio keys to
 Render's environment variables whenever you get them — no redeploy of code
