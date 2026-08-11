@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { COPY } from '../i18n/copy';
+import { getCopy } from '../i18n/copy';
+import { useLanguage } from '../context/LanguageContext';
 
 type Mode = 'signup' | 'login';
 
@@ -14,6 +15,8 @@ export function AuthModal({
   initialMode?: Mode;
 }) {
   const { signInWithPassword, signUpWithPassword, signInWithGoogle, isConfigured } = useAuth();
+  const { uiLanguage } = useLanguage();
+  const COPY = getCopy(uiLanguage);
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +28,7 @@ export function AuthModal({
     setError(null);
 
     if (!isConfigured) {
-      setError('Authentication is not configured yet. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable sign up.');
+      setError(COPY.authNotConfigured);
       return;
     }
 
@@ -43,7 +46,7 @@ export function AuthModal({
   async function handleGoogle() {
     setError(null);
     if (!isConfigured) {
-      setError('Authentication is not configured yet. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable Google sign-in.');
+      setError(COPY.authNotConfigured);
       return;
     }
     const result = await signInWithGoogle();
@@ -100,7 +103,7 @@ export function AuthModal({
             onChange={(e) => setPassword(e.target.value)}
           />
           <button className="btn btn-wine" type="submit" disabled={submitting}>
-            {submitting ? 'Please wait…' : mode === 'signup' ? COPY.signUpAction : COPY.logInAction}
+            {submitting ? COPY.pleaseWait : mode === 'signup' ? COPY.signUpAction : COPY.logInAction}
           </button>
         </form>
 

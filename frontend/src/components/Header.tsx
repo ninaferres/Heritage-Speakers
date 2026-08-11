@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { BrandLockup } from './Logo';
-import { UI_LANGUAGES, UILanguageCode } from '../i18n/languages';
 import { useLanguage } from '../context/LanguageContext';
 import { getString } from '../i18n/strings';
 import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { AboutModal } from './AboutModal';
-import { COPY } from '../i18n/copy';
+import { getCopy } from '../i18n/copy';
 
 export function Header() {
   const [navOpen, setNavOpen] = useState(false);
@@ -14,6 +13,7 @@ export function Header() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
+  const COPY = getCopy(uiLanguage);
 
   const handleOpenAbout = () => {
     setAboutOpen(true);
@@ -93,22 +93,6 @@ export function Header() {
             </div>
 
             <div>
-              <div className="nav-section-label">Interface Language</div>
-              <select
-                className="lang-select"
-                value={uiLanguage}
-                onChange={(e) => setUILanguage(e.target.value as UILanguageCode)}
-                aria-label="Choose interface language"
-              >
-                {UI_LANGUAGES.map((opt) => (
-                  <option key={opt.code} value={opt.code}>
-                    {opt.nativeLabel}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
               <div className="nav-section-label">{uiLanguage === 'es' ? 'Idiomas' : 'Languages'}</div>
               <select
                 className="lang-select"
@@ -119,7 +103,7 @@ export function Header() {
                 <option value="">{uiLanguage === 'es' ? 'Selecciona un idioma...' : 'Select a language...'}</option>
                 {availableLearningLanguages.map((opt) => (
                   <option key={opt.code} value={opt.code} disabled={opt.status !== 'active'}>
-                    {opt.nativeLabel} {opt.status !== 'active' ? '— coming soon' : ''}
+                    {opt.nativeLabel} {opt.status !== 'active' ? (uiLanguage === 'es' ? '— próximamente' : '— coming soon') : ''}
                   </option>
                 ))}
               </select>
@@ -148,11 +132,11 @@ export function Header() {
             </div>
 
             <div>
-              <div className="nav-section-label">Account</div>
+              <div className="nav-section-label">{uiLanguage === 'es' ? 'Cuenta' : 'Account'}</div>
               {user ? (
                 <div className="nav-user-chip">
                   <span className="email" title={user.email ?? ''}>{user.email}</span>
-                  <button className="btn btn-ghost btn-small" onClick={() => signOut()}>Log out</button>
+                  <button className="btn btn-ghost btn-small" onClick={() => signOut()}>{uiLanguage === 'es' ? 'Cerrar sesión' : 'Log out'}</button>
                 </div>
               ) : (
                 <div className="nav-auth-actions">
