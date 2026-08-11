@@ -16,9 +16,9 @@ const assessmentData: Record<SkillId, Record<CefrLevel, AssessmentQuestion[]>> =
     A1: [
       {
         type: 'mc',
-        question: 'Un cartel en una tienda dice: "ABIERTO de 9:00 a 18:00". ¿A qué hora cierra la tienda?',
-        options: ['9:00', '12:00', '18:00', '6:00 de la mañana'],
-        answer: '18:00',
+        question: 'Un cartel en una tienda dice: "ABIERTO de nueve de la mañana a seis de la tarde". ¿A qué hora cierra la tienda?',
+        options: ['A las nueve de la mañana', 'Al mediodía', 'A las seis de la tarde', 'A las seis de la mañana'],
+        answer: 'A las seis de la tarde',
       },
       {
         type: 'mc',
@@ -30,9 +30,9 @@ const assessmentData: Record<SkillId, Record<CefrLevel, AssessmentQuestion[]>> =
     A2: [
       {
         type: 'mc',
-        question: 'Mensaje de un amigo: "Oye, ¿nos vemos a las 5 en el café de la esquina?". ¿Qué te está proponiendo?',
-        options: ['Llamarte por teléfono', 'Quedar a las 5 en un café', 'Ir a tu casa', 'Cancelar un plan'],
-        answer: 'Quedar a las 5 en un café',
+        question: 'Mensaje de un amigo: "Oye, ¿nos vemos a las cinco en el café de la esquina?". ¿Qué te está proponiendo?',
+        options: ['Llamarte por teléfono', 'Quedar a las cinco en un café', 'Ir a tu casa', 'Cancelar un plan'],
+        answer: 'Quedar a las cinco en un café',
       },
       {
         type: 'mc',
@@ -67,9 +67,9 @@ const assessmentData: Record<SkillId, Record<CefrLevel, AssessmentQuestion[]>> =
       },
       {
         type: 'mc',
-        question: 'En un contrato de alquiler lees: "El inquilino se compromete a notificar cualquier desperfecto en un plazo de 48 horas." ¿Qué debe hacer el inquilino si algo se rompe?',
-        options: ['Repararlo él mismo', 'Avisar en menos de 2 días', 'Esperar al final del contrato', 'No hacer nada'],
-        answer: 'Avisar en menos de 2 días',
+        question: 'En un contrato de alquiler lees: "El inquilino se compromete a notificar cualquier desperfecto en un plazo de cuarenta y ocho horas." ¿Qué debe hacer el inquilino si algo se rompe?',
+        options: ['Repararlo él mismo', 'Avisar en menos de dos días', 'Esperar al final del contrato', 'No hacer nada'],
+        answer: 'Avisar en menos de dos días',
       },
     ],
     C1: [
@@ -278,26 +278,26 @@ const assessmentData: Record<SkillId, Record<CefrLevel, AssessmentQuestion[]>> =
     C1: [
       {
         type: 'listening-assessment',
-        question: 'Escucha bien el tono. ¿Qué quiere decir realmente la persona?',
-        audioText: 'Sí, claro, eso es una excelente idea',
-        options: ['Le parece una idea muy buena', 'En realidad no está de acuerdo', 'No ha entendido la idea', 'Está muy alegre'],
-        answer: 'En realidad no está de acuerdo',
-      },
-      {
-        type: 'listening-assessment',
         question: 'Un jefe le dice esto a un empleado. ¿Qué le está diciendo en realidad?',
         audioText: 'Su desempeño necesita mejorar',
         options: ['Le está felicitando', 'Le está criticando, pero con suavidad', 'Le está haciendo una pregunta', 'Le está dando el día libre'],
         answer: 'Le está criticando, pero con suavidad',
       },
+      {
+        type: 'listening-assessment',
+        question: 'Un cliente llama al banco. ¿Cuántos días tiene para reclamar el cobro?',
+        audioText: 'Para reclamar ese cobro, dispone usted de catorce días desde la fecha del cargo.',
+        options: ['Siete días', 'Catorce días', 'Treinta días', 'Un día'],
+        answer: 'Catorce días',
+      },
     ],
     C2: [
       {
         type: 'listening-assessment',
-        question: 'Escucha esta explicación. ¿Cómo está organizada?',
-        audioText: 'Primero, considera los hechos. Segundo, analiza el contexto. Finalmente, saca tus propias conclusiones.',
-        options: ['Es una lista de la compra', 'Sigue pasos ordenados, uno detrás de otro', 'Es un poema', 'No tiene ningún orden'],
-        answer: 'Sigue pasos ordenados, uno detrás de otro',
+        question: 'Escucha esta queja en un servicio de atención al cliente. ¿Qué tono usa la persona, a pesar de estar molesta?',
+        audioText: 'Entiendo que tienen mucho trabajo, pero esta ya es la tercera vez que llamo por este mismo asunto, y me gustaría que por fin se resolviera.',
+        options: ['Muy grosero', 'Educado pero firme', 'Totalmente indiferente', 'Alegre'],
+        answer: 'Educado pero firme',
       },
       {
         type: 'listening-assessment',
