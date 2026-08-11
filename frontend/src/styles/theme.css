@@ -57,15 +57,16 @@ button{font-family:inherit}
   display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
   font-family:'Outfit',sans-serif;font-weight:600;font-size:.98rem;letter-spacing:.3px;
   padding:.95rem 2.2rem;border-radius:999px;border:0;cursor:pointer;
-  text-decoration:none;transition:all .25s cubic-bezier(.2,.68,.96,.85);
+  text-decoration:none;transition:all .2s cubic-bezier(.34,1.56,.64,1);
 }
+.btn:active:not(:disabled){transform:scale(.94)!important;transition-duration:.08s}
 .btn-gold{background:var(--gold);color:var(--wine-ink);box-shadow:0 4px 16px rgba(184,147,90,.22)}
-.btn-gold:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(184,147,90,.32);background:var(--gold-soft)}
+.btn-gold:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 32px rgba(184,147,90,.32);background:var(--gold-soft)}
 .btn-small{padding:0.8rem 1.5rem;font-size:0.95rem}
 .btn-wine{background:var(--wine);color:var(--bone);box-shadow:0 4px 16px rgba(107,31,46,.2)}
-.btn-wine:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(107,31,46,.28)}
+.btn-wine:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 32px rgba(107,31,46,.28)}
 .btn-outline{background:rgba(250,247,243,.1);color:var(--bone);border:1.5px solid rgba(250,247,243,.4)}
-.btn-outline:hover{border-color:rgba(250,247,243,.9);background:rgba(250,247,243,.2);transform:translateY(-3px)}
+.btn-outline:hover{border-color:rgba(250,247,243,.9);background:rgba(250,247,243,.2);transform:translateY(-3px) scale(1.03)}
 .btn-ghost{background:transparent;color:var(--wine-ink);border:1.5px solid var(--line)}
 .btn-ghost:hover{border-color:var(--wine);background:rgba(107,31,46,.05)}
 .btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
@@ -329,8 +330,12 @@ footer .copy{font-size:.86rem;color:rgba(250,247,243,.48);width:100%;text-align:
   font-family:'Outfit',sans-serif;font-size:1rem;resize:vertical;color:var(--ink);background:var(--bone);
 }
 .exercise-textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,147,90,.15)}
-.exercise-question{border:1.5px solid var(--line);border-radius:14px;padding:1.4rem;margin-bottom:1.3rem}
+.exercise-question{border:1.5px solid var(--line);border-radius:14px;padding:1.4rem;margin-bottom:1.3rem;animation:questionSlideIn .35s cubic-bezier(.2,.7,.3,1)}
 .exercise-question h4{color:var(--wine-ink);margin-bottom:.9rem;font-size:1rem}
+@keyframes questionSlideIn{0%{opacity:0;transform:translateX(16px)}100%{opacity:1;transform:translateX(0)}}
+.progress-shimmer{position:relative;overflow:hidden}
+.progress-shimmer::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmerSweep 1.6s ease-in-out infinite}
+@keyframes shimmerSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .accent-select{padding:.6rem .9rem;border:1.5px solid var(--wine);border-radius:10px;background:var(--bone);font-family:'Outfit',sans-serif;font-size:.9rem;cursor:pointer}
 .record-btn{display:inline-flex;align-items:center;gap:.6rem;background:var(--wine);color:var(--bone);border:0;padding:.9rem 1.6rem;border-radius:999px;font-weight:600;cursor:pointer;transition:all .2s ease}
 .record-btn.recording{background:#b3261e;animation:pulse 1.4s ease-in-out infinite}
@@ -343,7 +348,7 @@ footer .copy{font-size:.86rem;color:rgba(250,247,243,.48);width:100%;text-align:
 .feedback-list li{border-left:3px solid var(--gold);padding-left:.9rem;font-size:.94rem;line-height:1.6;color:var(--charcoal)}
 .feedback-list li .err-label{font-weight:700;color:var(--wine-ink);display:block;margin-bottom:.15rem}
 .loading-inline{display:flex;align-items:center;gap:.8rem;color:var(--wine);font-weight:600;padding:1.5rem 0}
-.spinner{width:20px;height:20px;border:3px solid var(--line);border-top-color:var(--wine);border-radius:50%;animation:spin 1s linear infinite}
+.spinner{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--gold);border-right-color:var(--wine);border-radius:50%;animation:spin .8s cubic-bezier(.5,.1,.5,.9) infinite}
 .error-box{background:#fdecec;border:1px solid #f2c6c6;color:#9a2f2f;padding:1.2rem 1.4rem;border-radius:12px}
 
 /* ---------- responsive ---------- */

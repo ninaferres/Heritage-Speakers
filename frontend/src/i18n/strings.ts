@@ -154,7 +154,10 @@ export type StringKey =
   | 'feedback.tier.excellent'
   | 'feedback.tier.great'
   | 'feedback.tier.good'
-  | 'feedback.tier.keepPracticing';
+  | 'feedback.tier.keepPracticing'
+  | 'loading.msg1'
+  | 'loading.msg2'
+  | 'loading.msg3';
 
 export const EN: Record<StringKey, string> = {
   'header.logo': 'Heritage Speakers',
@@ -309,6 +312,9 @@ export const EN: Record<StringKey, string> = {
   'feedback.tier.great': '💪 Great job!',
   'feedback.tier.good': '👍 Good progress',
   'feedback.tier.keepPracticing': 'Keep practicing',
+  'loading.msg1': 'Checking grammar and vocabulary…',
+  'loading.msg2': 'Almost there…',
+  'loading.msg3': 'Polishing your feedback… ✨',
 };
 
 export const ES: Record<StringKey, string> = {
@@ -464,6 +470,9 @@ export const ES: Record<StringKey, string> = {
   'feedback.tier.great': '💪 ¡Muy bien!',
   'feedback.tier.good': '👍 Buen progreso',
   'feedback.tier.keepPracticing': 'Sigue practicando',
+  'loading.msg1': 'Revisando gramática y vocabulario…',
+  'loading.msg2': 'Ya casi…',
+  'loading.msg3': 'Puliendo tu feedback… ✨',
 };
 
 export function getString(key: StringKey, uiLanguage: 'en' | 'es'): string {

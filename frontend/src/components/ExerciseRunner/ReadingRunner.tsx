@@ -5,6 +5,7 @@ import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString } from '../../i18n/strings';
+import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; level: CefrLevel }) {
   const { uiLanguage, learningLanguage } = useLanguage();
@@ -53,6 +54,7 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
         </div>
         <div style={{ height: '6px', backgroundColor: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
           <div
+            className="progress-shimmer"
             style={{
               height: '100%',
               backgroundColor: 'var(--gold)',
@@ -72,7 +74,7 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
       )}
 
       {/* Current question */}
-      <div className="exercise-question" style={{ flex: 1 }}>
+      <div key={currentQuestionIndex} className="exercise-question" style={{ flex: 1 }}>
         <h4>{currentQuestion.question}</h4>
         {currentQuestion.type === 'open' && (
           <>
@@ -113,7 +115,15 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
 
       {loading && (
         <div className="loading-inline" style={{ marginTop: '1rem' }}>
-          <span className="spinner" /> {getString('reading.checking', uiLanguage)}
+          <span className="spinner" />
+          <AnalyzingMessages
+            messages={[
+              getString('reading.checking', uiLanguage),
+              getString('loading.msg1', uiLanguage),
+              getString('loading.msg2', uiLanguage),
+              getString('loading.msg3', uiLanguage),
+            ]}
+          />
         </div>
       )}
     </div>

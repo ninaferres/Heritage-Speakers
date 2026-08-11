@@ -5,6 +5,7 @@ import { ProductionEvaluation } from '../../data/feedback';
 import { ProductionFeedback } from './FeedbackPanel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString } from '../../i18n/strings';
+import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise; level: CefrLevel }) {
   const { uiLanguage, learningLanguage } = useLanguage();
@@ -167,7 +168,15 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
 
       {loading && (
         <div className="loading-inline" style={{ marginTop: '1.5rem' }}>
-          <span className="spinner" /> {getString('speaking.analyzing', uiLanguage)}
+          <span className="spinner" />
+          <AnalyzingMessages
+            messages={[
+              getString('speaking.analyzing', uiLanguage),
+              getString('loading.msg1', uiLanguage),
+              getString('loading.msg2', uiLanguage),
+              getString('loading.msg3', uiLanguage),
+            ]}
+          />
         </div>
       )}
 

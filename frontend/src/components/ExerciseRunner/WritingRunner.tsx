@@ -5,6 +5,7 @@ import { ProductionEvaluation } from '../../data/feedback';
 import { ProductionFeedback } from './FeedbackPanel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString } from '../../i18n/strings';
+import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function WritingRunner({ exercise, level }: { exercise: WritingExercise; level: CefrLevel }) {
   const { uiLanguage, learningLanguage } = useLanguage();
@@ -56,7 +57,15 @@ export function WritingRunner({ exercise, level }: { exercise: WritingExercise; 
 
       {loading && (
         <div className="loading-inline">
-          <span className="spinner" /> {getString('writing.analyzing', uiLanguage)}
+          <span className="spinner" />
+          <AnalyzingMessages
+            messages={[
+              getString('writing.analyzing', uiLanguage),
+              getString('loading.msg1', uiLanguage),
+              getString('loading.msg2', uiLanguage),
+              getString('loading.msg3', uiLanguage),
+            ]}
+          />
         </div>
       )}
 

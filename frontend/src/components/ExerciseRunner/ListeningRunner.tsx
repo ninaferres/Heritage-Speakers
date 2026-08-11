@@ -6,6 +6,7 @@ import { ComprehensionFeedback } from './FeedbackPanel';
 import { ACCENTS } from '../../data/accents';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString } from '../../i18n/strings';
+import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function ListeningRunner({ exercise, level, learningLanguage }: { exercise: ListeningExercise; level: CefrLevel; learningLanguage?: string | null }) {
   const { uiLanguage } = useLanguage();
@@ -107,6 +108,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
         </div>
         <div style={{ height: '6px', backgroundColor: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
           <div
+            className="progress-shimmer"
             style={{
               height: '100%',
               backgroundColor: 'var(--gold)',
@@ -140,7 +142,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
       )}
 
       {/* Current question */}
-      <div className="exercise-question" style={{ flex: 1 }}>
+      <div key={currentQuestionIndex} className="exercise-question" style={{ flex: 1 }}>
         <h4>{currentQuestion.question}</h4>
         {currentQuestion.type === 'open' && (
           <>
@@ -181,7 +183,15 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
 
       {loading && (
         <div className="loading-inline" style={{ marginTop: '1rem' }}>
-          <span className="spinner" /> {getString('listening.checking', uiLanguage)}
+          <span className="spinner" />
+          <AnalyzingMessages
+            messages={[
+              getString('listening.checking', uiLanguage),
+              getString('loading.msg1', uiLanguage),
+              getString('loading.msg2', uiLanguage),
+              getString('loading.msg3', uiLanguage),
+            ]}
+          />
         </div>
       )}
     </div>
