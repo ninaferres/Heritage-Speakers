@@ -31,7 +31,7 @@ export function LogoBadge({ width = 50, height = 35 }: { width?: number; height?
 export function BrandLockup({ variant = 'wine', name = 'Heritage Speakers' }: { variant?: 'bone' | 'wine'; name?: string }) {
   return (
     <span className="brand">
-      <LogoBadge width={38} height={26} />
+      <LogoMark variant={variant} width={38} height={26} />
       <span className="brand-name" style={{ color: variant === 'bone' ? 'var(--bone)' : 'var(--wine-ink)' }}>{name}</span>
     </span>
   );
