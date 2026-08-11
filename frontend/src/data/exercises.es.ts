@@ -39,14 +39,14 @@ export const EXERCISES_ES: Record<string, Exercise> = {
   },
   'C1-Speaking': {
     skill: 'Speaking',
-    title: 'Análisis de Tendencias Culturales',
-    prompt: 'Analiza cómo la globalización transforma culturas locales. Perspectivas positivas y negativas.',
+    title: 'Presentación de Trabajo',
+    prompt: 'Da una presentación breve sobre un proyecto o iniciativa de tu trabajo o estudios, como si se la explicaras a un compañero nuevo. Incluye objetivos, retos y resultados.',
     suggestedDuration: '5-7 minutos',
   },
   'C2-Speaking': {
     skill: 'Speaking',
-    title: 'Reflexión Teórica Contemporánea',
-    prompt: 'Diserta sobre una problemática del pensamiento contemporáneo: ética, epistemología, política o estética.',
+    title: 'Negociación Difícil',
+    prompt: 'Simula que tienes que negociar un cambio de condiciones (plazo, precio o alcance) con un cliente o jefe. Defiende tu postura con naturalidad, siendo firme pero cordial.',
     suggestedDuration: '7-10 minutos',
   },
 
@@ -107,13 +107,13 @@ export const EXERCISES_ES: Record<string, Exercise> = {
   },
   'C2-Reading': {
     skill: 'Reading',
-    title: 'Epistemología de la Alteridad Postmoderna',
+    title: 'El Auge del Trabajo Remoto',
     passage:
-      'La alteridad constituye un eje fundamental en la reflexión filosófica postmoderna, particularmente en los trabajos de Emmanuel Levinas y Jacques Derrida. La alteridad —concebida no como una diferencia ontológica binaria sino como una irreductibilidad absoluta del Otro— desafía radicalmente los presupuestos epistemológicos que han dominado la filosofía occidental. Levinas propone una lectura ética de la responsabilidad que precede a toda cognición, estableciendo una asimetría estructural en la relación con el Otro que resiste la totalización bajo categorías racionales.',
+      'Pocas transformaciones laborales han sido tan rápidas como la normalización del trabajo remoto tras la pandemia. Lo que empezó como una solución de emergencia se ha convertido, para muchas empresas, en una ventaja competitiva: acceso a talento sin restricciones geográficas, menores costes de oficina y, según numerosas encuestas, empleados más satisfechos. Sin embargo, no todo son beneficios. Los directivos señalan una dificultad real para mantener la cultura de equipo y detectar señales tempranas de desgaste profesional cuando la interacción se reduce a videollamadas programadas. Las empresas que mejor están gestionando esta transición combinan la flexibilidad con encuentros presenciales puntuales, deliberadamente diseñados para fortalecer vínculos que el trabajo a distancia, por sí solo, no logra sostener.',
     questions: [
-      { type: 'open', question: '¿Cómo conceptualiza Levinas la alteridad?' },
-      { type: 'open', question: '¿Cuál es la inversión fundamental que propone Levinas frente a la epistemología tradicional?' },
-      { type: 'open', question: '¿Qué implicaciones tiene esta noción de alteridad para la teoría política contemporánea?' },
+      { type: 'open', question: '¿Qué ventajas del trabajo remoto se mencionan en el texto?' },
+      { type: 'open', question: '¿Cuál es la principal dificultad que señalan los directivos?' },
+      { type: 'open', question: '¿Qué estrategia usan las empresas que mejor gestionan esta transición?' },
     ],
   },
 
@@ -121,7 +121,7 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     skill: 'Listening',
     title: 'En el Restaurante',
     transcript:
-      'MESERO: Buenas noches, ¿qué desea?\nCLIENTE: Un café y un sándwich de jamón.\nMESERO: ¿Desea algo más?\nCLIENTE: Sí, un postre de chocolate.\nMESERO: Perfecto. Son quince euros.',
+      'CAMARERO: Buenas noches, ¿qué desea?\nCLIENTE: Un café y un bocadillo de jamón.\nCAMARERO: ¿Desea algo más?\nCLIENTE: Sí, un postre de chocolate.\nCAMARERO: Vale, perfecto. Son quince euros.',
     defaultAccent: 'es-ES',
     questions: [
       { type: 'open', question: '¿Qué pide el cliente?' },
@@ -130,12 +130,12 @@ export const EXERCISES_ES: Record<string, Exercise> = {
   },
   'A2-Listening': {
     skill: 'Listening',
-    title: 'Compras en el Supermercado',
+    title: 'Compras en el Mercado',
     transcript:
-      'VENDEDOR: Buenos días, ¿qué necesita?\nCLIENTE: Quiero tomates, lechuga, manzanas y leche.\nVENDEDOR: ¿De qué tamaño las manzanas?\nCLIENTE: Medianas, por favor. También me da ese queso.\nVENDEDOR: Perfecto. Son treinta euros en total.',
+      'VENDEDOR: Buenos días, ¿qué va a llevar?\nCLIENTA: Quiero jitomates, lechuga, manzanas y leche.\nVENDEDOR: ¿De qué tamaño las manzanas?\nCLIENTA: Medianas, por favor. También deme ese queso.\nVENDEDOR: Muy bien. Son trescientos pesos en total.',
     defaultAccent: 'es-MX',
     questions: [
-      { type: 'open', question: '¿Qué frutas compra el cliente?' },
+      { type: 'open', question: '¿Qué frutas compra la clienta?' },
       { type: 'open', question: '¿Cuál es el precio total?', hint: 'Escucha el número' },
     ],
   },
@@ -143,18 +143,18 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     skill: 'Listening',
     title: 'Entrevista sobre Viajes',
     transcript:
-      'ENTREVISTADOR: ¿Cuál fue tu viaje más memorable?\nPERSONA: Mi viaje a Perú hace dos años. Visité Machu Picchu y fue increíble.\nENTREVISTADOR: ¿Con quién viajaste?\nPERSONA: Con mi familia y algunos amigos.\nENTREVISTADOR: ¿Qué te gustó más?\nPERSONA: La naturaleza y la cultura. Todo fue perfecto.',
+      'ENTREVISTADOR: Contame, ¿cuál fue tu viaje más memorable?\nPERSONA: Uy, mi viaje a Perú, hace dos años. Fui a Machu Picchu y fue una locura, buenísimo.\nENTREVISTADOR: ¿Y con quién viajaste?\nPERSONA: Con mi familia y unos amigos.\nENTREVISTADOR: ¿Vos pensás volver algún día?\nPERSONA: Sí, seguro que sí. Me encantaría volver.',
     defaultAccent: 'es-AR',
     questions: [
       { type: 'open', question: '¿A dónde viajó la persona y con quién?' },
-      { type: 'open', question: '¿Qué fue lo que más le gustó del viaje?' },
+      { type: 'open', question: '¿Qué piensa hacer la persona en el futuro?' },
     ],
   },
   'B2-Listening': {
     skill: 'Listening',
     title: 'Debate sobre Redes Sociales',
     transcript:
-      'MODERADOR: Hoy debatimos el impacto de las redes sociales. Ana, ¿tu postura?\nANA: Creo que nos conectan, pero también generan ansiedad y comparación constante.\nMODERADOR: Carlos, ¿estás de acuerdo?\nCARLOS: En parte. Para mi negocio han sido clave, pero comparto la preocupación por la salud mental de los jóvenes.\nMODERADOR: ¿Alguna solución?\nANA: Educación digital desde la escuela.\nCARLOS: Y límites de uso, sobre todo para menores.',
+      'MODERADOR: Hoy vamos a debatir el impacto de las redes sociales. Ana, ¿cuál es su postura?\nANA: Pues yo creo que nos conectan, pero también generan ansiedad y comparación constante, ¿cierto?\nMODERADOR: Carlos, ¿usted qué opina?\nCARLOS: En parte estoy de acuerdo. Para mi negocio han sido clave, la verdad, pero comparto la preocupación por la salud mental de los jóvenes.\nMODERADOR: ¿Alguna solución?\nANA: Educación digital desde el colegio.\nCARLOS: Y límites de uso, sobre todo para los más chicos.',
     defaultAccent: 'es-CO',
     questions: [
       { type: 'open', question: '¿Cuáles son las dos posiciones principales del debate?' },
@@ -163,24 +163,24 @@ export const EXERCISES_ES: Record<string, Exercise> = {
   },
   'C1-Listening': {
     skill: 'Listening',
-    title: 'Conferencia sobre Cambio Climático',
+    title: 'Reportaje sobre la Vivienda',
     transcript:
-      'Buenas tardes a todos. Hoy quiero hablarles de un fenómeno que ya no es una hipótesis futura, sino una realidad medible: el aumento sostenido de la temperatura global. Los modelos climáticos coinciden en señalar que, de mantenerse la trayectoria actual de emisiones, superaremos el umbral de un aumento de dos grados antes de mediados de siglo. Las consecuencias no son uniformes: algunas regiones sufrirán sequías prolongadas, mientras otras enfrentarán inundaciones cada vez más frecuentes. La urgencia de actuar radica precisamente en esta desigualdad de impactos.',
+      'Buenas tardes. Hoy en el programa hablamos de una realidad que afecta a cada vez más familias en nuestro país: el acceso a la vivienda. Los precios del alquiler no han dejado de subir en los últimos años, especialmente en las grandes ciudades, y muchos jóvenes se ven obligados a seguir viviendo con sus padres mucho más tiempo del que les gustaría. Algunos ayuntamientos han empezado a limitar los precios, aunque los resultados, de momento, son desiguales. Os invito a reflexionar sobre qué medidas podrían realmente marcar la diferencia.',
     defaultAccent: 'es-ES',
     questions: [
-      { type: 'open', question: '¿Cuál es la tesis principal de la conferencia?' },
-      { type: 'open', question: '¿Por qué el ponente enfatiza la urgencia de actuar?' },
+      { type: 'open', question: '¿Cuál es el tema principal del reportaje?' },
+      { type: 'open', question: '¿Qué han hecho algunos ayuntamientos y con qué resultado?' },
     ],
   },
   'C2-Listening': {
     skill: 'Listening',
-    title: 'Seminario sobre Teoría Postmoderna',
+    title: 'Análisis sobre el Trabajo Remoto',
     transcript:
-      'La cuestión que nos ocupa hoy es de naturaleza fundamentalmente epistemológica: ¿cómo podemos dar cuenta del Otro sin subsumirlo bajo categorías que le son ajenas? Levinas nos advierte que toda ontología corre el riesgo de convertirse en una filosofía del poder, en la medida en que reduce la alteridad a lo mismo. Derrida, por su parte, radicaliza esta intuición mediante la noción de différance, que desestabiliza cualquier pretensión de presencia plena del sentido. Ambos autores, desde perspectivas distintas, nos invitan a repensar la responsabilidad ética como anterior a la teoría del conocimiento.',
+      'Miren, lo que estamos viendo en México desde la pandemia es un cambio bastante profundo en la forma de trabajar. Muchísimas empresas, sobre todo las medianas, se dieron cuenta de que el trabajo remoto no solo era viable, sino que hasta les convenía más: menos gastos en oficinas, más flexibilidad para retener talento. Ahora bien, esto también trajo sus complicaciones, ¿no? Porque no es lo mismo gestionar un equipo que está enfrente tuyo que uno disperso en cinco ciudades distintas. Entonces las empresas que de plano supieron adaptarse, con procesos claros y buena comunicación, son las que hoy están ganando la partida.',
     defaultAccent: 'es-MX',
     questions: [
-      { type: 'open', question: '¿Cuál es la problemática epistemológica fundamental que plantea el seminario?' },
-      { type: 'open', question: '¿Cómo se complementan las posturas de Levinas y Derrida según el ponente?' },
+      { type: 'open', question: '¿Qué cambio describe la persona y por qué se dio?' },
+      { type: 'open', question: '¿Qué distingue a las empresas que "están ganando la partida" según el ponente?' },
     ],
   },
 
@@ -215,15 +215,15 @@ export const EXERCISES_ES: Record<string, Exercise> = {
   },
   'C1-Writing': {
     skill: 'Writing',
-    title: 'Perspectivas',
-    prompt: '¿Cómo se entrelazan la identidad personal y la identidad cultural en la modernidad? ¿Cuál es el papel de la educación en la formación de ciudadanía crítica?',
+    title: 'Correo Formal de Reclamación',
+    prompt: 'Escribe un correo formal a una empresa reclamando un problema con un pedido o servicio. Explica el problema con claridad, qué esperas como solución, y mantén un tono firme pero educado.',
     minWords: 250,
     maxWords: 320,
   },
   'C2-Writing': {
     skill: 'Writing',
-    title: 'Disquisición',
-    prompt: '¿Cómo se articula la tensión entre ontología y epistemología en el pensamiento contemporáneo? ¿Cuáles son las implicaciones de la deconstrucción derridiana para la teoría social?',
+    title: 'Artículo de Opinión',
+    prompt: 'Escribe un artículo de opinión sobre un tema de actualidad que te importe (trabajo, vivienda, tecnología, medio ambiente). Argumenta tu postura con matices y contempla el punto de vista contrario.',
     minWords: 300,
     maxWords: 400,
   },
