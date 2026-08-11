@@ -69,7 +69,6 @@ export type StringKey =
   | 'assessment.finishAndSeeResult'
   | 'assessment.selectLanguageFirstTitle'
   | 'assessment.selectLanguageFirstBody'
-  | 'assessment.selectLanguageFirstButton'
   | 'speaking.header'
   | 'speaking.suggestedLength'
   | 'speaking.tipsTitle'
@@ -219,8 +218,7 @@ export const EN: Record<StringKey, string> = {
   'assessment.next': 'Next →',
   'assessment.finishAndSeeResult': 'Finish & See Result',
   'assessment.selectLanguageFirstTitle': 'Choose a language to learn first',
-  'assessment.selectLanguageFirstBody': 'The level test adapts to the language you want to learn (Spanish or Russian). Pick one from the language selector, then come back to test your level.',
-  'assessment.selectLanguageFirstButton': 'Go to language selector',
+  'assessment.selectLanguageFirstBody': 'The level test adapts to the language you want to learn. Choose one to continue.',
   'speaking.header': '🎤 Speak naturally and fluently',
   'speaking.suggestedLength': '💡 Suggested length:',
   'speaking.tipsTitle': '📋 Tips for better recording:',
@@ -371,8 +369,7 @@ export const ES: Record<StringKey, string> = {
   'assessment.next': 'Siguiente →',
   'assessment.finishAndSeeResult': 'Terminar y Ver Resultado',
   'assessment.selectLanguageFirstTitle': 'Elige primero un idioma para aprender',
-  'assessment.selectLanguageFirstBody': 'El test de nivel se adapta al idioma que quieras aprender (español o ruso). Elige uno en el selector de idiomas y luego vuelve a evaluar tu nivel.',
-  'assessment.selectLanguageFirstButton': 'Ir al selector de idioma',
+  'assessment.selectLanguageFirstBody': 'El test de nivel se adapta al idioma que quieras aprender. Elige uno para continuar.',
   'speaking.header': '🎤 Habla naturalmente y con fluidez',
   'speaking.suggestedLength': '💡 Duración sugerida:',
   'speaking.tipsTitle': '📋 Consejos para una mejor grabación:',

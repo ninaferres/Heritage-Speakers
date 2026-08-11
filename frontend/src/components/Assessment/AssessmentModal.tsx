@@ -28,7 +28,7 @@ function isSpeakingResult(answer: StoredAnswer | undefined): answer is SpeakingR
 }
 
 export function AssessmentModal({ onClose }: { onClose: () => void }) {
-  const { learningLanguage, uiLanguage } = useLanguage();
+  const { learningLanguage, uiLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const [stage, setStage] = useState<'skill-select' | 'intro' | 'test' | 'result'>('skill-select');
   const [selectedSkill, setSelectedSkill] = useState<SkillId | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -142,6 +142,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   }
 
   if (!learningLanguage) {
+    const activeLanguages = availableLearningLanguages.filter((l) => l.status === 'active');
     return (
       <div className="exercise-overlay">
         <div className="exercise-card" style={{ maxWidth: '600px' }}>
@@ -152,16 +153,36 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
           <p style={{ marginBottom: '2rem', color: 'var(--muted)', lineHeight: 1.6 }}>
             {getString('assessment.selectLanguageFirstBody', uiLanguage)}
           </p>
-          <button
-            className="btn btn-wine"
-            style={{ width: '100%' }}
-            onClick={() => {
-              onClose();
-              document.getElementById('language-selector')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            {getString('assessment.selectLanguageFirstButton', uiLanguage)}
-          </button>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {activeLanguages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => setLearningLanguage(lang.code)}
+                style={{
+                  padding: '1.2rem',
+                  border: '2px solid var(--wine)',
+                  borderRadius: '12px',
+                  background: 'transparent',
+                  color: 'var(--wine-ink)',
+                  fontWeight: '700',
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  transition: 'all .2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(107,31,46,.05)';
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--gold)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--wine)';
+                }}
+              >
+                {lang.nativeLabel}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );
