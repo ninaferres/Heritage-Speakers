@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
-import { synthesizeSpeech } from '../services/googleTts.js';
+import { synthesizeSpeech } from '../services/azureTts.js';
 
 const ttsSchema = z.object({
   text: z.string().min(1).max(4000),

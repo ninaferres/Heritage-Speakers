@@ -94,14 +94,15 @@ indicative, ser/estar, preposition choice, agreement, false friends, etc.).
 
 The old prototype linked to third-party mp3 files that no longer resolve. Listening
 exercises now store a transcript script instead of an audio URL; the runner calls
-`POST /api/tts` on demand, which synthesizes it through Google Cloud Text-to-Speech
-in the learner's choice of Spanish accent (Peninsular, or generic Latin American for
-Mexican/Argentine/Colombian) or Russian voice — nothing to go stale.
+`POST /api/tts` on demand, which synthesizes it through Azure Speech in the learner's
+choice of Spanish accent (Peninsular, Mexican, Argentine, or Colombian — each a
+distinct native voice, not one generic Latin American accent) or Russian voice —
+nothing to go stale.
 
 ### Network requirements
 
 The backend makes outbound HTTPS requests to:
-- `texttospeech.googleapis.com` for text-to-speech (listening exercises)
+- `*.tts.speech.microsoft.com` and `*.api.cognitive.microsoft.com` for text-to-speech (listening exercises)
 - `api.groq.com` for speech-to-text transcription and optionally AI grading
 - `api.openai.com` for speech-to-text transcription (fallback only) and optionally AI grading
 - `api.anthropic.com` for AI grading (if using Anthropic as the provider)
@@ -134,12 +135,12 @@ if no Groq key is set.
 
 ### 4. Text-to-speech (Listening)
 
-Create a free [Google Cloud](https://console.cloud.google.com/) project, enable the
-"Cloud Text-to-Speech API", and create an API key restricted to it. Set
-`GOOGLE_TTS_API_KEY` to that key. Voice names default to sensible built-in values
-(`GOOGLE_TTS_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` / `_RU_MOSCOW` can override
-them) — see the [voice list](https://cloud.google.com/text-to-speech/docs/voices)
-to pick different ones.
+Create a free [Azure](https://portal.azure.com) Speech resource on the **F0** (free,
+500,000 characters/month) pricing tier. Set `AZURE_SPEECH_KEY` to "KEY 1" and
+`AZURE_SPEECH_REGION` to the resource's region (e.g. `eastus`). Voice names default
+to sensible built-in values (`AZURE_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` /
+`_RU_MOSCOW` can override them) — see the
+[voice gallery](https://speech.microsoft.com/portal/voicegallery) to pick different ones.
 
 ### Running locally
 

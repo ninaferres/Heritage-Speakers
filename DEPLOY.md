@@ -23,22 +23,21 @@ need its URL when you set up the frontend.
    - `OPENAI_API_KEY` → optional. Speaking transcription (Whisper) uses your `GROQ_API_KEY`
      for free if it's set; `OPENAI_API_KEY` is only used as a fallback (and costs money —
      OpenAI's Whisper API is pay-as-you-go, unlike Groq's free tier)
-   - `GOOGLE_TTS_API_KEY` → needed for Listening audio. Get one for free from
-     [Google Cloud Console](https://console.cloud.google.com/apis/credentials): create a
-     project, enable the "Cloud Text-to-Speech API", then create an API key restricted to
-     that API. Google's free tier covers a generous monthly character quota; you won't be
-     charged unless you exceed it (a card is required to create the Cloud project, but
-     nothing is billed while under the free quota).
-   - `GOOGLE_TTS_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` / `_RU_MOSCOW` → optional, only
-     needed if you want to override the built-in default voice names. Defaults use Google's
-     Neural2/Wavenet tier (`es-ES-Neural2-A`, `es-US-Neural2-A` for the Latin American accents,
-     `ru-RU-Wavenet-A`/`-D` for Russian) — these are real per-locale voice models, so Peninsular
-     Spanish actually sounds Peninsular instead of borrowing a Latin American accent (which is
-     what happens with Chirp3-HD's named voices, since those are the same voice reused across
-     locales). Google doesn't offer distinct per-country Latin American Spanish voices the way
-     the previous provider did, so MX/AR/CO share one generic voice unless you find and set
-     region-specific ones yourself from the
-     [voice list](https://cloud.google.com/text-to-speech/docs/voices).
+   - `AZURE_SPEECH_KEY` → needed for Listening audio. Get one for free from the
+     [Azure Portal](https://portal.azure.com): create a "Speech" resource, choose the
+     **Free F0** pricing tier (500,000 characters/month, doesn't expire), then copy
+     "KEY 1" from the resource's "Keys and Endpoint" page. A card is required to create
+     the Azure account, but the F0 tier itself is free and won't charge you.
+   - `AZURE_SPEECH_REGION` → the Azure region you created the Speech resource in
+     (e.g. `eastus`, `westeurope` — shown on the same "Keys and Endpoint" page).
+   - `AZURE_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` / `_RU_MOSCOW` → optional, only
+     needed if you want to override the built-in default voice names. Defaults
+     (`es-ES-ElviraNeural`, `es-MX-DaliaNeural`, `es-AR-ElenaNeural`, `es-CO-SalomeNeural`,
+     `ru-RU-SvetlanaNeural`, `ru-RU-DmitryNeural`) are real per-country neural voices —
+     unlike Google, Azure has genuinely distinct Mexican/Argentine/Colombian Spanish
+     accents instead of one generic Latin American voice shared by all three. Browse
+     more options in the
+     [voice gallery](https://speech.microsoft.com/portal/voicegallery).
 4. Click **Apply**. First deploy takes a few minutes. When it's done, copy the
    public URL Render gives the service (something like
    `https://heritage-speakers-api.onrender.com`).
@@ -87,7 +86,7 @@ this, "Continue with Google" will redirect back to an unauthorized-URL error.
 - **Needs `GROQ_API_KEY` (free) or `OPENAI_API_KEY` (paid)**: Speaking transcription
   (Whisper). Groq is used automatically when set, since it's free; OpenAI is only used
   as a fallback if no Groq key is present.
-- **Needs `GOOGLE_TTS_API_KEY`** (free tier): Listening audio generation.
+- **Needs `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION`** (free tier): Listening audio generation.
 
 You can deploy now with just the Supabase keys and add the AI/audio keys to
 Render's environment variables whenever you get them — no redeploy of code

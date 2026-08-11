@@ -20,22 +20,18 @@ export const env = {
   groqApiKey: optional('GROQ_API_KEY'),
   groqModel: optional('GROQ_MODEL') ?? 'llama-3.3-70b-versatile',
 
-  googleTtsApiKey: optional('GOOGLE_TTS_API_KEY'),
-  googleTtsVoices: {
-    // Neural2 voices are distinct per locale (a real es-ES model vs a real es-US model), which
-    // is what makes them sound authentically regional. Chirp3-HD's named voices (Kore, Aoede...)
-    // are the same underlying voice reused across locales, so an es-ES request still carries
-    // that voice's original accent — in testing that made Peninsular Spanish sound Latin
-    // American. Neural2/Wavenet are slightly more mechanical but genuinely regional, so they
-    // stay the default. Google doesn't offer distinct per-country Latin American Spanish voices
-    // the way ElevenLabs did, so MX/AR/CO share the same generic es-US voice by default until
-    // region-specific ones are confirmed and set via env vars.
-    'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Neural2-A',
-    'es-MX': optional('GOOGLE_TTS_VOICE_MX') ?? 'es-US-Neural2-A',
-    'es-AR': optional('GOOGLE_TTS_VOICE_AR') ?? 'es-US-Neural2-A',
-    'es-CO': optional('GOOGLE_TTS_VOICE_CO') ?? 'es-US-Neural2-A',
-    'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Wavenet-A',
-    'ru-Moscow': optional('GOOGLE_TTS_VOICE_RU_MOSCOW') ?? 'ru-RU-Wavenet-D',
+  // Azure Speech has genuine per-country neural Spanish voices (unlike Google, whose only
+  // Latin American option is one generic es-US voice shared across every country), so MX/AR/CO
+  // actually sound Mexican/Argentine/Colombian instead of all sharing one neutral accent.
+  azureSpeechKey: optional('AZURE_SPEECH_KEY'),
+  azureSpeechRegion: optional('AZURE_SPEECH_REGION') ?? 'eastus',
+  azureVoices: {
+    'es-ES': optional('AZURE_VOICE_ES') ?? 'es-ES-ElviraNeural',
+    'es-MX': optional('AZURE_VOICE_MX') ?? 'es-MX-DaliaNeural',
+    'es-AR': optional('AZURE_VOICE_AR') ?? 'es-AR-ElenaNeural',
+    'es-CO': optional('AZURE_VOICE_CO') ?? 'es-CO-SalomeNeural',
+    'ru-RU': optional('AZURE_VOICE_RU') ?? 'ru-RU-SvetlanaNeural',
+    'ru-Moscow': optional('AZURE_VOICE_RU_MOSCOW') ?? 'ru-RU-DmitryNeural',
   } as Record<string, string | undefined>,
 };
 
@@ -47,4 +43,4 @@ export const isGradingConfigured =
       ? Boolean(env.openaiApiKey)
       : Boolean(env.groqApiKey);
 export const isSttConfigured = Boolean(env.groqApiKey || env.openaiApiKey);
-export const isTtsConfigured = Boolean(env.googleTtsApiKey);
+export const isTtsConfigured = Boolean(env.azureSpeechKey);

@@ -29,17 +29,19 @@ services:
         sync: false
       - key: OPENAI_MODEL
         value: gpt-4o
-      - key: GOOGLE_TTS_API_KEY
+      - key: AZURE_SPEECH_KEY
         sync: false
-      - key: GOOGLE_TTS_VOICE_ES
+      - key: AZURE_SPEECH_REGION
         sync: false
-      - key: GOOGLE_TTS_VOICE_MX
+      - key: AZURE_VOICE_ES
         sync: false
-      - key: GOOGLE_TTS_VOICE_AR
+      - key: AZURE_VOICE_MX
         sync: false
-      - key: GOOGLE_TTS_VOICE_CO
+      - key: AZURE_VOICE_AR
         sync: false
-      - key: GOOGLE_TTS_VOICE_RU
+      - key: AZURE_VOICE_CO
         sync: false
-      - key: GOOGLE_TTS_VOICE_RU_MOSCOW
+      - key: AZURE_VOICE_RU
+        sync: false
+      - key: AZURE_VOICE_RU_MOSCOW
         sync: false
