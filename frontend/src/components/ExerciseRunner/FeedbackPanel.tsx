@@ -13,6 +13,35 @@ const CATEGORY_KEY: Record<string, StringKey> = {
   other: 'feedback.category.other',
 };
 
+function scoreTier(score: number): { key: StringKey; color: string } {
+  if (score >= 85) return { key: 'feedback.tier.excellent', color: '#2e7d32' };
+  if (score >= 70) return { key: 'feedback.tier.great', color: 'var(--gold)' };
+  if (score >= 50) return { key: 'feedback.tier.good', color: '#b8860b' };
+  return { key: 'feedback.tier.keepPracticing', color: 'var(--wine)' };
+}
+
+function ScoreBar({ score }: { score: number }) {
+  const { uiLanguage } = useLanguage();
+  const tier = scoreTier(score);
+  return (
+    <div style={{ marginBottom: '.9rem' }}>
+      <div style={{ height: '10px', backgroundColor: 'var(--line)', borderRadius: '5px', overflow: 'hidden' }}>
+        <div
+          style={{
+            height: '100%',
+            width: `${Math.max(0, Math.min(100, score))}%`,
+            backgroundColor: tier.color,
+            transition: 'width .6s ease',
+          }}
+        />
+      </div>
+      <span style={{ display: 'inline-block', marginTop: '.4rem', fontWeight: 700, color: tier.color, fontSize: '.9rem' }}>
+        {getString(tier.key, uiLanguage)}
+      </span>
+    </div>
+  );
+}
+
 export function ProductionFeedback({ result }: { result: ProductionEvaluation }) {
   const { uiLanguage } = useLanguage();
   return (
@@ -21,6 +50,7 @@ export function ProductionFeedback({ result }: { result: ProductionEvaluation })
         <span className="num">{result.score}</span>
         <span className="scale">/ 100 · {getString('feedback.cefrEstimate', uiLanguage)} {result.cefrEstimate}</span>
       </div>
+      <ScoreBar score={result.score} />
       <p style={{ marginBottom: '1rem', color: 'var(--charcoal)', lineHeight: 1.65 }}>{result.summary}</p>
 
       {result.transcript && (
@@ -77,6 +107,7 @@ export function ComprehensionFeedback({ result }: { result: ComprehensionEvaluat
         <span className="num">{result.overallScore}</span>
         <span className="scale">/ 100</span>
       </div>
+      <ScoreBar score={result.overallScore} />
       <p style={{ marginBottom: '1rem', color: 'var(--charcoal)', lineHeight: 1.65 }}>{result.summary}</p>
       <ul className="feedback-list">
         {result.perQuestion.map((q, i) => (

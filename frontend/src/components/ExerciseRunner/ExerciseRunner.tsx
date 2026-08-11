@@ -8,12 +8,15 @@ import { ReadingRunner } from './ReadingRunner';
 import { ListeningRunner } from './ListeningRunner';
 import { SpeakingRunner } from './SpeakingRunner';
 
-const SESSION_SECONDS = 15 * 60;
+// Missions are short by design (max 5 minutes) so they fit into a quick daily habit
+// instead of feeling like a 15-minute academic session.
+const SESSION_SECONDS = 5 * 60;
 
 export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; level: CefrLevel; onClose: () => void }) {
   const { learningLanguage, uiLanguage } = useLanguage();
   const exercise = learningLanguage ? getExercise(learningLanguage, skill, level) : null;
-  const { label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
+  const { secondsLeft, label: timerLabel, color: timerColor } = useCountdown(SESSION_SECONDS);
+  const timeProgress = Math.max(0, Math.min(100, (secondsLeft / SESSION_SECONDS) * 100));
 
   return (
     <div className="exercise-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -34,6 +37,16 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
             <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
             <h2>{exercise.title}</h2>
             <p className="exercise-meta">CEFR {level} · {getString('exercise.sessionLength', uiLanguage)}</p>
+            <div style={{ height: '6px', backgroundColor: 'var(--line)', borderRadius: '3px', overflow: 'hidden', marginBottom: '1.2rem' }}>
+              <div
+                style={{
+                  height: '100%',
+                  width: `${timeProgress}%`,
+                  backgroundColor: timerColor,
+                  transition: 'width 1s linear, background-color .3s ease',
+                }}
+              />
+            </div>
 
             {exercise.skill === 'Writing' && <WritingRunner exercise={exercise} level={level} />}
             {exercise.skill === 'Reading' && <ReadingRunner exercise={exercise} level={level} />}

@@ -47,8 +47,20 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Progress indicator */}
-      <div style={{ marginBottom: '1.5rem', color: 'var(--muted)', fontSize: '.9rem' }}>
-        {getString('reading.question', uiLanguage)} {currentQuestionIndex + 1} {getString('reading.of', uiLanguage)} {exercise.questions.length}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ color: 'var(--muted)', fontSize: '.9rem', marginBottom: '.4rem' }}>
+          {getString('reading.question', uiLanguage)} {currentQuestionIndex + 1} {getString('reading.of', uiLanguage)} {exercise.questions.length}
+        </div>
+        <div style={{ height: '6px', backgroundColor: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
+          <div
+            style={{
+              height: '100%',
+              backgroundColor: 'var(--gold)',
+              width: `${((currentQuestionIndex + 1) / exercise.questions.length) * 100}%`,
+              transition: 'width .3s ease',
+            }}
+          />
+        </div>
       </div>
 
       {/* Text (shown once at top) */}

@@ -16,7 +16,7 @@ export function useCountdown(startSeconds: number) {
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
   const label = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  const color = secondsLeft <= 60 ? '#b3261e' : secondsLeft <= 300 ? '#b8860b' : 'var(--wine)';
+  const color = secondsLeft <= 30 ? '#b3261e' : secondsLeft <= 90 ? '#b8860b' : 'var(--wine)';
 
   return { secondsLeft, label, color, expired: secondsLeft === 0 };
 }

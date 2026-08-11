@@ -150,7 +150,11 @@ export type StringKey =
   | 'feedback.category.verbTenseMood'
   | 'feedback.category.preposition'
   | 'feedback.category.pronunciation'
-  | 'feedback.category.other';
+  | 'feedback.category.other'
+  | 'feedback.tier.excellent'
+  | 'feedback.tier.great'
+  | 'feedback.tier.good'
+  | 'feedback.tier.keepPracticing';
 
 export const EN: Record<StringKey, string> = {
   'header.logo': 'Heritage Speakers',
@@ -284,7 +288,7 @@ export const EN: Record<StringKey, string> = {
   'skill.Listening': 'Listening',
   'skill.Writing': 'Writing',
   'assessment.yourLevelIs': 'level is',
-  'exercise.sessionLength': '15-minute session',
+  'exercise.sessionLength': '5-minute mission',
   'feedback.cefrEstimate': 'CEFR estimate:',
   'feedback.transcript': 'Transcript',
   'feedback.detailedCorrections': 'Detailed corrections',
@@ -301,6 +305,10 @@ export const EN: Record<StringKey, string> = {
   'feedback.category.preposition': 'Preposition',
   'feedback.category.pronunciation': 'Pronunciation',
   'feedback.category.other': 'Note',
+  'feedback.tier.excellent': '🌟 Excellent!',
+  'feedback.tier.great': '💪 Great job!',
+  'feedback.tier.good': '👍 Good progress',
+  'feedback.tier.keepPracticing': 'Keep practicing',
 };
 
 export const ES: Record<StringKey, string> = {
@@ -435,7 +443,7 @@ export const ES: Record<StringKey, string> = {
   'skill.Listening': 'Escucha',
   'skill.Writing': 'Escritura',
   'assessment.yourLevelIs': 'es',
-  'exercise.sessionLength': 'sesión de 15 minutos',
+  'exercise.sessionLength': 'misión de 5 minutos',
   'feedback.cefrEstimate': 'Estimación CEFR:',
   'feedback.transcript': 'Transcripción',
   'feedback.detailedCorrections': 'Correcciones detalladas',
@@ -452,6 +460,10 @@ export const ES: Record<StringKey, string> = {
   'feedback.category.preposition': 'Preposición',
   'feedback.category.pronunciation': 'Pronunciación',
   'feedback.category.other': 'Nota',
+  'feedback.tier.excellent': '🌟 ¡Excelente!',
+  'feedback.tier.great': '💪 ¡Muy bien!',
+  'feedback.tier.good': '👍 Buen progreso',
+  'feedback.tier.keepPracticing': 'Sigue practicando',
 };
 
 export function getString(key: StringKey, uiLanguage: 'en' | 'es'): string {
