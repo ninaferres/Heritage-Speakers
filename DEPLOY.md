@@ -30,9 +30,10 @@ need its URL when you set up the frontend.
      charged unless you exceed it (a card is required to create the Cloud project, but
      nothing is billed while under the free quota).
    - `GOOGLE_TTS_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` / `_RU_MOSCOW` → optional, only
-     needed if you want to override the built-in default voice names. Sensible defaults
-     are already baked in (`es-ES-Neural2-A`, `es-US-Neural2-A` for the Latin American
-     accents, `ru-RU-Wavenet-A`/`-D` for Russian) — Google doesn't offer distinct
+     needed if you want to override the built-in default voice names. Defaults use Google's
+     Chirp3-HD tier (`es-ES-Chirp3-HD-Kore`, `es-US-Chirp3-HD-Aoede` for the Latin American
+     accents, `ru-RU-Chirp3-HD-Charon`/`-Kore` for Russian) for a more natural sound than the
+     Neural2/Wavenet tiers, still within the free monthly quota. Google doesn't offer distinct
      per-country Latin American Spanish voices the way the previous provider did, so MX/AR/CO
      share one generic voice unless you find and set region-specific ones yourself from the
      [voice list](https://cloud.google.com/text-to-speech/docs/voices).

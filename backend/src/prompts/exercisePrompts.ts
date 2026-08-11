@@ -5,10 +5,10 @@ export type ExerciseLanguage = 'es' | 'ru';
 const LANGUAGE_NAME: Record<ExerciseLanguage, string> = { es: 'Spanish', ru: 'Russian' };
 
 const REGIONAL_GUIDANCE: Record<string, string> = {
-  'es-ES': 'Write in Peninsular Spanish: use "vosotros" verb forms when addressing a group, "vale" as a filler word, and typically Spain vocabulary (camarero, móvil, ordenador, coche). Currency: euros.',
-  'es-MX': 'Write in Mexican Spanish: use words like "ahorita", "platicar", "jitomate", diminutives (-ito/-ita), and polite service phrasing ("¿Qué se le ofrece?"). Currency: pesos mexicanos.',
-  'es-AR': 'Write in Argentine Spanish: use authentic voseo grammar ("vos tenés", "vos sos", "contame", "vení" — NOT "tú tienes"/"tú eres"), and informal markers like "che", "buenísimo", "una locura" (meaning "amazing/wild"). Currency: pesos argentinos.',
-  'es-CO': 'Write in Colombian Spanish: use discourse markers like "pues", "¿cierto?", "la verdad", "chévere", and polite address. Currency: pesos colombianos.',
+  'es-ES': 'Write in Peninsular Spanish ONLY: use "vosotros" verb forms when addressing a group (never "ustedes" for that), "vale" as a filler word, and Spain-specific vocabulary (camarero not mesero, móvil not celular, ordenador not computadora, coche not carro, zumo not jugo, patatas not papas). Currency: euros. Do NOT use any Latin American vocabulary, diminutives in -ito/-ita as filler, or "ustedes" as the only plural you-form — this must sound like someone from Spain, not Latin America.',
+  'es-MX': 'Write in Mexican Spanish: use words like "ahorita", "platicar", "jitomate", diminutives (-ito/-ita), and polite service phrasing ("¿Qué se le ofrece?"). Currency: pesos mexicanos. Do not use "vosotros" (Mexican Spanish uses "ustedes").',
+  'es-AR': 'Write in Argentine Spanish: use authentic voseo grammar ("vos tenés", "vos sos", "contame", "vení" — NOT "tú tienes"/"tú eres"), and informal markers like "che", "buenísimo", "una locura" (meaning "amazing/wild"). Currency: pesos argentinos. Do not use "vosotros" or "tú" forms.',
+  'es-CO': 'Write in Colombian Spanish: use discourse markers like "pues", "¿cierto?", "la verdad", "chévere", and polite address. Currency: pesos colombianos. Do not use "vosotros" (Colombian Spanish uses "ustedes").',
   'ru-RU': 'Write in standard Russian (Moscow/central) with a neutral, clear register.',
   'ru-Moscow': 'Write in standard Russian (Moscow/central) with a neutral, clear register, slightly more informal/colloquial in tone than a formal broadcast register.',
 };
@@ -41,7 +41,8 @@ export function exerciseSystemPrompt(skill: SkillId, level: CefrLevel, language:
   const regional = accent ? REGIONAL_GUIDANCE[accent] : undefined;
   const parts = [
     BASE_RULES,
-    `Target language: ${langName}. ${regional ?? ''}`,
+    `Target language: ${langName}.`,
+    ...(regional ? [`REGIONAL VARIETY (critical, re-check your draft against this before finalizing): ${regional}`] : []),
     `CEFR level ${level}: ${levelGuidance(level)}`,
   ];
 
@@ -53,6 +54,10 @@ export function exerciseSystemPrompt(skill: SkillId, level: CefrLevel, language:
     parts.push('Task: create a READING exercise — a short passage (appropriate length and complexity for the level) followed by 2-3 open-ended comprehension questions that can be answered directly from the passage.');
   } else if (skill === 'Listening') {
     parts.push('Task: create a LISTENING exercise — a transcript of a short dialogue or monologue (appropriate length and complexity for the level, written exactly as it should be read aloud) followed by exactly 2 open-ended comprehension questions that can be answered directly from the transcript.');
+  }
+
+  if (regional) {
+    parts.push(`Before you finalize your answer, re-read the transcript/passage/prompt you wrote and verify every word choice matches this regional variety: ${regional}`);
   }
 
   return parts.join('\n\n');
