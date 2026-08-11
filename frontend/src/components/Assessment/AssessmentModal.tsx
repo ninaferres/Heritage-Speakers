@@ -4,6 +4,7 @@ import { getAssessmentQuestions } from '../../data/assessment.es';
 import { getAssessmentQuestionsRu } from '../../data/assessment.ru';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString, StringKey } from '../../i18n/strings';
+import { evaluateSpeaking } from '../../api/client';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { MatchingQuestion } from './MatchingQuestion';
 import { SpeakingAssessmentQuestionRunner } from './SpeakingAssessmentQuestionRunner';
@@ -11,14 +12,30 @@ import { ListeningAssessmentQuestionRunner } from './ListeningAssessmentQuestion
 
 const SKILLS: SkillId[] = ['Speaking', 'Reading', 'Listening', 'Writing'];
 const LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+// A level only counts as "passed" once the learner clears this share of that level's questions —
+// this gates progression so guessing at higher levels can't offset failing the basics.
+const PASS_THRESHOLD = 0.7;
+
+interface SpeakingResult {
+  cefrEstimate: CefrLevel;
+  score: number;
+}
+
+type StoredAnswer = string | Record<number, number> | SpeakingResult;
+
+function isSpeakingResult(answer: StoredAnswer | undefined): answer is SpeakingResult {
+  return typeof answer === 'object' && answer !== null && 'cefrEstimate' in answer;
+}
 
 export function AssessmentModal({ onClose }: { onClose: () => void }) {
   const { learningLanguage, uiLanguage } = useLanguage();
   const [stage, setStage] = useState<'skill-select' | 'intro' | 'test' | 'result'>('skill-select');
   const [selectedSkill, setSelectedSkill] = useState<SkillId | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string | Record<number, number>>>({});
+  const [answers, setAnswers] = useState<Record<number, StoredAnswer>>({});
   const [detectedLevel, setDetectedLevel] = useState<CefrLevel | null>(null);
+  const [isGradingSpeaking, setIsGradingSpeaking] = useState(false);
+  const [speakingError, setSpeakingError] = useState<string | null>(null);
 
   const getQuestionsFunc = !learningLanguage ? () => [] : (learningLanguage === 'ru' ? getAssessmentQuestionsRu : getAssessmentQuestions);
 
@@ -50,8 +67,22 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
     });
   }
 
-  function handleSpeakingAnswered(audioBlob: Blob) {
-    setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: 'recorded' }));
+  async function handleSpeakingAnswered(audioBlob: Blob) {
+    setSpeakingError(null);
+    setIsGradingSpeaking(true);
+    try {
+      const result = await evaluateSpeaking({
+        level: currentQuestion.level,
+        prompt: ('prompt' in currentQuestion && currentQuestion.prompt) || currentQuestion.question,
+        audioBlob,
+        learningLanguage,
+      });
+      setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: { cefrEstimate: result.cefrEstimate, score: result.score } }));
+    } catch (e) {
+      setSpeakingError(e instanceof Error ? e.message : 'Something went wrong grading your recording.');
+    } finally {
+      setIsGradingSpeaking(false);
+    }
   }
 
   function handleNext() {
@@ -62,56 +93,78 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
     }
   }
 
+  // Placement logic: a level only "counts" once the learner clears PASS_THRESHOLD of ITS
+  // questions. We walk the levels in order (A1 -> C2) and stop at the first one that isn't
+  // cleared, so a beginner guessing lucky answers at higher levels can never leapfrog a failed
+  // foundation — the detected level is always the highest level passed in an unbroken streak.
   function calculateLevel() {
-    let score = 0;
-    let totalCorrect = 0;
+    let highestPassed: CefrLevel = 'A1';
 
-    questions.forEach((q, idx) => {
-      const userAnswer = answers[idx];
-      if (!userAnswer) return;
+    for (const level of LEVELS) {
+      const levelEntries = questions
+        .map((q, idx) => ({ q, idx }))
+        .filter(({ q }) => q.level === level);
 
-      if (q.type === 'mc') {
-        if (userAnswer === q.answer) {
-          totalCorrect++;
+      if (levelEntries.length === 0) continue;
+
+      let correctUnits = 0;
+      let totalUnits = 0;
+
+      levelEntries.forEach(({ q, idx }) => {
+        const userAnswer = answers[idx];
+
+        if (q.type === 'mc' || q.type === 'listening-assessment') {
+          totalUnits += 1;
+          if (userAnswer === q.answer) correctUnits += 1;
+        } else if (q.type === 'matching') {
+          const pairs = q.pairs || [];
+          totalUnits += pairs.length;
+          const userMatches = userAnswer && typeof userAnswer === 'object' && !isSpeakingResult(userAnswer) ? (userAnswer as Record<number, number>) : {};
+          correctUnits += Object.entries(userMatches).filter(([leftIdx, rightIdx]) => rightIdx === Number(leftIdx)).length;
+        } else if (q.type === 'speaking-assessment') {
+          totalUnits += 1;
+          if (isSpeakingResult(userAnswer) && LEVELS.indexOf(userAnswer.cefrEstimate) >= LEVELS.indexOf(level)) {
+            correctUnits += 1;
+          }
         }
-      } else if (q.type === 'matching') {
-        const userMatches = userAnswer as Record<number, number>;
-        const correctPairs = q.pairs ? q.pairs.length : 0;
-        const matchedCorrectly = Object.entries(userMatches).filter(([leftIdx, rightIdx]) => {
-          return rightIdx === Number(leftIdx);
-        }).length;
-        totalCorrect += matchedCorrectly;
-      } else if (q.type === 'speaking-assessment') {
-        if (userAnswer === 'recorded') {
-          totalCorrect++;
-        }
-      } else if (q.type === 'listening-assessment') {
-        if (userAnswer === q.answer) {
-          totalCorrect++;
-        }
+      });
+
+      const levelScore = totalUnits > 0 ? correctUnits / totalUnits : 0;
+      if (levelScore >= PASS_THRESHOLD) {
+        highestPassed = level;
+      } else {
+        break;
       }
-    });
-
-    score = Math.round((totalCorrect / questions.length) * 100);
-
-    // Determine level based on score and performance across levels
-    let level: CefrLevel = 'A1';
-    if (score >= 80) {
-      level = 'C2';
-    } else if (score >= 70) {
-      level = 'C1';
-    } else if (score >= 60) {
-      level = 'B2';
-    } else if (score >= 50) {
-      level = 'B1';
-    } else if (score >= 40) {
-      level = 'A2';
-    } else {
-      level = 'A1';
     }
 
-    setDetectedLevel(level);
+    setDetectedLevel(highestPassed);
     setStage('result');
+  }
+
+  if (!learningLanguage) {
+    return (
+      <div className="exercise-overlay">
+        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+          <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
+          <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
+            {getString('assessment.selectLanguageFirstTitle', uiLanguage)}
+          </h2>
+          <p style={{ marginBottom: '2rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+            {getString('assessment.selectLanguageFirstBody', uiLanguage)}
+          </p>
+          <button
+            className="btn btn-wine"
+            style={{ width: '100%' }}
+            onClick={() => {
+              onClose();
+              document.getElementById('language-selector')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            {getString('assessment.selectLanguageFirstButton', uiLanguage)}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!selectedSkill) {
@@ -257,7 +310,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
             <MultipleChoiceQuestion
               question={currentQuestion.question}
               options={currentQuestion.options!}
-              selected={(currentAnswer as string) || null}
+              selected={typeof currentAnswer === 'string' ? currentAnswer : null}
               onSelect={handleSelectOption}
               disabled={false}
             />
@@ -267,24 +320,32 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
             <MatchingQuestion
               question={currentQuestion.question}
               pairs={currentQuestion.pairs!}
-              selected={(currentAnswer as Record<number, number>) || {}}
+              selected={currentAnswer && typeof currentAnswer === 'object' && !isSpeakingResult(currentAnswer) ? (currentAnswer as Record<number, number>) : {}}
               onSelect={handleMatchPair}
               disabled={false}
             />
           )}
 
           {currentQuestion.type === 'speaking-assessment' && 'maxDuration' in currentQuestion && (
-            <SpeakingAssessmentQuestionRunner
-              question={currentQuestion as any}
-              onAnswered={handleSpeakingAnswered}
-              disabled={false}
-            />
+            <>
+              <SpeakingAssessmentQuestionRunner
+                question={currentQuestion as any}
+                onAnswered={handleSpeakingAnswered}
+                disabled={isGradingSpeaking}
+              />
+              {isGradingSpeaking && (
+                <div className="loading-inline" style={{ marginTop: '1rem' }}>
+                  <span className="spinner" /> {getString('speaking.analyzing', uiLanguage)}
+                </div>
+              )}
+              {speakingError && <div className="error-box" style={{ marginTop: '1rem' }}>{speakingError}</div>}
+            </>
           )}
 
           {currentQuestion.type === 'listening-assessment' && 'audioText' in currentQuestion && (
             <ListeningAssessmentQuestionRunner
               question={currentQuestion as any}
-              selected={(currentAnswer as string) || null}
+              selected={typeof currentAnswer === 'string' ? currentAnswer : null}
               onSelect={handleSelectOption}
               disabled={false}
             />
@@ -302,7 +363,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
           <button
             className="btn btn-wine"
             style={{ flex: 1 }}
-            disabled={!isAnswered}
+            disabled={!isAnswered || isGradingSpeaking}
             onClick={handleNext}
           >
             {isLastQuestion ? getString('assessment.finishAndSeeResult', uiLanguage) : getString('assessment.next', uiLanguage)}
