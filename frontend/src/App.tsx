@@ -9,25 +9,28 @@ import { FinalCtaSection } from './components/FinalCtaSection';
 import { Footer } from './components/Footer';
 import { AssessmentModal } from './components/Assessment/AssessmentModal';
 import { ExerciseGateProvider } from './context/ExerciseGateContext';
+import { LessonGateProvider } from './context/LessonGateContext';
 
 export default function App() {
   const [assessmentOpen, setAssessmentOpen] = useState(false);
 
   return (
     <ExerciseGateProvider>
-      <Header />
-      <Hero onOpenAssessment={() => setAssessmentOpen(true)} />
-      <LevelsSection />
-      <section style={{ padding: '1rem 0', background: 'var(--bone)' }}>
-        <div className="wrap">
-          <LanguageSelector />
-        </div>
-      </section>
-      <BenefitsSection />
-      <HowItWorksSection />
-      <FinalCtaSection />
-      <Footer />
-      {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
+      <LessonGateProvider>
+        <Header />
+        <Hero onOpenAssessment={() => setAssessmentOpen(true)} />
+        <LevelsSection />
+        <section style={{ padding: '1rem 0', background: 'var(--bone)' }}>
+          <div className="wrap">
+            <LanguageSelector />
+          </div>
+        </section>
+        <BenefitsSection />
+        <HowItWorksSection />
+        <FinalCtaSection />
+        <Footer />
+        {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
+      </LessonGateProvider>
     </ExerciseGateProvider>
   );
 }

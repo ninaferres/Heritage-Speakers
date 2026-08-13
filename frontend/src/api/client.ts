@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import { CefrLevel, ExerciseQuestion, AccentId, Exercise, SkillId } from '../data/types';
 import { ComprehensionEvaluation, ProductionEvaluation } from '../data/feedback';
+import { Lesson } from '../data/lessonTypes';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '/api';
 
@@ -94,7 +95,24 @@ export async function fetchDailyExercise(skill: SkillId, level: CefrLevel, langu
   return res.json();
 }
 
-// Use Google Cloud TTS via backend for high-quality speech synthesis
+// Fetches (or triggers server-side generation of) today's beginner "class" lesson —
+// a vocabulary block plus a quiz testing only those words, for learners with zero base.
+export async function fetchDailyLesson(learningLanguage: string, uiLanguage: string): Promise<Lesson> {
+  const query = new URLSearchParams({
+    learningLanguage: learningLanguage === 'ru' ? 'ru' : 'es',
+    uiLanguage: uiLanguage === 'es' ? 'es' : 'en',
+  });
+  const res = await fetch(`${API_BASE}/lesson?${query.toString()}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Request to /lesson failed (${res.status})`);
+  }
+  return res.json();
+}
+
+// Use Azure Speech via backend for high-quality speech synthesis
 export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob> {
   try {
     const response = await fetch(`${API_BASE}/tts`, {

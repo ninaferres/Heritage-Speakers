@@ -4,6 +4,7 @@ import { env, isAuthConfigured, isGradingConfigured, isSttConfigured, isTtsConfi
 import { evaluateRouter } from './routes/evaluate.js';
 import { ttsRouter } from './routes/tts.js';
 import { exerciseRouter } from './routes/exercise.js';
+import { lessonRouter } from './routes/lesson.js';
 
 const app = express();
 app.use(cors({ origin: env.corsOrigin }));
@@ -22,6 +23,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/evaluate', evaluateRouter);
 app.use('/api/tts', ttsRouter);
 app.use('/api/exercise', exerciseRouter);
+app.use('/api/lesson', lessonRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
