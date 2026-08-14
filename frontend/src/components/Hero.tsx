@@ -1,11 +1,11 @@
 import { LogoMark } from './Logo';
 import { useLanguage } from '../context/LanguageContext';
-import { useLessonGate } from '../context/LessonGateContext';
+import { useMicroLessonGate } from '../context/MicroLessonGateContext';
 import { getString } from '../i18n/strings';
 
 export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
   const { uiLanguage } = useLanguage();
-  const { requestLesson } = useLessonGate();
+  const { requestMicroLesson } = useMicroLessonGate();
 
   return (
     <header className="hero">
@@ -24,23 +24,23 @@ export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
         </p>
         <p style={{ color: 'rgba(250,247,243,.75)', fontSize: '.95rem', marginBottom: '.9rem' }}>
           {uiLanguage === 'es'
-            ? '¿Nunca lo has estudiado? Empieza por una clase guiada, sin examen.'
-            : "Never studied it before? Start with a guided class, no test involved."}
+            ? 'Dos formas de avanzar: una práctica diaria de 10-15 minutos, o un examen riguroso por destreza.'
+            : 'Two ways to progress: a 10-15 minute daily practice, or a rigorous skill-by-skill exam.'}
         </p>
         <div className="cta-row">
-          <button onClick={requestLesson} className="btn btn-gold">
-            {uiLanguage === 'es' ? 'Prueba una clase' : 'Try a class'}
+          <button onClick={requestMicroLesson} className="btn btn-gold">
+            {uiLanguage === 'es' ? 'Práctica diaria' : 'Daily practice'}
           </button>
-          <a href="#language-selector" className="btn btn-outline" style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}>
-            {uiLanguage === 'es' ? 'Comenzar ahora' : 'Start now'}
-          </a>
           <button
             onClick={onOpenAssessment}
             className="btn btn-outline"
             style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}
           >
-            {uiLanguage === 'es' ? 'Determina tu nivel' : 'Determine your level'}
+            {uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}
           </button>
+          <a href="#language-selector" className="btn btn-outline" style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}>
+            {uiLanguage === 'es' ? 'Explorar niveles' : 'Explore levels'}
+          </a>
         </div>
       </div>
     </header>

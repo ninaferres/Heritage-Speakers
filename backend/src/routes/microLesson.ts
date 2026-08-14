@@ -1,24 +1,24 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
-import { getDailyLesson } from '../services/lessonGenerator.js';
+import { getDailyMicroLesson } from '../services/microLessonGenerator.js';
 
 const querySchema = z.object({
   learningLanguage: z.enum(['es', 'ru']),
   uiLanguage: z.enum(['en', 'es']),
 });
 
-export const lessonRouter = Router();
-lessonRouter.use(requireAuth);
+export const microLessonRouter = Router();
+microLessonRouter.use(requireAuth);
 
-lessonRouter.get('/', async (req, res) => {
+microLessonRouter.get('/', async (req, res) => {
   const parsed = querySchema.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid query params', details: parsed.error.flatten() });
     return;
   }
   try {
-    const lesson = await getDailyLesson(parsed.data.learningLanguage, parsed.data.uiLanguage);
+    const lesson = await getDailyMicroLesson(parsed.data.learningLanguage, parsed.data.uiLanguage);
     res.json(lesson);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unexpected error generating lesson.';

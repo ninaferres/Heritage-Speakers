@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import { CefrLevel, ExerciseQuestion, AccentId, Exercise, SkillId } from '../data/types';
 import { ComprehensionEvaluation, ProductionEvaluation } from '../data/feedback';
-import { Lesson } from '../data/lessonTypes';
+import { MicroLesson } from '../data/microLessonTypes';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '/api';
 
@@ -95,19 +95,19 @@ export async function fetchDailyExercise(skill: SkillId, level: CefrLevel, langu
   return res.json();
 }
 
-// Fetches (or triggers server-side generation of) today's beginner "class" lesson —
-// a vocabulary block plus a quiz testing only those words, for learners with zero base.
-export async function fetchDailyLesson(learningLanguage: string, uiLanguage: string): Promise<Lesson> {
+// Fetches (or triggers server-side generation of) today's "Daily Practice" micro-lesson —
+// an explicit grammar tip + vocab + interactive drills, all built around one concept.
+export async function fetchDailyMicroLesson(learningLanguage: string, uiLanguage: string): Promise<MicroLesson> {
   const query = new URLSearchParams({
     learningLanguage: learningLanguage === 'ru' ? 'ru' : 'es',
     uiLanguage: uiLanguage === 'es' ? 'es' : 'en',
   });
-  const res = await fetch(`${API_BASE}/lesson?${query.toString()}`, {
+  const res = await fetch(`${API_BASE}/micro-lesson?${query.toString()}`, {
     headers: await authHeaders(),
   });
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.error || `Request to /lesson failed (${res.status})`);
+    throw new Error(detail.error || `Request to /micro-lesson failed (${res.status})`);
   }
   return res.json();
 }

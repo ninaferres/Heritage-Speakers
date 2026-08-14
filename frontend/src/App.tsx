@@ -9,14 +9,14 @@ import { FinalCtaSection } from './components/FinalCtaSection';
 import { Footer } from './components/Footer';
 import { AssessmentModal } from './components/Assessment/AssessmentModal';
 import { ExerciseGateProvider } from './context/ExerciseGateContext';
-import { LessonGateProvider } from './context/LessonGateContext';
+import { MicroLessonGateProvider } from './context/MicroLessonGateContext';
 
 export default function App() {
   const [assessmentOpen, setAssessmentOpen] = useState(false);
 
   return (
     <ExerciseGateProvider>
-      <LessonGateProvider>
+      <MicroLessonGateProvider onRequestExam={() => setAssessmentOpen(true)}>
         <Header />
         <Hero onOpenAssessment={() => setAssessmentOpen(true)} />
         <LevelsSection />
@@ -30,7 +30,7 @@ export default function App() {
         <FinalCtaSection />
         <Footer />
         {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
-      </LessonGateProvider>
+      </MicroLessonGateProvider>
     </ExerciseGateProvider>
   );
 }
