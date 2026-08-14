@@ -1,16 +1,17 @@
 /**
- * JSON Schema for the daily "Practica diaria" micro-lesson. Providers used here
- * (Groq json_object mode especially) don't reliably validate polymorphic unions,
- * so the AI fills in one fixed shape with a slot per step type; the generator
- * service assembles those slots into the ordered LessonStep[] the frontend consumes.
+ * JSON Schemas for the daily "Práctica diaria" micro-lesson, one shape per skill.
+ * Providers used here (Groq json_object mode especially) don't reliably validate
+ * polymorphic unions, so each skill's schema is a fixed object with one slot per
+ * interactive block; the generator service assembles those slots into the ordered
+ * LessonStep[] the frontend consumes.
  */
 
 const grammarTipSchema = {
   type: 'object',
   properties: {
-    title: { type: 'string', description: 'Short name of the grammar/syntax point (e.g. "Verb-subject order").' },
-    explanation: { type: 'string', description: 'One or two plain-language sentences explaining the point. No linguistics jargon.' },
-    example: { type: 'string', description: 'One short example sentence in the target language illustrating the point.' },
+    title: { type: 'string', description: 'Short name of the concept being taught.' },
+    explanation: { type: 'string', description: 'One or two plain-language sentences explaining it. No linguistics jargon.' },
+    example: { type: 'string', description: 'One short example sentence in the target language illustrating it.' },
     exampleTranslation: { type: 'string', description: 'Translation of the example sentence into the interface language.' },
   },
   required: ['title', 'explanation', 'example', 'exampleTranslation'],
@@ -63,7 +64,7 @@ const syntaxReorderSchema = {
 const errorDetectionSchema = {
   type: 'object',
   properties: {
-    words: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 10, description: 'The sentence tokenized into words/punctuation, containing exactly one grammatical error.' },
+    words: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 10, description: 'The sentence tokenized into words/punctuation, containing exactly one error.' },
     incorrectWordIndex: { type: 'integer', description: 'Index into "words" of the incorrect word.' },
     correction: { type: 'string', description: 'The correct replacement for that word.' },
     explanation: { type: 'string', description: 'One short sentence explaining why it was wrong.' },
@@ -84,20 +85,105 @@ const clozeSchema = {
   additionalProperties: false,
 };
 
-export const microLessonSchema = {
+const comprehensionQuestionSchema = {
+  type: 'object',
+  properties: {
+    question: { type: 'string' },
+    options: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4 },
+    answer: { type: 'string', description: 'The correct option, verbatim matching one of "options".' },
+  },
+  required: ['question', 'options', 'answer'],
+  additionalProperties: false,
+};
+
+const readingComprehensionSchema = {
+  type: 'object',
+  properties: {
+    passage: { type: 'string', description: 'A short passage (60-100 words) in the target language.' },
+    questions: { type: 'array', items: comprehensionQuestionSchema, minItems: 2, maxItems: 2 },
+  },
+  required: ['passage', 'questions'],
+  additionalProperties: false,
+};
+
+const listeningComprehensionSchema = {
+  type: 'object',
+  properties: {
+    transcript: { type: 'string', description: 'A short dialogue or monologue (written exactly as it should be read aloud) in the target language.' },
+    questions: { type: 'array', items: comprehensionQuestionSchema, minItems: 2, maxItems: 2 },
+  },
+  required: ['transcript', 'questions'],
+  additionalProperties: false,
+};
+
+export const grammarSyntaxLessonSchema = {
   type: 'object',
   properties: {
     title: { type: 'string', description: 'Short lesson title (2-5 words), in the interface language.' },
-    grammarConcept: { type: 'string', description: 'Short name of the single grammar/syntax concept this whole lesson focuses on.' },
+    grammarConcept: { type: 'string', description: 'The single grammar/syntax concept this lesson focuses on.' },
     grammarTip: grammarTipSchema,
-    vocabMatch: vocabMatchSchema,
     syntaxReorder1: syntaxReorderSchema,
     syntaxReorder2: syntaxReorderSchema,
+    syntaxReorder3: syntaxReorderSchema,
     errorDetection1: errorDetectionSchema,
     errorDetection2: errorDetectionSchema,
+    errorDetection3: errorDetectionSchema,
     cloze1: clozeSchema,
     cloze2: clozeSchema,
+    cloze3: clozeSchema,
   },
-  required: ['title', 'grammarConcept', 'grammarTip', 'vocabMatch', 'syntaxReorder1', 'syntaxReorder2', 'errorDetection1', 'errorDetection2', 'cloze1', 'cloze2'],
+  required: ['title', 'grammarConcept', 'grammarTip', 'syntaxReorder1', 'syntaxReorder2', 'syntaxReorder3', 'errorDetection1', 'errorDetection2', 'errorDetection3', 'cloze1', 'cloze2', 'cloze3'],
+  additionalProperties: false,
+};
+
+export const vocabularyLessonSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string', description: 'Short lesson title (2-5 words), in the interface language.' },
+    grammarConcept: { type: 'string', description: 'The vocabulary theme/word family this lesson focuses on.' },
+    grammarTip: grammarTipSchema,
+    vocabMatch1: vocabMatchSchema,
+    vocabMatch2: vocabMatchSchema,
+    cloze1: clozeSchema,
+    cloze2: clozeSchema,
+    cloze3: clozeSchema,
+    cloze4: clozeSchema,
+    cloze5: clozeSchema,
+    errorDetection1: errorDetectionSchema,
+    errorDetection2: errorDetectionSchema,
+  },
+  required: ['title', 'grammarConcept', 'grammarTip', 'vocabMatch1', 'vocabMatch2', 'cloze1', 'cloze2', 'cloze3', 'cloze4', 'cloze5', 'errorDetection1', 'errorDetection2'],
+  additionalProperties: false,
+};
+
+export const readingLessonSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string', description: 'Short lesson title (2-5 words), in the interface language.' },
+    grammarConcept: { type: 'string', description: 'The reading strategy or connector-word focus this lesson centers on.' },
+    grammarTip: grammarTipSchema,
+    reading1: readingComprehensionSchema,
+    reading2: readingComprehensionSchema,
+    reading3: readingComprehensionSchema,
+    reading4: readingComprehensionSchema,
+    reading5: readingComprehensionSchema,
+  },
+  required: ['title', 'grammarConcept', 'grammarTip', 'reading1', 'reading2', 'reading3', 'reading4', 'reading5'],
+  additionalProperties: false,
+};
+
+export const listeningLessonSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string', description: 'Short lesson title (2-5 words), in the interface language.' },
+    grammarConcept: { type: 'string', description: 'The listening strategy or connector-word focus this lesson centers on.' },
+    grammarTip: grammarTipSchema,
+    listening1: listeningComprehensionSchema,
+    listening2: listeningComprehensionSchema,
+    listening3: listeningComprehensionSchema,
+    listening4: listeningComprehensionSchema,
+    listening5: listeningComprehensionSchema,
+  },
+  required: ['title', 'grammarConcept', 'grammarTip', 'listening1', 'listening2', 'listening3', 'listening4', 'listening5'],
   additionalProperties: false,
 };

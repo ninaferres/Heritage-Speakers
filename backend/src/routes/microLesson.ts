@@ -4,6 +4,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { getDailyMicroLesson } from '../services/microLessonGenerator.js';
 
 const querySchema = z.object({
+  skill: z.enum(['listening', 'reading', 'grammar_syntax', 'vocabulary']),
   learningLanguage: z.enum(['es', 'ru']),
   uiLanguage: z.enum(['en', 'es']),
 });
@@ -18,7 +19,7 @@ microLessonRouter.get('/', async (req, res) => {
     return;
   }
   try {
-    const lesson = await getDailyMicroLesson(parsed.data.learningLanguage, parsed.data.uiLanguage);
+    const lesson = await getDailyMicroLesson(parsed.data.skill, parsed.data.learningLanguage, parsed.data.uiLanguage);
     res.json(lesson);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unexpected error generating lesson.';

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { LanguageSelector } from './components/LanguageSelector';
@@ -7,18 +6,15 @@ import { BenefitsSection } from './components/BenefitsSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
 import { FinalCtaSection } from './components/FinalCtaSection';
 import { Footer } from './components/Footer';
-import { AssessmentModal } from './components/Assessment/AssessmentModal';
 import { ExerciseGateProvider } from './context/ExerciseGateContext';
 import { MicroLessonGateProvider } from './context/MicroLessonGateContext';
 
 export default function App() {
-  const [assessmentOpen, setAssessmentOpen] = useState(false);
-
   return (
     <ExerciseGateProvider>
-      <MicroLessonGateProvider onRequestExam={() => setAssessmentOpen(true)}>
+      <MicroLessonGateProvider>
         <Header />
-        <Hero onOpenAssessment={() => setAssessmentOpen(true)} />
+        <Hero />
         <LevelsSection />
         <section style={{ padding: '1rem 0', background: 'var(--bone)' }}>
           <div className="wrap">
@@ -29,7 +25,6 @@ export default function App() {
         <HowItWorksSection />
         <FinalCtaSection />
         <Footer />
-        {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
       </MicroLessonGateProvider>
     </ExerciseGateProvider>
   );

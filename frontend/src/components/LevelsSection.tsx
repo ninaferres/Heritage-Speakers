@@ -5,6 +5,7 @@ import { SpeakingIcon, ReadingIcon, ListeningIcon, WritingIcon } from './icons/S
 import { useExerciseGate } from '../context/ExerciseGateContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getString } from '../i18n/strings';
+import { AssessmentModal } from './Assessment/AssessmentModal';
 
 const ICONS: Record<SkillId, () => JSX.Element> = {
   Speaking: SpeakingIcon,
@@ -27,7 +28,7 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLangua
   };
 
   return (
-    <div className="skill-card">
+    <div className="skill-card" id={`skill-card-${id}`}>
       <div className="skill-icon"><Icon /></div>
       <h3>{skillNames[id][uiLanguage]}</h3>
       <div className="sub">{sub}</div>
@@ -54,6 +55,7 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLangua
 
 export function LevelsSection() {
   const { learningLanguage, uiLanguage } = useLanguage();
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
   return (
     <section className="block levels" id="levels">
       <div className="wrap">
@@ -66,11 +68,18 @@ export function LevelsSection() {
         </div>
 
         {learningLanguage ? (
-          <div className="level-grid">
-            {SKILLS.map((s) => (
-              <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
-            ))}
-          </div>
+          <>
+            <div className="level-grid">
+              {SKILLS.map((s) => (
+                <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
+              ))}
+            </div>
+            <p className="footnote">
+              <button type="button" className="btn-linklike" onClick={() => setAssessmentOpen(true)} style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}>
+                {uiLanguage === 'es' ? '¿No sabes tu nivel? Haz una evaluación rápida (2 min)' : "Don't know your level? Take a quick 2-minute assessment"}
+              </button>
+            </p>
+          </>
         ) : (
           <p className="footnote">{getString('levels.selectLanguage', uiLanguage)}</p>
         )}
@@ -81,6 +90,7 @@ export function LevelsSection() {
             : 'When you reach C2 in any skill, the system switches to Maintain instead of level up.'}
         </p>
       </div>
+      {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
     </section>
   );
 }

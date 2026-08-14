@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import { CefrLevel, ExerciseQuestion, AccentId, Exercise, SkillId } from '../data/types';
 import { ComprehensionEvaluation, ProductionEvaluation } from '../data/feedback';
-import { MicroLesson } from '../data/microLessonTypes';
+import { MicroLesson, ClassSkill } from '../data/microLessonTypes';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '/api';
 
@@ -95,10 +95,11 @@ export async function fetchDailyExercise(skill: SkillId, level: CefrLevel, langu
   return res.json();
 }
 
-// Fetches (or triggers server-side generation of) today's "Daily Practice" micro-lesson —
-// an explicit grammar tip + vocab + interactive drills, all built around one concept.
-export async function fetchDailyMicroLesson(learningLanguage: string, uiLanguage: string): Promise<MicroLesson> {
+// Fetches (or triggers server-side generation of) today's "Daily Practice" micro-lesson for
+// one skill — an explicit tip + interactive drills, all built around one concept.
+export async function fetchDailyMicroLesson(skill: ClassSkill, learningLanguage: string, uiLanguage: string): Promise<MicroLesson> {
   const query = new URLSearchParams({
+    skill,
     learningLanguage: learningLanguage === 'ru' ? 'ru' : 'es',
     uiLanguage: uiLanguage === 'es' ? 'es' : 'en',
   });

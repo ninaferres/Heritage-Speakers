@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useMicroLessonGate } from '../context/MicroLessonGateContext';
 import { getString } from '../i18n/strings';
 
-export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
+export function Hero() {
   const { uiLanguage } = useLanguage();
   const { requestMicroLesson } = useMicroLessonGate();
 
@@ -31,15 +31,8 @@ export function Hero({ onOpenAssessment }: { onOpenAssessment: () => void }) {
           <button onClick={requestMicroLesson} className="btn btn-gold">
             {uiLanguage === 'es' ? 'Práctica diaria' : 'Daily practice'}
           </button>
-          <button
-            onClick={onOpenAssessment}
-            className="btn btn-outline"
-            style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}
-          >
+          <a href="#levels" className="btn btn-outline" style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}>
             {uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}
-          </button>
-          <a href="#language-selector" className="btn btn-outline" style={{ background: 'transparent', border: '1.5px solid rgba(250,247,243,.4)', color: 'var(--bone)' }}>
-            {uiLanguage === 'es' ? 'Explorar niveles' : 'Explore levels'}
           </a>
         </div>
       </div>

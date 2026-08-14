@@ -1,6 +1,6 @@
 import { generateStructuredJSON, GradingNotConfiguredError } from './aiClient.js';
-import { microLessonSchema } from '../schemas/microLessonSchema.js';
-import { microLessonSystemPrompt, MicroLessonLanguage, UiLanguage } from '../prompts/microLessonPrompts.js';
+import { grammarSyntaxLessonSchema, vocabularyLessonSchema, readingLessonSchema, listeningLessonSchema } from '../schemas/microLessonSchema.js';
+import { microLessonSystemPrompt, MicroLessonLanguage, UiLanguage, ClassSkill } from '../prompts/microLessonPrompts.js';
 
 interface GrammarTipContent {
   title: string;
@@ -32,73 +32,125 @@ interface ClozeContent {
   options: string[];
   answer: string;
 }
+interface ComprehensionQuestion {
+  question: string;
+  options: string[];
+  answer: string;
+}
+interface ReadingComprehensionContent {
+  passage: string;
+  questions: ComprehensionQuestion[];
+}
+interface ListeningComprehensionContent {
+  transcript: string;
+  questions: ComprehensionQuestion[];
+}
 
 export type LessonStep =
   | { id: string; type: 'grammar_tip'; content: GrammarTipContent }
   | { id: string; type: 'vocab_match'; content: VocabMatchContent }
   | { id: string; type: 'syntax_reorder'; content: SyntaxReorderContent }
   | { id: string; type: 'error_detection'; content: ErrorDetectionContent }
-  | { id: string; type: 'cloze'; content: ClozeContent };
+  | { id: string; type: 'cloze'; content: ClozeContent }
+  | { id: string; type: 'reading_comprehension'; content: ReadingComprehensionContent }
+  | { id: string; type: 'listening_comprehension'; content: ListeningComprehensionContent };
 
 export interface MicroLesson {
   id: string;
+  skill: ClassSkill;
   title: string;
   estimatedMinutes: number;
   grammarConcept: string;
   steps: LessonStep[];
 }
 
-interface RawMicroLesson {
-  title: string;
-  grammarConcept: string;
-  grammarTip: GrammarTipContent;
-  vocabMatch: VocabMatchContent;
-  syntaxReorder1: SyntaxReorderContent;
-  syntaxReorder2: SyntaxReorderContent;
-  errorDetection1: ErrorDetectionContent;
-  errorDetection2: ErrorDetectionContent;
-  cloze1: ClozeContent;
-  cloze2: ClozeContent;
-}
-
-// Same daily in-memory cache pattern as the other generators: one fresh micro-lesson
-// per learning-language/interface-language pair per day, no database needed.
 const cache = new Map<string, MicroLesson>();
 
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// Fixed pedagogical order: explain the concept and its vocabulary first, only then
-// test it — mirrors the "never test without context first" rule from the prompt.
-function assembleSteps(raw: RawMicroLesson): LessonStep[] {
+// Fixed pedagogical order per skill: explain the concept first, only then test it.
+function assembleGrammarSyntaxSteps(raw: any): LessonStep[] {
   return [
     { id: 'grammar_tip', type: 'grammar_tip', content: raw.grammarTip },
-    { id: 'vocab_match', type: 'vocab_match', content: raw.vocabMatch },
     { id: 'syntax_reorder_1', type: 'syntax_reorder', content: raw.syntaxReorder1 },
     { id: 'syntax_reorder_2', type: 'syntax_reorder', content: raw.syntaxReorder2 },
+    { id: 'syntax_reorder_3', type: 'syntax_reorder', content: raw.syntaxReorder3 },
     { id: 'error_detection_1', type: 'error_detection', content: raw.errorDetection1 },
     { id: 'error_detection_2', type: 'error_detection', content: raw.errorDetection2 },
+    { id: 'error_detection_3', type: 'error_detection', content: raw.errorDetection3 },
     { id: 'cloze_1', type: 'cloze', content: raw.cloze1 },
     { id: 'cloze_2', type: 'cloze', content: raw.cloze2 },
+    { id: 'cloze_3', type: 'cloze', content: raw.cloze3 },
+  ];
+}
+function assembleVocabularySteps(raw: any): LessonStep[] {
+  return [
+    { id: 'grammar_tip', type: 'grammar_tip', content: raw.grammarTip },
+    { id: 'vocab_match_1', type: 'vocab_match', content: raw.vocabMatch1 },
+    { id: 'vocab_match_2', type: 'vocab_match', content: raw.vocabMatch2 },
+    { id: 'cloze_1', type: 'cloze', content: raw.cloze1 },
+    { id: 'cloze_2', type: 'cloze', content: raw.cloze2 },
+    { id: 'cloze_3', type: 'cloze', content: raw.cloze3 },
+    { id: 'cloze_4', type: 'cloze', content: raw.cloze4 },
+    { id: 'cloze_5', type: 'cloze', content: raw.cloze5 },
+    { id: 'error_detection_1', type: 'error_detection', content: raw.errorDetection1 },
+    { id: 'error_detection_2', type: 'error_detection', content: raw.errorDetection2 },
+  ];
+}
+function assembleReadingSteps(raw: any): LessonStep[] {
+  return [
+    { id: 'grammar_tip', type: 'grammar_tip', content: raw.grammarTip },
+    { id: 'reading_1', type: 'reading_comprehension', content: raw.reading1 },
+    { id: 'reading_2', type: 'reading_comprehension', content: raw.reading2 },
+    { id: 'reading_3', type: 'reading_comprehension', content: raw.reading3 },
+    { id: 'reading_4', type: 'reading_comprehension', content: raw.reading4 },
+    { id: 'reading_5', type: 'reading_comprehension', content: raw.reading5 },
+  ];
+}
+function assembleListeningSteps(raw: any): LessonStep[] {
+  return [
+    { id: 'grammar_tip', type: 'grammar_tip', content: raw.grammarTip },
+    { id: 'listening_1', type: 'listening_comprehension', content: raw.listening1 },
+    { id: 'listening_2', type: 'listening_comprehension', content: raw.listening2 },
+    { id: 'listening_3', type: 'listening_comprehension', content: raw.listening3 },
+    { id: 'listening_4', type: 'listening_comprehension', content: raw.listening4 },
+    { id: 'listening_5', type: 'listening_comprehension', content: raw.listening5 },
   ];
 }
 
-export async function getDailyMicroLesson(learningLanguage: MicroLessonLanguage, uiLanguage: UiLanguage): Promise<MicroLesson> {
-  const key = `${todayKey()}:${learningLanguage}:${uiLanguage}`;
+export async function getDailyMicroLesson(skill: ClassSkill, learningLanguage: MicroLessonLanguage, uiLanguage: UiLanguage): Promise<MicroLesson> {
+  const key = `${todayKey()}:${learningLanguage}:${uiLanguage}:${skill}`;
   const cached = cache.get(key);
   if (cached) return cached;
 
-  const system = microLessonSystemPrompt(learningLanguage, uiLanguage);
-  const user = `Generate today's (${todayKey()}) daily practice micro-lesson.`;
-  const raw = await generateStructuredJSON<RawMicroLesson>({ system, user, schema: microLessonSchema, schemaName: 'micro_lesson' });
+  const system = microLessonSystemPrompt(skill, learningLanguage, uiLanguage);
+  const user = `Generate today's (${todayKey()}) daily practice micro-lesson for the ${skill} skill.`;
+
+  let raw: any;
+  let steps: LessonStep[];
+  if (skill === 'grammar_syntax') {
+    raw = await generateStructuredJSON<any>({ system, user, schema: grammarSyntaxLessonSchema, schemaName: 'grammar_syntax_lesson' });
+    steps = assembleGrammarSyntaxSteps(raw);
+  } else if (skill === 'vocabulary') {
+    raw = await generateStructuredJSON<any>({ system, user, schema: vocabularyLessonSchema, schemaName: 'vocabulary_lesson' });
+    steps = assembleVocabularySteps(raw);
+  } else if (skill === 'reading') {
+    raw = await generateStructuredJSON<any>({ system, user, schema: readingLessonSchema, schemaName: 'reading_lesson' });
+    steps = assembleReadingSteps(raw);
+  } else {
+    raw = await generateStructuredJSON<any>({ system, user, schema: listeningLessonSchema, schemaName: 'listening_lesson' });
+    steps = assembleListeningSteps(raw);
+  }
 
   const lesson: MicroLesson = {
     id: key,
+    skill,
     title: raw.title,
     estimatedMinutes: 12,
     grammarConcept: raw.grammarConcept,
-    steps: assembleSteps(raw),
+    steps,
   };
 
   cache.set(key, lesson);

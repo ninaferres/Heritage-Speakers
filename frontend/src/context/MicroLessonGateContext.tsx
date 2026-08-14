@@ -12,7 +12,7 @@ const MicroLessonGateContext = createContext<MicroLessonGateContextValue | undef
 
 const PENDING_KEY = 'hs.pendingMicroLesson';
 
-export function MicroLessonGateProvider({ children, onRequestExam }: { children: ReactNode; onRequestExam: () => void }) {
+export function MicroLessonGateProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [active, setActive] = useState(false);
@@ -57,15 +57,7 @@ export function MicroLessonGateProvider({ children, onRequestExam }: { children:
           onAuthenticated={handleAuthenticated}
         />
       )}
-      {active && (
-        <MicroLessonRunner
-          onClose={() => setActive(false)}
-          onRequestExam={() => {
-            setActive(false);
-            onRequestExam();
-          }}
-        />
-      )}
+      {active && <MicroLessonRunner onClose={() => setActive(false)} />}
     </MicroLessonGateContext.Provider>
   );
 }
