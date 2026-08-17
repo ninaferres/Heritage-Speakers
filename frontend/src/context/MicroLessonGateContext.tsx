@@ -13,7 +13,7 @@ const MicroLessonGateContext = createContext<MicroLessonGateContextValue | undef
 const PENDING_KEY = 'hs.pendingMicroLesson';
 
 export function MicroLessonGateProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [active, setActive] = useState(false);
   const wasSignedIn = useRef(Boolean(user));
@@ -27,6 +27,20 @@ export function MicroLessonGateProvider({ children }: { children: ReactNode }) {
       setAuthModalOpen(false);
     }
   }, [user]);
+
+  // Lets the "Start daily practice" link open in a fresh tab and land straight in the
+  // skill/level flow, instead of just opening the homepage — the tab's own React app
+  // reads ?practice=daily on first mount and requests the lesson right away.
+  useEffect(() => {
+    if (loading) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('practice') !== 'daily') return;
+    params.delete('practice');
+    const newSearch = params.toString();
+    window.history.replaceState({}, '', window.location.pathname + (newSearch ? `?${newSearch}` : '') + window.location.hash);
+    requestMicroLesson();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   function requestMicroLesson() {
     if (user) {
