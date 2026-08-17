@@ -5,20 +5,19 @@ import { evaluateSpeaking, synthesizeSpeechTTS } from '../../api/client';
 import { ProductionEvaluation } from '../../data/feedback';
 import { ProductionFeedback } from '../ExerciseRunner/FeedbackPanel';
 
-// Daily-practice speaking prompts aren't tied to a CEFR level, so we grade against a
-// forgiving baseline — the point is encouragement and concrete pointers, not a gate.
-const PRACTICE_LEVEL: CefrLevel = 'A2';
 const PASS_SCORE = 55;
 
 export function SpeakingPracticeStep({
   content,
   uiLanguage,
   learningLanguage,
+  level,
   onComplete,
 }: {
   content: SpeakingPromptContent;
   uiLanguage: 'en' | 'es';
   learningLanguage: string | null;
+  level: CefrLevel;
   onComplete: (correct: boolean) => void;
 }) {
   const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
@@ -97,7 +96,7 @@ export function SpeakingPracticeStep({
     setSubmitting(true);
     setError(null);
     try {
-      const res = await evaluateSpeaking({ level: PRACTICE_LEVEL, prompt: content.prompt, audioBlob, learningLanguage });
+      const res = await evaluateSpeaking({ level, prompt: content.prompt, audioBlob, learningLanguage });
       setResult(res);
     } catch (e) {
       setError(e instanceof Error ? e.message : (uiLanguage === 'es' ? 'No se pudo evaluar la grabación.' : 'Could not evaluate the recording.'));

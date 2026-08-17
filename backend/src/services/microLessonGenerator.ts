@@ -1,6 +1,7 @@
 import { generateStructuredJSON, GradingNotConfiguredError } from './aiClient.js';
-import { grammarSyntaxLessonSchema, vocabularyLessonSchema, readingLessonSchema, listeningLessonSchema, speakingLessonSchema } from '../schemas/microLessonSchema.js';
+import { grammarSyntaxLessonSchema, vocabularyLessonSchema, readingLessonSchema, listeningLessonSchema, speakingLessonSchema, writingLessonSchema } from '../schemas/microLessonSchema.js';
 import { microLessonSystemPrompt, MicroLessonLanguage, UiLanguage, ClassSkill } from '../prompts/microLessonPrompts.js';
+import { CefrLevel } from '../prompts/exercisePrompts.js';
 
 interface GrammarTipContent {
   title: string;
@@ -51,6 +52,13 @@ interface SpeakingPromptContent {
   modelAnswer: string;
   modelAnswerTranslation: string;
 }
+interface WritingPromptContent {
+  scenario: string;
+  register: 'casual' | 'professional';
+  instructions: string;
+  minWords: number;
+  maxWords: number;
+}
 
 export type LessonStep =
   | { id: string; type: 'grammar_tip'; content: GrammarTipContent }
@@ -60,7 +68,8 @@ export type LessonStep =
   | { id: string; type: 'cloze'; content: ClozeContent }
   | { id: string; type: 'reading_comprehension'; content: ReadingComprehensionContent }
   | { id: string; type: 'listening_comprehension'; content: ListeningComprehensionContent }
-  | { id: string; type: 'speaking_practice'; content: SpeakingPromptContent };
+  | { id: string; type: 'speaking_practice'; content: SpeakingPromptContent }
+  | { id: string; type: 'writing_practice'; content: WritingPromptContent };
 
 export interface MicroLesson {
   id: string;
@@ -135,14 +144,23 @@ function assembleSpeakingSteps(raw: any): LessonStep[] {
     { id: 'speaking_4', type: 'speaking_practice', content: raw.speakingPrompt4 },
   ];
 }
+function assembleWritingSteps(raw: any): LessonStep[] {
+  return [
+    { id: 'grammar_tip', type: 'grammar_tip', content: raw.grammarTip },
+    { id: 'writing_1', type: 'writing_practice', content: raw.writingPrompt1 },
+    { id: 'writing_2', type: 'writing_practice', content: raw.writingPrompt2 },
+    { id: 'writing_3', type: 'writing_practice', content: raw.writingPrompt3 },
+    { id: 'writing_4', type: 'writing_practice', content: raw.writingPrompt4 },
+  ];
+}
 
-export async function getDailyMicroLesson(skill: ClassSkill, learningLanguage: MicroLessonLanguage, uiLanguage: UiLanguage): Promise<MicroLesson> {
-  const key = `${todayKey()}:${learningLanguage}:${uiLanguage}:${skill}`;
+export async function getDailyMicroLesson(skill: ClassSkill, learningLanguage: MicroLessonLanguage, uiLanguage: UiLanguage, level: CefrLevel): Promise<MicroLesson> {
+  const key = `${todayKey()}:${learningLanguage}:${uiLanguage}:${skill}:${level}`;
   const cached = cache.get(key);
   if (cached) return cached;
 
-  const system = microLessonSystemPrompt(skill, learningLanguage, uiLanguage);
-  const user = `Generate today's (${todayKey()}) daily practice micro-lesson for the ${skill} skill.`;
+  const system = microLessonSystemPrompt(skill, learningLanguage, uiLanguage, level);
+  const user = `Generate today's (${todayKey()}) daily practice micro-lesson for the ${skill} skill at CEFR level ${level}.`;
 
   let raw: any;
   let steps: LessonStep[];
@@ -158,9 +176,12 @@ export async function getDailyMicroLesson(skill: ClassSkill, learningLanguage: M
   } else if (skill === 'listening') {
     raw = await generateStructuredJSON<any>({ system, user, schema: listeningLessonSchema, schemaName: 'listening_lesson' });
     steps = assembleListeningSteps(raw);
-  } else {
+  } else if (skill === 'speaking') {
     raw = await generateStructuredJSON<any>({ system, user, schema: speakingLessonSchema, schemaName: 'speaking_lesson' });
     steps = assembleSpeakingSteps(raw);
+  } else {
+    raw = await generateStructuredJSON<any>({ system, user, schema: writingLessonSchema, schemaName: 'writing_lesson' });
+    steps = assembleWritingSteps(raw);
   }
 
   const lesson: MicroLesson = {

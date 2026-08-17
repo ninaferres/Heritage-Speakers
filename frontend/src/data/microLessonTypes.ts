@@ -1,4 +1,4 @@
-export type ClassSkill = 'listening' | 'reading' | 'grammar_syntax' | 'vocabulary' | 'speaking';
+export type ClassSkill = 'listening' | 'reading' | 'grammar_syntax' | 'vocabulary' | 'speaking' | 'writing';
 
 export interface GrammarTipContent {
   title: string;
@@ -49,6 +49,13 @@ export interface SpeakingPromptContent {
   modelAnswer: string;
   modelAnswerTranslation: string;
 }
+export interface WritingPromptContent {
+  scenario: string;
+  register: 'casual' | 'professional';
+  instructions: string;
+  minWords: number;
+  maxWords: number;
+}
 
 export type LessonStep =
   | { id: string; type: 'grammar_tip'; content: GrammarTipContent }
@@ -58,7 +65,8 @@ export type LessonStep =
   | { id: string; type: 'cloze'; content: ClozeContent }
   | { id: string; type: 'reading_comprehension'; content: ReadingComprehensionContent }
   | { id: string; type: 'listening_comprehension'; content: ListeningComprehensionContent }
-  | { id: string; type: 'speaking_practice'; content: SpeakingPromptContent };
+  | { id: string; type: 'speaking_practice'; content: SpeakingPromptContent }
+  | { id: string; type: 'writing_practice'; content: WritingPromptContent };
 
 export interface MicroLesson {
   id: string;

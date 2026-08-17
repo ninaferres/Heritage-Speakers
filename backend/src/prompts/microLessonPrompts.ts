@@ -1,6 +1,8 @@
+import { CefrLevel, levelGuidance } from './exercisePrompts.js';
+
 export type MicroLessonLanguage = 'es' | 'ru';
 export type UiLanguage = 'en' | 'es';
-export type ClassSkill = 'listening' | 'reading' | 'grammar_syntax' | 'vocabulary' | 'speaking';
+export type ClassSkill = 'listening' | 'reading' | 'grammar_syntax' | 'vocabulary' | 'speaking' | 'writing';
 
 const LANGUAGE_NAME: Record<MicroLessonLanguage, string> = { es: 'Spanish', ru: 'Russian' };
 const UI_LANGUAGE_NAME: Record<UiLanguage, string> = { en: 'English', es: 'Spanish' };
@@ -17,15 +19,18 @@ function fillCommonRules(target: string, interfaceLang: string): string {
   return COMMON_RULES.replace(/\{target\}/g, target).replace(/\{interfaceLang\}/g, interfaceLang);
 }
 
-export function microLessonSystemPrompt(skill: ClassSkill, learningLanguage: MicroLessonLanguage, uiLanguage: UiLanguage): string {
+export function microLessonSystemPrompt(skill: ClassSkill, learningLanguage: MicroLessonLanguage, uiLanguage: UiLanguage, level: CefrLevel): string {
   const target = LANGUAGE_NAME[learningLanguage];
   const interfaceLang = UI_LANGUAGE_NAME[uiLanguage];
   const rules = fillCommonRules(target, interfaceLang);
+  const levelLine = `CEFR level ${level}: ${levelGuidance(level)} Calibrate every piece of content — vocabulary, sentence complexity, the concept itself — to this exact level, not a generic "beginner" default.`;
 
   if (skill === 'grammar_syntax') {
-    return `You are a warm, encouraging teacher building today's "Grammar & Syntax" daily practice (10-15 minutes) for a beginner-to-intermediate learner of ${target}. Assume they know some basics but need explicit grammar/syntax instruction, not just testing.
+    return `You are a warm, encouraging teacher building today's "Grammar & Syntax" daily practice (10-15 minutes) for a ${target} learner at CEFR level ${level}. Assume they know the levels below ${level} but need explicit instruction on something at their current edge, not just testing.
 
-Pick ONE single grammar or syntax concept (e.g. verb-subject order, adjective agreement, a case ending, ser vs estar, a verb conjugation pattern, a connector word) and build everything around teaching and reinforcing exactly that one concept — never test something you haven't explained first.
+${levelLine}
+
+Pick ONE single grammar or syntax concept appropriate to that level (e.g. verb-subject order, adjective agreement, a case ending, ser vs estar, a verb conjugation pattern, a connector word, subjunctive mood, reported speech) and build everything around teaching and reinforcing exactly that one concept — never test something you haven't explained first.
 
 Fill in every field:
 1. grammarTip: a 30-second, jargon-free explanation (title + 1-2 sentence explanation + one example + its translation).
@@ -37,9 +42,11 @@ ${rules}`;
   }
 
   if (skill === 'vocabulary') {
-    return `You are a warm, encouraging teacher building today's "Vocabulary" daily practice (10-15 minutes) for a beginner-to-intermediate learner of ${target}.
+    return `You are a warm, encouraging teacher building today's "Vocabulary" daily practice (10-15 minutes) for a ${target} learner at CEFR level ${level}.
 
-Pick ONE practical vocabulary theme or word family (e.g. food, family, work verbs, house objects, a prefix/suffix pattern) and build everything around it.
+${levelLine}
+
+Pick ONE practical vocabulary theme or word family appropriate to that level (e.g. food, family, work verbs, house objects, a prefix/suffix pattern, idiomatic expressions, professional jargon) and build everything around it.
 
 Fill in every field:
 1. grammarTip: a 30-second explanation introducing the theme or word-formation pattern (title + 1-2 sentence explanation + one example word/phrase + its translation).
@@ -51,9 +58,11 @@ ${rules}`;
   }
 
   if (skill === 'reading') {
-    return `You are a warm, encouraging teacher building today's "Reading" daily practice (10-15 minutes) for a beginner-to-intermediate learner of ${target}.
+    return `You are a warm, encouraging teacher building today's "Reading" daily practice (10-15 minutes) for a ${target} learner at CEFR level ${level}.
 
-Pick ONE reading strategy or focus (e.g. recognizing connector words that signal contrast/cause, skimming for the main idea, understanding cognates) and build everything around it.
+${levelLine}
+
+Pick ONE reading strategy or focus appropriate to that level (e.g. recognizing connector words that signal contrast/cause, skimming for the main idea, understanding cognates, following an argument's structure) and build everything around it.
 
 Fill in every field:
 1. grammarTip: a 30-second explanation of the reading strategy (title + 1-2 sentence explanation + one example phrase from a text + its translation).
@@ -63,9 +72,11 @@ ${rules}`;
   }
 
   if (skill === 'listening') {
-    return `You are a warm, encouraging teacher building today's "Listening" daily practice (10-15 minutes) for a beginner-to-intermediate learner of ${target}.
+    return `You are a warm, encouraging teacher building today's "Listening" daily practice (10-15 minutes) for a ${target} learner at CEFR level ${level}.
 
-Pick ONE listening strategy or focus (e.g. catching numbers/times, recognizing connector words, following a dialogue's turn-taking) and build everything around it.
+${levelLine}
+
+Pick ONE listening strategy or focus appropriate to that level (e.g. catching numbers/times, recognizing connector words, following a dialogue's turn-taking, following an unscripted-sounding fast exchange) and build everything around it.
 
 Fill in every field:
 1. grammarTip: a 30-second explanation of the listening strategy (title + 1-2 sentence explanation + one example phrase + its translation).
@@ -74,14 +85,30 @@ Fill in every field:
 ${rules}`;
   }
 
-  // speaking
-  return `You are a warm, encouraging teacher building today's "Speaking" daily practice (10-15 minutes) for a learner of ${target} who understands the language but often struggles to produce it out loud — some are near-total beginners at speaking, so nothing here should assume confidence.
+  if (skill === 'speaking') {
+    return `You are a warm, encouraging conversation partner building today's "Speaking" daily practice (10-15 minutes) for a ${target} learner at CEFR level ${level} who understands the language but often struggles to produce it out loud — some are near-total beginners at speaking even if they're not at ${level} for other skills, so nothing here should assume confidence.
 
-Pick ONE simple, everyday conversational theme (e.g. introducing yourself, ordering food, asking for directions, talking about your day, making small talk) and build everything around it.
+${levelLine}
+
+Pick ONE everyday conversational theme appropriate to that level (e.g. introducing yourself, ordering food, asking for directions, talking about your day, making small talk, discussing plans, giving an opinion, handling a minor conflict) and build everything around it. This should feel like a real, natural back-and-forth conversation a native speaker would actually have — not a scripted classroom drill.
 
 Fill in every field:
-1. grammarTip: a 30-second, reassuring explanation of one useful phrase or sentence pattern for this theme (title + 1-2 sentence explanation + one example + its translation).
-2. speakingPrompt1-speakingPrompt4: four DIFFERENT short, low-pressure speaking prompts on the theme (a simple question or instruction a beginner could answer in one or two short sentences), each with its translation, PLUS a short natural modelAnswer showing what a good spoken answer sounds like, with its translation. The model answer must be short and simple enough that a nervous beginner could imitate it.
+1. grammarTip: a 30-second, reassuring explanation of one useful conversational phrase or sentence pattern for this theme (title + 1-2 sentence explanation + one example + its translation).
+2. speakingPrompt1-speakingPrompt4: four DIFFERENT short, natural-sounding conversational prompts on the theme (a simple question or instruction a learner at this level could answer in one or two spoken sentences, phrased the way someone would actually say it in conversation, not a textbook question), each with its translation, PLUS a short natural modelAnswer showing what a good spoken answer sounds like, with its translation. The model answer must be simple enough that a nervous speaker at this level could imitate it.
+
+${rules}`;
+  }
+
+  // writing
+  return `You are a warm, encouraging teacher building today's "Writing" daily practice (10-15 minutes) for a ${target} learner at CEFR level ${level} — short, real-life "miniwriting" tasks, not essays.
+
+${levelLine}
+
+Pick ONE everyday writing theme appropriate to that level (e.g. replying to a friend's text message, a short work email, a note to a neighbor, a social media comment, a quick complaint to a shop, confirming plans) and build everything around it. Mix registers realistically: some tasks should be casual (like a WhatsApp/text exchange, informal and contracted where natural) and others should be professional (like a short work email), matching what a real adult actually writes day to day — vary this across the four prompts rather than making all four the same register.
+
+Fill in every field:
+1. grammarTip: a 30-second, practical writing tip for this theme (e.g. a useful opening/closing phrase, a register cue) — title + 1-2 sentence explanation + one example + its translation.
+2. writingPrompt1-writingPrompt4: four DIFFERENT short writing scenarios. Each needs: "scenario" (the situation in the interface language, e.g. what message they received and are replying to, or what they need to write), "register" (exactly "casual" or "professional"), "instructions" (one sentence on what the response should cover, in the interface language), "minWords" and "maxWords" (a realistic short range for this level and task, roughly 15-60 words depending on level).
 
 ${rules}`;
 }

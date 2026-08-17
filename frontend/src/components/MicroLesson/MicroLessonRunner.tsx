@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { fetchDailyMicroLesson } from '../../api/client';
 import { MicroLesson, LessonStep, ClassSkill } from '../../data/microLessonTypes';
-import { SkillId } from '../../data/types';
+import { SkillId, CefrLevel } from '../../data/types';
+import { CEFR_LEVELS } from '../../data/skills';
 import { AnalyzingMessages } from '../ExerciseRunner/AnalyzingMessages';
 import { GrammarTipStep } from './GrammarTipStep';
 import { VocabMatchStep } from './VocabMatchStep';
@@ -12,8 +13,9 @@ import { ClozeStep } from './ClozeStep';
 import { ReadingComprehensionStep } from './ReadingComprehensionStep';
 import { ListeningComprehensionStep } from './ListeningComprehensionStep';
 import { SpeakingPracticeStep } from './SpeakingPracticeStep';
+import { WritingPracticeStep } from './WritingPracticeStep';
 
-const CLASS_SKILLS: ClassSkill[] = ['listening', 'reading', 'grammar_syntax', 'vocabulary', 'speaking'];
+const CLASS_SKILLS: ClassSkill[] = ['listening', 'reading', 'grammar_syntax', 'vocabulary', 'speaking', 'writing'];
 
 const SKILL_LABEL: Record<ClassSkill, { es: string; en: string }> = {
   listening: { es: 'Escucha', en: 'Listening' },
@@ -21,6 +23,7 @@ const SKILL_LABEL: Record<ClassSkill, { es: string; en: string }> = {
   grammar_syntax: { es: 'Gramática y sintaxis', en: 'Grammar & Syntax' },
   vocabulary: { es: 'Vocabulario', en: 'Vocabulary' },
   speaking: { es: 'Habla', en: 'Speaking' },
+  writing: { es: 'Escritura', en: 'Writing' },
 };
 
 // The exam side keeps its own established skill set (Speaking/Reading/Listening/Writing) —
@@ -37,14 +40,17 @@ function mapToExamSkill(skill: ClassSkill): SkillId {
       return 'Writing';
     case 'speaking':
       return 'Speaking';
+    case 'writing':
+      return 'Writing';
   }
 }
 
-type Phase = 'skill_select' | 'loading' | 'running' | 'review' | 'results';
+type Phase = 'skill_select' | 'level_select' | 'loading' | 'running' | 'review' | 'results';
 
 export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
   const { uiLanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const [skill, setSkill] = useState<ClassSkill | null>(null);
+  const [level, setLevel] = useState<CefrLevel | null>(null);
   const [lesson, setLesson] = useState<MicroLesson | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>('skill_select');
@@ -56,11 +62,11 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
   const [startedAt] = useState(() => Date.now());
 
   useEffect(() => {
-    if (!skill || !learningLanguage) return;
+    if (!skill || !level || !learningLanguage) return;
     let cancelled = false;
     setPhase('loading');
     setError(null);
-    fetchDailyMicroLesson(skill, learningLanguage, uiLanguage)
+    fetchDailyMicroLesson(skill, learningLanguage, uiLanguage, level)
       .then((l) => {
         if (!cancelled) {
           setLesson(l);
@@ -76,7 +82,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
     return () => {
       cancelled = true;
     };
-  }, [skill, learningLanguage, uiLanguage]);
+  }, [skill, level, learningLanguage, uiLanguage]);
 
   function advanceMain(step: LessonStep, correct?: boolean) {
     if (correct !== undefined) {
@@ -104,6 +110,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
 
   function restart() {
     setSkill(null);
+    setLevel(null);
     setLesson(null);
     setError(null);
     setPhase('skill_select');
@@ -163,13 +170,51 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
             {CLASS_SKILLS.map((s) => (
               <button
                 key={s}
-                onClick={() => setSkill(s)}
+                onClick={() => { setSkill(s); setPhase('level_select'); }}
                 style={{ padding: '1.5rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '600', cursor: 'pointer', fontSize: '1.05rem' }}
               >
                 {SKILL_LABEL[s][uiLanguage]}
               </button>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === 'level_select') {
+    return (
+      <div className="exercise-overlay">
+        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+          <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
+          <span className="exercise-head-eyebrow">{skill && SKILL_LABEL[skill][uiLanguage]}</span>
+          <h2 style={{ marginBottom: '.6rem', color: 'var(--wine-ink)' }}>
+            {uiLanguage === 'es' ? '¿Cuál es tu nivel aproximado?' : "What's your approximate level?"}
+          </h2>
+          <p style={{ marginBottom: '1.8rem', color: 'var(--muted)' }}>
+            {uiLanguage === 'es'
+              ? 'Así la práctica no repite lo que ya dominas ni te salta cosas que aún no has visto.'
+              : "This way the practice won't repeat what you already know or skip ahead of what you haven't seen yet."}
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '1.4rem' }}>
+            {CEFR_LEVELS.map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => setLevel(lvl)}
+                style={{ padding: '1.2rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '700', cursor: 'pointer', fontSize: '1.1rem' }}
+              >
+                {lvl}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="btn-linklike"
+            onClick={() => setPhase('skill_select')}
+            style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
+          >
+            {uiLanguage === 'es' ? '← Elegir otra destreza' : '← Choose a different skill'}
+          </button>
         </div>
       </div>
     );
@@ -196,7 +241,9 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
       case 'listening_comprehension':
         return <ListeningComprehensionStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} onComplete={onComplete} />;
       case 'speaking_practice':
-        return <SpeakingPracticeStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} onComplete={onComplete} />;
+        return <SpeakingPracticeStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} level={level!} onComplete={onComplete} />;
+      case 'writing_practice':
+        return <WritingPracticeStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} level={level!} onComplete={onComplete} />;
     }
   }
 
@@ -207,7 +254,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
 
         {phase === 'loading' && (
           <>
-            <span className="exercise-head-eyebrow">{skill && SKILL_LABEL[skill][uiLanguage]}</span>
+            <span className="exercise-head-eyebrow">{skill && SKILL_LABEL[skill][uiLanguage]} · {level}</span>
             <div className="loading-inline" style={{ marginTop: '2rem' }}>
               <span className="spinner" />
               <AnalyzingMessages

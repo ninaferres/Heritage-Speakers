@@ -14,6 +14,10 @@ const LABELS = {
     bug: 'Algo no funciona',
     idea: 'Una idea o mejora',
     other: 'Otro',
+    firstName: 'Nombre',
+    firstNamePlaceholder: 'Tu nombre',
+    lastName: 'Apellido',
+    lastNamePlaceholder: 'Tu apellido',
     message: 'Tu mensaje',
     messagePlaceholder: 'Escribe aquí...',
     email: 'Email',
@@ -34,6 +38,10 @@ const LABELS = {
     bug: "Something's broken",
     idea: 'An idea or improvement',
     other: 'Other',
+    firstName: 'First name',
+    firstNamePlaceholder: 'Your first name',
+    lastName: 'Last name',
+    lastNamePlaceholder: 'Your last name',
     message: 'Your message',
     messagePlaceholder: 'Write here...',
     email: 'Email',
@@ -53,6 +61,8 @@ export function FeedbackWidget() {
   const t = LABELS[uiLanguage];
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<Category>('idea');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -62,6 +72,8 @@ export function FeedbackWidget() {
 
   function reset() {
     setCategory('idea');
+    setFirstName('');
+    setLastName('');
     setMessage('');
     setEmail('');
     setPhone('');
@@ -74,7 +86,7 @@ export function FeedbackWidget() {
     reset();
   }
 
-  const canSubmit = message.trim() && email.trim() && phone.trim();
+  const canSubmit = firstName.trim() && lastName.trim() && message.trim() && email.trim() && phone.trim();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -84,6 +96,8 @@ export function FeedbackWidget() {
     try {
       await submitFeedback({
         category,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         message: message.trim(),
         contactEmail: email.trim(),
         contactPhone: phone.trim(),
@@ -134,6 +148,33 @@ export function FeedbackWidget() {
                     <option value="idea">{t.idea}</option>
                     <option value="other">{t.other}</option>
                   </select>
+
+                  <div style={{ display: 'flex', gap: '.8rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="field-label" htmlFor="feedback-first-name">{t.firstName}</label>
+                      <input
+                        id="feedback-first-name"
+                        type="text"
+                        className="field-input"
+                        placeholder={t.firstNamePlaceholder}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label className="field-label" htmlFor="feedback-last-name">{t.lastName}</label>
+                      <input
+                        id="feedback-last-name"
+                        type="text"
+                        className="field-input"
+                        placeholder={t.lastNamePlaceholder}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
 
                   <label className="field-label" htmlFor="feedback-message">{t.message}</label>
                   <textarea

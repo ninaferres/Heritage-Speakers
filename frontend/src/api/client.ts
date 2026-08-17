@@ -97,11 +97,12 @@ export async function fetchDailyExercise(skill: SkillId, level: CefrLevel, langu
 
 // Fetches (or triggers server-side generation of) today's "Daily Practice" micro-lesson for
 // one skill — an explicit tip + interactive drills, all built around one concept.
-export async function fetchDailyMicroLesson(skill: ClassSkill, learningLanguage: string, uiLanguage: string): Promise<MicroLesson> {
+export async function fetchDailyMicroLesson(skill: ClassSkill, learningLanguage: string, uiLanguage: string, level: CefrLevel): Promise<MicroLesson> {
   const query = new URLSearchParams({
     skill,
     learningLanguage: learningLanguage === 'ru' ? 'ru' : 'es',
     uiLanguage: uiLanguage === 'es' ? 'es' : 'en',
+    level,
   });
   const res = await fetch(`${API_BASE}/micro-lesson?${query.toString()}`, {
     headers: await authHeaders(),
@@ -120,6 +121,8 @@ export async function sendWelcomeEmail(uiLanguage: string): Promise<void> {
 
 export async function submitFeedback(params: {
   category: 'bug' | 'idea' | 'other';
+  firstName: string;
+  lastName: string;
   message: string;
   contactEmail: string;
   contactPhone: string;

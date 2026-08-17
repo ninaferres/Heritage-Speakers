@@ -13,7 +13,7 @@ const REGIONAL_GUIDANCE: Record<string, string> = {
   'ru-Moscow': 'Write in standard Russian (Moscow/central) with a neutral, clear register, slightly more informal/colloquial in tone than a formal broadcast register.',
 };
 
-function levelGuidance(level: CefrLevel): string {
+export function levelGuidance(level: CefrLevel): string {
   switch (level) {
     case 'A1':
       return 'Extremely simple vocabulary and short sentences. Present tense mostly. Everyday survival topics (greetings, family, food, numbers, daily routine).';

@@ -143,6 +143,34 @@ export const speakingLessonSchema = {
   additionalProperties: false,
 };
 
+const writingPromptSchema = {
+  type: 'object',
+  properties: {
+    scenario: { type: 'string', description: 'The situation the learner is writing in response to, in the interface language (e.g. what message they received, or what they need to write).' },
+    register: { type: 'string', enum: ['casual', 'professional'], description: 'Whether this should be written in a casual/informal register (like a text message) or a professional one (like a work email).' },
+    instructions: { type: 'string', description: 'One sentence, in the interface language, on what the response should cover.' },
+    minWords: { type: 'integer', description: 'Minimum word count for this level and task.' },
+    maxWords: { type: 'integer', description: 'Maximum word count for this level and task.' },
+  },
+  required: ['scenario', 'register', 'instructions', 'minWords', 'maxWords'],
+  additionalProperties: false,
+};
+
+export const writingLessonSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string', description: 'Short lesson title (2-5 words), in the interface language.' },
+    grammarConcept: { type: 'string', description: 'The everyday writing theme this lesson centers on (e.g. replying to a friend, a short work email).' },
+    grammarTip: grammarTipSchema,
+    writingPrompt1: writingPromptSchema,
+    writingPrompt2: writingPromptSchema,
+    writingPrompt3: writingPromptSchema,
+    writingPrompt4: writingPromptSchema,
+  },
+  required: ['title', 'grammarConcept', 'grammarTip', 'writingPrompt1', 'writingPrompt2', 'writingPrompt3', 'writingPrompt4'],
+  additionalProperties: false,
+};
+
 export const grammarSyntaxLessonSchema = {
   type: 'object',
   properties: {
