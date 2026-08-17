@@ -129,7 +129,7 @@ button{font-family:inherit}
 /* ---------- hero (wine background, bone text) ---------- */
 .hero{
   position:relative;overflow:hidden;text-align:center;
-  padding:6rem 1rem 6.5rem;
+  padding:7rem 1rem 8.5rem;
   background:linear-gradient(135deg, var(--wine) 0%, var(--wine-deep) 100%);
   color:var(--bone);
 }
