@@ -14,6 +14,7 @@ import { ReadingComprehensionStep } from './ReadingComprehensionStep';
 import { ListeningComprehensionStep } from './ListeningComprehensionStep';
 import { SpeakingPracticeStep } from './SpeakingPracticeStep';
 import { WritingPracticeStep } from './WritingPracticeStep';
+import { AssessmentModal } from '../Assessment/AssessmentModal';
 
 const CLASS_SKILLS: ClassSkill[] = ['listening', 'reading', 'grammar_syntax', 'vocabulary', 'speaking', 'writing'];
 
@@ -60,6 +61,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewResults, setReviewResults] = useState<boolean[]>([]);
   const [startedAt] = useState(() => Date.now());
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
 
   useEffect(() => {
     if (!skill || !level || !learningLanguage) return;
@@ -212,6 +214,16 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
                 </button>
               ))}
             </div>
+            <p style={{ marginBottom: '1.4rem' }}>
+              <button
+                type="button"
+                className="btn-linklike"
+                onClick={() => setAssessmentOpen(true)}
+                style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
+              >
+                {uiLanguage === 'es' ? '¿No sabes tu nivel? Haz un test rápido' : "Don't know your level? Take a quick test"}
+              </button>
+            </p>
             <button
               type="button"
               className="btn-linklike"
@@ -222,6 +234,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </div>
+        {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
       </div>
     );
   }
