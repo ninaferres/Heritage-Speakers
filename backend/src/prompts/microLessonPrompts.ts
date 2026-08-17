@@ -12,6 +12,7 @@ const COMMON_RULES = `Rules:
 - Never use emojis anywhere in the output.
 - Spell out any numbers as words, never digits.
 - All explanations, translations, instructions, and questions must be written in {interfaceLang} (the learner's interface language); all target-language content must be in {target}.
+- CRITICAL — script: any field holding target-language content (a sentence, a word, an example) MUST be written in {target}'s own native script (e.g. Cyrillic for Russian, standard orthography for Spanish) — NEVER romanized or transliterated into Latin letters, and never in {interfaceLang}. Any field whose name ends in "Phonetic" holds a separate Latin-alphabet phonetic transliteration of the paired field, to help a learner who reads Latin script more easily sound it out — for a target language that already uses the Latin alphabet, just repeat that text verbatim in the phonetic field.
 - Output must strictly conform to the provided JSON schema. Do not include any text outside the structured output.
 - Make it fresh each time — new content, not the same textbook examples as before.`;
 
@@ -33,10 +34,10 @@ ${levelLine}
 Pick ONE single grammar or syntax concept appropriate to that level (e.g. verb-subject order, adjective agreement, a case ending, ser vs estar, a verb conjugation pattern, a connector word, subjunctive mood, reported speech) and build everything around teaching and reinforcing exactly that one concept — never test something you haven't explained first.
 
 Fill in every field:
-1. grammarTip: a 30-second, jargon-free explanation (title + 1-2 sentence explanation + one example + its translation).
-2. syntaxReorder1/2/3: three DIFFERENT correct ${target} sentences demonstrating the concept, each split into a "words" array IN CORRECT ORDER, each word tagged "verb", "noun", or "other". Include a translation for each.
-3. errorDetection1/2/3: three DIFFERENT ${target} sentences, each tokenized into "words", each containing exactly ONE grammatical error related to the concept. Give the correct index, the correction, and a one-sentence explanation.
-4. cloze1/2/3: three DIFFERENT fill-in-the-blank sentences testing the same concept, each with 4 options and one correct answer.
+1. grammarTip: a 30-second, jargon-free explanation (title + 1-2 sentence explanation + one example in ${target}'s script + its phonetic + its translation).
+2. syntaxReorder1/2/3: three DIFFERENT correct ${target} sentences demonstrating the concept, each split into a "words" array IN CORRECT ORDER, each word tagged "verb", "noun", or "other". Include the full-sentence phonetic and a translation for each.
+3. errorDetection1/2/3: three DIFFERENT ${target} sentences, each tokenized into "words", each containing exactly ONE grammatical error related to the concept. Give the correct index, the correction, a one-sentence explanation, the phonetic of the CORRECTED sentence, and its translation.
+4. cloze1/2/3: three DIFFERENT fill-in-the-blank sentences testing the same concept, each with the sentence frame ("before"/"after") in ${target}'s script plus their phonetics, 4 options and one correct answer, and a translation of the complete correct sentence.
 
 ${rules}`;
   }
@@ -49,10 +50,10 @@ ${levelLine}
 Pick ONE practical vocabulary theme or word family appropriate to that level (e.g. food, family, work verbs, house objects, a prefix/suffix pattern, idiomatic expressions, professional jargon) and build everything around it.
 
 Fill in every field:
-1. grammarTip: a 30-second explanation introducing the theme or word-formation pattern (title + 1-2 sentence explanation + one example word/phrase + its translation).
-2. vocabMatch1/2: two DIFFERENT sets of 5-6 word/translation pairs from the theme.
-3. cloze1-cloze5: five DIFFERENT fill-in-the-blank sentences, each testing one vocabulary word from the theme in natural context, with 4 options and one correct answer.
-4. errorDetection1/2: two DIFFERENT sentences, each tokenized into "words", each containing exactly ONE wrong-word-choice error (a vocabulary mistake, not a grammar mistake) related to the theme. Give the correct index, the correction, and a one-sentence explanation.
+1. grammarTip: a 30-second explanation introducing the theme or word-formation pattern (title + 1-2 sentence explanation + one example word/phrase in ${target}'s script + its phonetic + its translation).
+2. vocabMatch1/2: two DIFFERENT sets of 5-6 word/translation pairs from the theme, each "term" in ${target}'s script plus its phonetic.
+3. cloze1-cloze5: five DIFFERENT fill-in-the-blank sentences, each testing one vocabulary word from the theme in natural context, with the sentence frame ("before"/"after") in ${target}'s script plus their phonetics, 4 options and one correct answer, and a translation of the complete correct sentence.
+4. errorDetection1/2: two DIFFERENT sentences, each tokenized into "words", each containing exactly ONE wrong-word-choice error (a vocabulary mistake, not a grammar mistake) related to the theme. Give the correct index, the correction, a one-sentence explanation, the phonetic of the CORRECTED sentence, and its translation.
 
 ${rules}`;
   }

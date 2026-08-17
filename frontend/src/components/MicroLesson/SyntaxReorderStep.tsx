@@ -88,6 +88,9 @@ export function SyntaxReorderStep({
       {locked ? (
         <>
           <div className="exercise-block" style={{ marginTop: '1.2rem' }}>
+            {content.phonetic && content.phonetic !== content.words.map((w) => w.text).join(' ') && (
+              <p style={{ fontStyle: 'italic', color: 'var(--gold)', margin: '0 0 .4rem' }}>{content.phonetic}</p>
+            )}
             <p style={{ color: 'var(--muted)', margin: 0 }}>{content.translation}</p>
           </div>
           <button className="btn btn-wine" style={{ marginTop: '1rem' }} onClick={() => onComplete(!hadMistake)}>

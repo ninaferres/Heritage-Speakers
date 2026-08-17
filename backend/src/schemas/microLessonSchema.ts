@@ -11,10 +11,11 @@ const grammarTipSchema = {
   properties: {
     title: { type: 'string', description: 'Short name of the concept being taught.' },
     explanation: { type: 'string', description: 'One or two plain-language sentences explaining it. No linguistics jargon.' },
-    example: { type: 'string', description: 'One short example sentence in the target language illustrating it.' },
+    example: { type: 'string', description: 'One short example sentence, in the target language\'s native script (e.g. Cyrillic for Russian) — never romanized.' },
+    examplePhonetic: { type: 'string', description: 'Latin-alphabet phonetic transliteration of "example". For a target language that already uses the Latin alphabet, repeat "example" verbatim.' },
     exampleTranslation: { type: 'string', description: 'Translation of the example sentence into the interface language.' },
   },
-  required: ['title', 'explanation', 'example', 'exampleTranslation'],
+  required: ['title', 'explanation', 'example', 'examplePhonetic', 'exampleTranslation'],
   additionalProperties: false,
 };
 
@@ -26,10 +27,11 @@ const vocabMatchSchema = {
       items: {
         type: 'object',
         properties: {
-          term: { type: 'string', description: 'A word in the target language.' },
+          term: { type: 'string', description: 'A word in the target language\'s native script (e.g. Cyrillic for Russian) — never romanized.' },
+          termPhonetic: { type: 'string', description: 'Latin-alphabet phonetic transliteration of "term". For a target language that already uses the Latin alphabet, repeat "term" verbatim.' },
           match: { type: 'string', description: 'Its translation into the interface language.' },
         },
-        required: ['term', 'match'],
+        required: ['term', 'termPhonetic', 'match'],
         additionalProperties: false,
       },
       minItems: 5,
@@ -54,34 +56,40 @@ const syntaxReorderSchema = {
   type: 'object',
   properties: {
     instruction: { type: 'string', description: 'Short instruction, e.g. "Order the words into a correct sentence."' },
-    words: { type: 'array', items: syntaxWordSchema, minItems: 3, maxItems: 8, description: 'The words of one correct target-language sentence, IN CORRECT ORDER (the frontend shuffles them for display).' },
+    words: { type: 'array', items: syntaxWordSchema, minItems: 3, maxItems: 8, description: 'The words of one correct sentence in the target language\'s native script (e.g. Cyrillic for Russian) — never romanized, IN CORRECT ORDER (the frontend shuffles them for display).' },
+    phonetic: { type: 'string', description: 'Latin-alphabet phonetic transliteration of the full correct sentence (words in order). For a target language that already uses the Latin alphabet, repeat the sentence verbatim.' },
     translation: { type: 'string', description: 'Translation of the full correct sentence.' },
   },
-  required: ['instruction', 'words', 'translation'],
+  required: ['instruction', 'words', 'phonetic', 'translation'],
   additionalProperties: false,
 };
 
 const errorDetectionSchema = {
   type: 'object',
   properties: {
-    words: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 10, description: 'The sentence tokenized into words/punctuation, containing exactly one error.' },
+    words: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 10, description: 'The sentence tokenized into words/punctuation, IN THE TARGET LANGUAGE\'S NATIVE SCRIPT (e.g. Cyrillic for Russian) — never romanized, containing exactly one error.' },
     incorrectWordIndex: { type: 'integer', description: 'The 0-based index into the "words" array of the single incorrect word. MUST be a valid index (0 to words.length - 1) and MUST point at a word that is actually present in "words".' },
     correction: { type: 'string', description: 'The correct replacement for that word.' },
     explanation: { type: 'string', description: 'One short sentence explaining why it was wrong.' },
+    phonetic: { type: 'string', description: 'Latin-alphabet phonetic transliteration of the full CORRECTED sentence (with "correction" applied). For a target language that already uses the Latin alphabet, repeat the corrected sentence verbatim.' },
+    translation: { type: 'string', description: 'Translation of the full corrected sentence into the interface language.' },
   },
-  required: ['words', 'incorrectWordIndex', 'correction', 'explanation'],
+  required: ['words', 'incorrectWordIndex', 'correction', 'explanation', 'phonetic', 'translation'],
   additionalProperties: false,
 };
 
 const clozeSchema = {
   type: 'object',
   properties: {
-    before: { type: 'string', description: 'The sentence text before the blank.' },
-    after: { type: 'string', description: 'The sentence text after the blank.' },
-    options: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4, description: 'Four options to fill the blank, exactly one correct.' },
+    before: { type: 'string', description: 'The sentence text before the blank, in the target language\'s native script (e.g. Cyrillic for Russian) — never romanized.' },
+    beforePhonetic: { type: 'string', description: 'Latin-alphabet phonetic transliteration of "before". For a target language that already uses the Latin alphabet, repeat "before" verbatim.' },
+    after: { type: 'string', description: 'The sentence text after the blank, in the target language\'s native script (e.g. Cyrillic for Russian) — never romanized.' },
+    afterPhonetic: { type: 'string', description: 'Latin-alphabet phonetic transliteration of "after". For a target language that already uses the Latin alphabet, repeat "after" verbatim.' },
+    options: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4, description: 'Four options to fill the blank, in the target language\'s native script, exactly one correct.' },
     answer: { type: 'string', description: 'The correct option, verbatim matching one of "options".' },
+    translation: { type: 'string', description: 'Translation of the complete correct sentence (blank filled with "answer") into the interface language.' },
   },
-  required: ['before', 'after', 'options', 'answer'],
+  required: ['before', 'beforePhonetic', 'after', 'afterPhonetic', 'options', 'answer', 'translation'],
   additionalProperties: false,
 };
 

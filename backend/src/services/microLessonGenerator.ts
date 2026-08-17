@@ -7,10 +7,11 @@ interface GrammarTipContent {
   title: string;
   explanation: string;
   example: string;
+  examplePhonetic: string;
   exampleTranslation: string;
 }
 interface VocabMatchContent {
-  pairs: { term: string; match: string }[];
+  pairs: { term: string; termPhonetic: string; match: string }[];
 }
 interface SyntaxWord {
   text: string;
@@ -19,6 +20,7 @@ interface SyntaxWord {
 interface SyntaxReorderContent {
   instruction: string;
   words: SyntaxWord[];
+  phonetic: string;
   translation: string;
 }
 interface ErrorDetectionContent {
@@ -26,12 +28,17 @@ interface ErrorDetectionContent {
   incorrectWordIndex: number;
   correction: string;
   explanation: string;
+  phonetic: string;
+  translation: string;
 }
 interface ClozeContent {
   before: string;
+  beforePhonetic: string;
   after: string;
+  afterPhonetic: string;
   options: string[];
   answer: string;
+  translation: string;
 }
 interface ComprehensionQuestion {
   question: string;

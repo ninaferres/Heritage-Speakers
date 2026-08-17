@@ -19,7 +19,7 @@ export function VocabMatchStep({
   uiLanguage: 'en' | 'es';
   onComplete: (correct: boolean) => void;
 }) {
-  const [terms] = useState(() => shuffle(content.pairs.map((p, i) => ({ id: i, text: p.term }))));
+  const [terms] = useState(() => shuffle(content.pairs.map((p, i) => ({ id: i, text: p.term, phonetic: p.termPhonetic }))));
   const [matches] = useState(() => shuffle(content.pairs.map((p, i) => ({ id: i, text: p.match }))));
   const [selectedTerm, setSelectedTerm] = useState<number | null>(null);
   const [selectedMatch, setSelectedMatch] = useState<number | null>(null);
@@ -71,7 +71,10 @@ export function VocabMatchStep({
               disabled={matchedIds.has(t.id)}
               onClick={() => pickTerm(t.id)}
             >
-              {t.text}
+              <span>{t.text}</span>
+              {t.phonetic && t.phonetic !== t.text && (
+                <span style={{ display: 'block', fontStyle: 'italic', fontWeight: 400, fontSize: '.8em', opacity: 0.8 }}>{t.phonetic}</span>
+              )}
             </button>
           ))}
         </div>

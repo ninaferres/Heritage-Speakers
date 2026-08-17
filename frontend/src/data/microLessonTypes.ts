@@ -4,10 +4,11 @@ export interface GrammarTipContent {
   title: string;
   explanation: string;
   example: string;
+  examplePhonetic: string;
   exampleTranslation: string;
 }
 export interface VocabMatchContent {
-  pairs: { term: string; match: string }[];
+  pairs: { term: string; termPhonetic: string; match: string }[];
 }
 export interface SyntaxWord {
   text: string;
@@ -16,6 +17,7 @@ export interface SyntaxWord {
 export interface SyntaxReorderContent {
   instruction: string;
   words: SyntaxWord[];
+  phonetic: string;
   translation: string;
 }
 export interface ErrorDetectionContent {
@@ -23,12 +25,17 @@ export interface ErrorDetectionContent {
   incorrectWordIndex: number;
   correction: string;
   explanation: string;
+  phonetic: string;
+  translation: string;
 }
 export interface ClozeContent {
   before: string;
+  beforePhonetic: string;
   after: string;
+  afterPhonetic: string;
   options: string[];
   answer: string;
+  translation: string;
 }
 export interface ComprehensionQuestion {
   question: string;

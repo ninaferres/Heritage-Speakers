@@ -67,7 +67,13 @@ export function ErrorDetectionStep({
             <p style={{ margin: 0 }}>
               <strong style={{ color: '#2e7d32' }}>{content.correction}</strong>
             </p>
+            {content.phonetic && content.phonetic !== content.correction && (
+              <p style={{ fontStyle: 'italic', color: 'var(--gold)', margin: '.3rem 0 0' }}>{content.phonetic}</p>
+            )}
             <p style={{ color: 'var(--muted)', marginTop: '.4rem', marginBottom: 0 }}>{content.explanation}</p>
+            {content.translation && (
+              <p style={{ color: 'var(--muted)', marginTop: '.4rem', marginBottom: 0 }}>{content.translation}</p>
+            )}
           </div>
           <button className="btn btn-wine" style={{ marginTop: '1rem' }} onClick={() => onComplete(!hadMistake)}>
             {uiLanguage === 'es' ? 'Continuar' : 'Continue'}

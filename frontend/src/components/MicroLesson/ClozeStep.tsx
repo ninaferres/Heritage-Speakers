@@ -22,6 +22,12 @@ export function ClozeStep({
       <h4>
         {content.before} <span style={{ display: 'inline-block', minWidth: '70px', borderBottom: '2px solid var(--gold)' }}>&nbsp;</span> {content.after}
       </h4>
+      {(content.beforePhonetic || content.afterPhonetic) &&
+        (content.beforePhonetic !== content.before || content.afterPhonetic !== content.after) && (
+          <p style={{ fontStyle: 'italic', color: 'var(--gold)', marginTop: '.2rem' }}>
+            {content.beforePhonetic} … {content.afterPhonetic}
+          </p>
+        )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '.7rem', marginTop: '1rem' }}>
         {content.options.map((option) => {
@@ -62,9 +68,14 @@ export function ClozeStep({
       </div>
 
       {selected && (
-        <button className="btn btn-wine" style={{ marginTop: '1.5rem' }} onClick={() => onComplete(selected === content.answer)}>
-          {uiLanguage === 'es' ? 'Continuar' : 'Continue'}
-        </button>
+        <>
+          {content.translation && (
+            <p style={{ color: 'var(--muted)', marginTop: '1.2rem' }}>{content.translation}</p>
+          )}
+          <button className="btn btn-wine" style={{ marginTop: '.5rem' }} onClick={() => onComplete(selected === content.answer)}>
+            {uiLanguage === 'es' ? 'Continuar' : 'Continue'}
+          </button>
+        </>
       )}
     </div>
   );
