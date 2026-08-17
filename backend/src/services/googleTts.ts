@@ -22,14 +22,29 @@ function escapeXml(text: string): string {
     .replace(/'/g, '&apos;');
 }
 
-// Plain text fed straight to Neural2 tends to come out clipped and sing-songy — it has no cues
-// for where a real speaker would pause. Inserting short breaks at line breaks (speaker turns in
-// dialogues), sentence ends, and commas gives it a more natural, less robotic cadence.
+// Chirp 3 HD is a fully generative voice model — unlike the older Neural2/Wavenet voices, it
+// already paces and pauses like a real speaker on its own, and it only supports a small subset
+// of SSML (<p>, <s>, <say-as>, <phoneme>, <sub> — notably not <break>). So instead of manually
+// injecting <break> pauses, we just mark paragraph and sentence boundaries with <p>/<s> and let
+// the model handle the actual rhythm.
 function toSsml(text: string): string {
-  const body = escapeXml(text)
-    .replace(/\n+/g, '<break time="450ms"/> ')
-    .replace(/([.!?])(\s+|$)/g, '$1<break time="350ms"/> ')
-    .replace(/,(\s+)/g, ',<break time="150ms"/> ');
+  const paragraphs = escapeXml(text)
+    .split(/\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const body = paragraphs
+    .map((para) => {
+      const sentences = para
+        .split(/(?<=[.!?])\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => `<s>${s}</s>`)
+        .join('');
+      return `<p>${sentences}</p>`;
+    })
+    .join('');
+
   return `<speak>${body}</speak>`;
 }
 
@@ -48,8 +63,8 @@ export async function synthesizeSpeech(text: string, accent: string): Promise<Bu
     body: JSON.stringify({
       input: { ssml: toSsml(text) },
       voice: { languageCode: languageCodeFromVoice(voiceName), name: voiceName },
-      // Slightly slower than default (1.0) reads as calmer and more natural on Neural2 —
-      // at normal speed it tends to rush and over-emphasize pitch swings.
+      // Slightly slower than default (1.0) reads as calmer and more deliberate, matching a
+      // teacher speaking clearly rather than a fast native pace.
       audioConfig: { audioEncoding: 'MP3', speakingRate: 0.93 },
     }),
   });

@@ -361,6 +361,11 @@ footer .brand svg{width:50px;height:35px;display:block}
 footer .brand-name{color:var(--bone);font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.2px;line-height:0.9;transform:translateY(2px)}
 footer .langs{font-size:.92rem;color:var(--gold);font-weight:600;letter-spacing:.2px}
 footer .copy{font-size:.86rem;color:rgba(250,247,243,.48);width:100%;text-align:center;margin-top:1.5rem;border-top:1px solid rgba(184,147,90,.18);padding-top:1.5rem;font-weight:400}
+.footer-instagram{
+  display:inline-flex;align-items:center;gap:.35rem;margin-left:.8rem;
+  color:var(--gold);text-decoration:none;font-weight:600;
+}
+.footer-instagram:hover{text-decoration:underline}
 
 /* ---------- auth modal ---------- */
 .modal-overlay{position:fixed;inset:0;background:rgba(36,28,26,.45);backdrop-filter:blur(3px);z-index:900;display:flex;align-items:center;justify-content:center;padding:1.5rem}

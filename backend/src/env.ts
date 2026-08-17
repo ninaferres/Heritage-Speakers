@@ -30,10 +30,12 @@ export const env = {
   // Only two voices needed: Peninsular Spanish and one Russian voice — no per-country Latin
   // American rotation, since Google doesn't offer distinct MX/AR/CO voices (they'd all share
   // the same generic es-US model), so we don't pretend otherwise.
+  // Chirp 3 HD is Google's newest, most natural-sounding voice generation (replaces the older,
+  // more mechanical Neural2/Wavenet voices used previously).
   googleTtsApiKey: optional('GOOGLE_TTS_API_KEY'),
   googleTtsVoices: {
-    'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Neural2-A',
-    'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Wavenet-A',
+    'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Chirp3-HD-Kore',
+    'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Chirp3-HD-Kore',
   } as Record<string, string | undefined>,
 };
 
