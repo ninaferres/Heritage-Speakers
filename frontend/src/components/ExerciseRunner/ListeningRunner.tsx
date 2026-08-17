@@ -103,17 +103,15 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
         </div>
       </div>
 
-      {/* Audio player (shown on first question only) */}
-      {currentQuestionIndex === 0 && (
-        <div className="exercise-block" style={{ borderLeftColor: 'var(--wine)', marginBottom: '2rem' }}>
-          <h4>{getString('listening.audio', uiLanguage)}</h4>
-          <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-gold btn-small" onClick={playAudio} disabled={isPlaying}>
-              {isPlaying ? getString('listening.playing', uiLanguage) : getString('listening.play', uiLanguage)}
-            </button>
-          </div>
+      {/* Audio player — available on every question so learners can replay before answering */}
+      <div className="exercise-block" style={{ borderLeftColor: 'var(--wine)', marginBottom: '2rem' }}>
+        <h4>{getString('listening.audio', uiLanguage)}</h4>
+        <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button className="btn btn-gold btn-small" onClick={playAudio} disabled={isPlaying}>
+            {isPlaying ? getString('listening.playing', uiLanguage) : getString('listening.play', uiLanguage)}
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Current question */}
       <div key={currentQuestionIndex} className="exercise-question" style={{ flex: 1 }}>
