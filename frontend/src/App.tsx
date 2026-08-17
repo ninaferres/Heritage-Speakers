@@ -18,9 +18,9 @@ export default function App() {
         <Header />
         <Hero />
         <BenefitsSection />
+        <HowItWorksSection />
         <PathsSection />
         <LevelsIntroSection />
-        <HowItWorksSection />
         <LevelAssessmentSection />
         <ExamModeSection />
         <FinalCtaSection />
