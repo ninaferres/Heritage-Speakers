@@ -109,7 +109,10 @@ export function SpeakingPracticeStep({
     <div className="exercise-question">
       <div className="exercise-block" style={{ borderLeftColor: 'var(--wine)' }}>
         <h4>{uiLanguage === 'es' ? 'Responde en voz alta' : 'Answer out loud'}</h4>
-        <p style={{ fontSize: '1.05rem', fontWeight: 600, marginBottom: '.3rem' }}>{content.prompt}</p>
+        <p style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '.2rem' }}>{content.prompt}</p>
+        {content.promptPhonetic && content.promptPhonetic !== content.prompt && (
+          <p style={{ fontStyle: 'italic', color: 'var(--gold)', marginBottom: '.4rem' }}>{content.promptPhonetic}</p>
+        )}
         <p style={{ color: 'var(--muted)', margin: 0 }}>{content.promptTranslation}</p>
         <button className="btn btn-gold btn-small" style={{ marginTop: '1rem' }} onClick={() => play('prompt', content.prompt)} disabled={playingWhich !== null}>
           {playingWhich === 'prompt' ? (uiLanguage === 'es' ? 'Reproduciendo…' : 'Playing…') : (uiLanguage === 'es' ? 'Escuchar pregunta' : 'Listen to the question')}
@@ -128,7 +131,10 @@ export function SpeakingPracticeStep({
       ) : (
         <div className="exercise-block" style={{ borderLeftColor: 'var(--gold)', marginBottom: '1.2rem' }}>
           <h4>{uiLanguage === 'es' ? 'Respuesta modelo' : 'Model answer'}</h4>
-          <p style={{ fontWeight: 600, marginBottom: '.3rem' }}>{content.modelAnswer}</p>
+          <p style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '.2rem' }}>{content.modelAnswer}</p>
+          {content.modelAnswerPhonetic && content.modelAnswerPhonetic !== content.modelAnswer && (
+            <p style={{ fontStyle: 'italic', color: 'var(--gold)', marginBottom: '.4rem' }}>{content.modelAnswerPhonetic}</p>
+          )}
           <p style={{ color: 'var(--muted)', margin: 0 }}>{content.modelAnswerTranslation}</p>
           <button className="btn btn-gold btn-small" style={{ marginTop: '1rem' }} onClick={() => play('model', content.modelAnswer)} disabled={playingWhich !== null}>
             {playingWhich === 'model' ? (uiLanguage === 'es' ? 'Reproduciendo…' : 'Playing…') : (uiLanguage === 'es' ? 'Escuchar respuesta modelo' : 'Listen to the model answer')}

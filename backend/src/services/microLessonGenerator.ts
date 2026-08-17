@@ -48,8 +48,10 @@ interface ListeningComprehensionContent {
 }
 interface SpeakingPromptContent {
   prompt: string;
+  promptPhonetic: string;
   promptTranslation: string;
   modelAnswer: string;
+  modelAnswerPhonetic: string;
   modelAnswerTranslation: string;
 }
 interface WritingPromptContent {

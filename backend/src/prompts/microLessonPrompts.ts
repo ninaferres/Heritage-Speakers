@@ -94,7 +94,9 @@ Pick ONE everyday conversational theme appropriate to that level (e.g. introduci
 
 Fill in every field:
 1. grammarTip: a 30-second, reassuring explanation of one useful conversational phrase or sentence pattern for this theme (title + 1-2 sentence explanation + one example + its translation).
-2. speakingPrompt1-speakingPrompt4: four DIFFERENT short, natural-sounding conversational prompts on the theme (a simple question or instruction a learner at this level could answer in one or two spoken sentences, phrased the way someone would actually say it in conversation, not a textbook question), each with its translation, PLUS a short natural modelAnswer showing what a good spoken answer sounds like, with its translation. The model answer must be simple enough that a nervous speaker at this level could imitate it.
+2. speakingPrompt1-speakingPrompt4: four DIFFERENT short, natural-sounding conversational prompts on the theme (a simple question or instruction a learner at this level could answer in one or two spoken sentences, phrased the way someone would actually say it in conversation, not a textbook question), PLUS a short natural modelAnswer showing what a good spoken answer sounds like. The model answer must be simple enough that a nervous speaker at this level could imitate it.
+
+CRITICAL — script: "prompt" and "modelAnswer" must be written in ${target}'s own native script (Cyrillic for Russian, standard orthography for Spanish) — never romanized. Separately, fill "promptPhonetic" and "modelAnswerPhonetic" with a Latin-alphabet phonetic transliteration of that same text, so a learner who reads the Latin alphabet more easily than ${target}'s script can still sound it out (for Spanish, which already uses the Latin alphabet, just repeat the text verbatim in the phonetic field). Then "promptTranslation" and "modelAnswerTranslation" carry the meaning in the interface language. All three — native script, phonetic transliteration, and translation — must be filled for every prompt.
 
 ${rules}`;
   }

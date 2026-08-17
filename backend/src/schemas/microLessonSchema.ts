@@ -119,12 +119,14 @@ const listeningComprehensionSchema = {
 const speakingPromptSchema = {
   type: 'object',
   properties: {
-    prompt: { type: 'string', description: 'A short, simple question or instruction in the target language, easy enough for a nervous beginner to answer in one or two sentences.' },
+    prompt: { type: 'string', description: 'A short, simple question or instruction, easy enough for a nervous beginner to answer in one or two sentences. MUST be written in the target language\'s native script (e.g. Cyrillic for Russian) — never romanized/transliterated.' },
+    promptPhonetic: { type: 'string', description: 'A Latin-alphabet phonetic transliteration of "prompt", to help pronunciation. For a target language that already uses the Latin alphabet (e.g. Spanish), just repeat "prompt" verbatim here.' },
     promptTranslation: { type: 'string', description: 'Translation of the prompt into the interface language.' },
-    modelAnswer: { type: 'string', description: 'A short, natural example answer in the target language a learner could say.' },
+    modelAnswer: { type: 'string', description: 'A short, natural example answer a learner could say. MUST be written in the target language\'s native script (e.g. Cyrillic for Russian) — never romanized/transliterated.' },
+    modelAnswerPhonetic: { type: 'string', description: 'A Latin-alphabet phonetic transliteration of "modelAnswer", to help pronunciation. For a target language that already uses the Latin alphabet (e.g. Spanish), just repeat "modelAnswer" verbatim here.' },
     modelAnswerTranslation: { type: 'string', description: 'Translation of the model answer into the interface language.' },
   },
-  required: ['prompt', 'promptTranslation', 'modelAnswer', 'modelAnswerTranslation'],
+  required: ['prompt', 'promptPhonetic', 'promptTranslation', 'modelAnswer', 'modelAnswerPhonetic', 'modelAnswerTranslation'],
   additionalProperties: false,
 };
 

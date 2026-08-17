@@ -45,8 +45,10 @@ export interface ListeningComprehensionContent {
 }
 export interface SpeakingPromptContent {
   prompt: string;
+  promptPhonetic: string;
   promptTranslation: string;
   modelAnswer: string;
+  modelAnswerPhonetic: string;
   modelAnswerTranslation: string;
 }
 export interface WritingPromptContent {
