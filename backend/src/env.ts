@@ -18,7 +18,7 @@ export const env = {
   openaiApiKey: optional('OPENAI_API_KEY'),
   openaiModel: optional('OPENAI_MODEL') ?? 'gpt-4o',
   groqApiKey: optional('GROQ_API_KEY'),
-  groqModel: optional('GROQ_MODEL') ?? 'llama-3.3-70b-versatile',
+  groqModel: optional('GROQ_MODEL') ?? 'openai/gpt-oss-120b',
 
   // Simple shared-secret gate for reading submitted feedback (GET /api/feedback) — there's no
   // admin role in the app yet, so this is the lightweight phase-1 stand-in.
