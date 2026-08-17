@@ -142,6 +142,22 @@ to sensible built-in values (`AZURE_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` /
 `_RU_MOSCOW` can override them) — see the
 [voice gallery](https://speech.microsoft.com/portal/voicegallery) to pick different ones.
 
+### 5. Welcome emails (optional)
+
+Sign up at [resend.com](https://resend.com) (free tier) and set `RESEND_API_KEY`.
+`RESEND_FROM_EMAIL` defaults to Resend's shared `onboarding@resend.dev` sender,
+which works immediately but only delivers to the account's own verified email
+while testing — verify a domain in Resend and point `RESEND_FROM_EMAIL` at it
+(e.g. `Heritage Speakers <hello@yourdomain.com>`) to send to real users. Without
+`RESEND_API_KEY`, sign-up still works — the welcome email is skipped silently.
+
+### 6. Feedback mailbox (optional)
+
+The feedback widget's `POST /api/feedback` always works and writes to a local
+`backend/data/feedback.json` file (no database yet). Set `FEEDBACK_ADMIN_KEY` to
+any secret string to enable reading submissions back via
+`GET /api/feedback` with header `x-admin-key: <that secret>`.
+
 ### Running locally
 
 ```bash

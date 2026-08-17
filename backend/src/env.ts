@@ -29,6 +29,9 @@ export const env = {
   // admin role in the app yet, so this is the lightweight phase-1 stand-in.
   feedbackAdminKey: optional('FEEDBACK_ADMIN_KEY'),
 
+  resendApiKey: optional('RESEND_API_KEY'),
+  resendFromEmail: optional('RESEND_FROM_EMAIL') ?? 'Heritage Speakers <onboarding@resend.dev>',
+
   azureVoices: {
     'es-ES': optional('AZURE_VOICE_ES') ?? 'es-ES-ElviraNeural',
     'es-MX': optional('AZURE_VOICE_MX') ?? 'es-MX-DaliaNeural',
@@ -48,3 +51,4 @@ export const isGradingConfigured =
       : Boolean(env.groqApiKey);
 export const isSttConfigured = Boolean(env.groqApiKey || env.openaiApiKey);
 export const isTtsConfigured = Boolean(env.azureSpeechKey);
+export const isResendConfigured = Boolean(env.resendApiKey);

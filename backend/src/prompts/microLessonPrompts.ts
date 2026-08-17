@@ -1,6 +1,6 @@
 export type MicroLessonLanguage = 'es' | 'ru';
 export type UiLanguage = 'en' | 'es';
-export type ClassSkill = 'listening' | 'reading' | 'grammar_syntax' | 'vocabulary';
+export type ClassSkill = 'listening' | 'reading' | 'grammar_syntax' | 'vocabulary' | 'speaking';
 
 const LANGUAGE_NAME: Record<MicroLessonLanguage, string> = { es: 'Spanish', ru: 'Russian' };
 const UI_LANGUAGE_NAME: Record<UiLanguage, string> = { en: 'English', es: 'Spanish' };
@@ -62,14 +62,26 @@ Fill in every field:
 ${rules}`;
   }
 
-  // listening
-  return `You are a warm, encouraging teacher building today's "Listening" daily practice (10-15 minutes) for a beginner-to-intermediate learner of ${target}.
+  if (skill === 'listening') {
+    return `You are a warm, encouraging teacher building today's "Listening" daily practice (10-15 minutes) for a beginner-to-intermediate learner of ${target}.
 
 Pick ONE listening strategy or focus (e.g. catching numbers/times, recognizing connector words, following a dialogue's turn-taking) and build everything around it.
 
 Fill in every field:
 1. grammarTip: a 30-second explanation of the listening strategy (title + 1-2 sentence explanation + one example phrase + its translation).
 2. listening1-listening5: five DIFFERENT short transcripts (dialogue or monologue, written exactly as it should be read aloud, real-world situations), each with exactly 2 comprehension questions (4 options each, one correct) answerable directly from that transcript.
+
+${rules}`;
+  }
+
+  // speaking
+  return `You are a warm, encouraging teacher building today's "Speaking" daily practice (10-15 minutes) for a learner of ${target} who understands the language but often struggles to produce it out loud — some are near-total beginners at speaking, so nothing here should assume confidence.
+
+Pick ONE simple, everyday conversational theme (e.g. introducing yourself, ordering food, asking for directions, talking about your day, making small talk) and build everything around it.
+
+Fill in every field:
+1. grammarTip: a 30-second, reassuring explanation of one useful phrase or sentence pattern for this theme (title + 1-2 sentence explanation + one example + its translation).
+2. speakingPrompt1-speakingPrompt4: four DIFFERENT short, low-pressure speaking prompts on the theme (a simple question or instruction a beginner could answer in one or two short sentences), each with its translation, PLUS a short natural modelAnswer showing what a good spoken answer sounds like, with its translation. The model answer must be short and simple enough that a nervous beginner could imitate it.
 
 ${rules}`;
 }

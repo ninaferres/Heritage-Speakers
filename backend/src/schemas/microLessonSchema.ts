@@ -116,6 +116,33 @@ const listeningComprehensionSchema = {
   additionalProperties: false,
 };
 
+const speakingPromptSchema = {
+  type: 'object',
+  properties: {
+    prompt: { type: 'string', description: 'A short, simple question or instruction in the target language, easy enough for a nervous beginner to answer in one or two sentences.' },
+    promptTranslation: { type: 'string', description: 'Translation of the prompt into the interface language.' },
+    modelAnswer: { type: 'string', description: 'A short, natural example answer in the target language a learner could say.' },
+    modelAnswerTranslation: { type: 'string', description: 'Translation of the model answer into the interface language.' },
+  },
+  required: ['prompt', 'promptTranslation', 'modelAnswer', 'modelAnswerTranslation'],
+  additionalProperties: false,
+};
+
+export const speakingLessonSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string', description: 'Short lesson title (2-5 words), in the interface language.' },
+    grammarConcept: { type: 'string', description: 'The conversational theme this lesson centers on (e.g. introducing yourself, ordering food, asking for directions).' },
+    grammarTip: grammarTipSchema,
+    speakingPrompt1: speakingPromptSchema,
+    speakingPrompt2: speakingPromptSchema,
+    speakingPrompt3: speakingPromptSchema,
+    speakingPrompt4: speakingPromptSchema,
+  },
+  required: ['title', 'grammarConcept', 'grammarTip', 'speakingPrompt1', 'speakingPrompt2', 'speakingPrompt3', 'speakingPrompt4'],
+  additionalProperties: false,
+};
+
 export const grammarSyntaxLessonSchema = {
   type: 'object',
   properties: {

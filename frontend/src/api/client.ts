@@ -113,6 +113,11 @@ export async function fetchDailyMicroLesson(skill: ClassSkill, learningLanguage:
   return res.json();
 }
 
+// Best-effort — a failed welcome email should never block the sign-up flow itself.
+export async function sendWelcomeEmail(uiLanguage: string): Promise<void> {
+  await postJson('/welcome-email', { uiLanguage: uiLanguage === 'es' ? 'es' : 'en' });
+}
+
 export async function submitFeedback(params: {
   category: 'bug' | 'idea' | 'other';
   message: string;

@@ -1,5 +1,5 @@
 import { generateStructuredJSON, GradingNotConfiguredError } from './aiClient.js';
-import { grammarSyntaxLessonSchema, vocabularyLessonSchema, readingLessonSchema, listeningLessonSchema } from '../schemas/microLessonSchema.js';
+import { grammarSyntaxLessonSchema, vocabularyLessonSchema, readingLessonSchema, listeningLessonSchema, speakingLessonSchema } from '../schemas/microLessonSchema.js';
 import { microLessonSystemPrompt, MicroLessonLanguage, UiLanguage, ClassSkill } from '../prompts/microLessonPrompts.js';
 
 interface GrammarTipContent {
@@ -45,6 +45,12 @@ interface ListeningComprehensionContent {
   transcript: string;
   questions: ComprehensionQuestion[];
 }
+interface SpeakingPromptContent {
+  prompt: string;
+  promptTranslation: string;
+  modelAnswer: string;
+  modelAnswerTranslation: string;
+}
 
 export type LessonStep =
   | { id: string; type: 'grammar_tip'; content: GrammarTipContent }
@@ -53,7 +59,8 @@ export type LessonStep =
   | { id: string; type: 'error_detection'; content: ErrorDetectionContent }
   | { id: string; type: 'cloze'; content: ClozeContent }
   | { id: string; type: 'reading_comprehension'; content: ReadingComprehensionContent }
-  | { id: string; type: 'listening_comprehension'; content: ListeningComprehensionContent };
+  | { id: string; type: 'listening_comprehension'; content: ListeningComprehensionContent }
+  | { id: string; type: 'speaking_practice'; content: SpeakingPromptContent };
 
 export interface MicroLesson {
   id: string;
@@ -119,6 +126,15 @@ function assembleListeningSteps(raw: any): LessonStep[] {
     { id: 'listening_5', type: 'listening_comprehension', content: raw.listening5 },
   ];
 }
+function assembleSpeakingSteps(raw: any): LessonStep[] {
+  return [
+    { id: 'grammar_tip', type: 'grammar_tip', content: raw.grammarTip },
+    { id: 'speaking_1', type: 'speaking_practice', content: raw.speakingPrompt1 },
+    { id: 'speaking_2', type: 'speaking_practice', content: raw.speakingPrompt2 },
+    { id: 'speaking_3', type: 'speaking_practice', content: raw.speakingPrompt3 },
+    { id: 'speaking_4', type: 'speaking_practice', content: raw.speakingPrompt4 },
+  ];
+}
 
 export async function getDailyMicroLesson(skill: ClassSkill, learningLanguage: MicroLessonLanguage, uiLanguage: UiLanguage): Promise<MicroLesson> {
   const key = `${todayKey()}:${learningLanguage}:${uiLanguage}:${skill}`;
@@ -139,9 +155,12 @@ export async function getDailyMicroLesson(skill: ClassSkill, learningLanguage: M
   } else if (skill === 'reading') {
     raw = await generateStructuredJSON<any>({ system, user, schema: readingLessonSchema, schemaName: 'reading_lesson' });
     steps = assembleReadingSteps(raw);
-  } else {
+  } else if (skill === 'listening') {
     raw = await generateStructuredJSON<any>({ system, user, schema: listeningLessonSchema, schemaName: 'listening_lesson' });
     steps = assembleListeningSteps(raw);
+  } else {
+    raw = await generateStructuredJSON<any>({ system, user, schema: speakingLessonSchema, schemaName: 'speaking_lesson' });
+    steps = assembleSpeakingSteps(raw);
   }
 
   const lesson: MicroLesson = {

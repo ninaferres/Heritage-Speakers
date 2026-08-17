@@ -11,14 +11,16 @@ import { ErrorDetectionStep } from './ErrorDetectionStep';
 import { ClozeStep } from './ClozeStep';
 import { ReadingComprehensionStep } from './ReadingComprehensionStep';
 import { ListeningComprehensionStep } from './ListeningComprehensionStep';
+import { SpeakingPracticeStep } from './SpeakingPracticeStep';
 
-const CLASS_SKILLS: ClassSkill[] = ['listening', 'reading', 'grammar_syntax', 'vocabulary'];
+const CLASS_SKILLS: ClassSkill[] = ['listening', 'reading', 'grammar_syntax', 'vocabulary', 'speaking'];
 
 const SKILL_LABEL: Record<ClassSkill, { es: string; en: string }> = {
   listening: { es: 'Escucha', en: 'Listening' },
   reading: { es: 'Lectura', en: 'Reading' },
   grammar_syntax: { es: 'Gramática y sintaxis', en: 'Grammar & Syntax' },
   vocabulary: { es: 'Vocabulario', en: 'Vocabulary' },
+  speaking: { es: 'Habla', en: 'Speaking' },
 };
 
 // The exam side keeps its own established skill set (Speaking/Reading/Listening/Writing) —
@@ -33,6 +35,8 @@ function mapToExamSkill(skill: ClassSkill): SkillId {
       return 'Reading';
     case 'grammar_syntax':
       return 'Writing';
+    case 'speaking':
+      return 'Speaking';
   }
 }
 
@@ -155,7 +159,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
           <p style={{ marginBottom: '1.8rem', color: 'var(--muted)' }}>
             {uiLanguage === 'es' ? 'Una práctica corta (10-15 min) centrada solo en esa destreza.' : 'A short (10-15 min) practice focused only on that skill.'}
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
             {CLASS_SKILLS.map((s) => (
               <button
                 key={s}
@@ -191,6 +195,8 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
         return <ReadingComprehensionStep key={step.id} content={step.content} uiLanguage={uiLanguage} onComplete={onComplete} />;
       case 'listening_comprehension':
         return <ListeningComprehensionStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} onComplete={onComplete} />;
+      case 'speaking_practice':
+        return <SpeakingPracticeStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} onComplete={onComplete} />;
     }
   }
 

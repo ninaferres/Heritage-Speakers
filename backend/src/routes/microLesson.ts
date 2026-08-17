@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { getDailyMicroLesson } from '../services/microLessonGenerator.js';
 
 const querySchema = z.object({
-  skill: z.enum(['listening', 'reading', 'grammar_syntax', 'vocabulary']),
+  skill: z.enum(['listening', 'reading', 'grammar_syntax', 'vocabulary', 'speaking']),
   learningLanguage: z.enum(['es', 'ru']),
   uiLanguage: z.enum(['en', 'es']),
 });

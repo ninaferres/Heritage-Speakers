@@ -93,7 +93,6 @@ export function LevelsSection() {
     <section className="block levels" id="levels">
       <div className="wrap">
         <div className="head">
-          <span className="eyebrow">{uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}</span>
           <h2>{getString('levels.title', uiLanguage)}</h2>
           <p>
             {getString('levels.description', uiLanguage)}
