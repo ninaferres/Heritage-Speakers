@@ -2,7 +2,7 @@ import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { PathsSection } from './components/PathsSection';
 import { LevelAssessmentSection } from './components/LevelAssessmentSection';
-import { LevelsSection } from './components/LevelsSection';
+import { LevelsIntroSection, ExamModeSection } from './components/LevelsSection';
 import { BenefitsSection } from './components/BenefitsSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
 import { FinalCtaSection } from './components/FinalCtaSection';
@@ -17,11 +17,12 @@ export default function App() {
       <MicroLessonGateProvider>
         <Header />
         <Hero />
+        <LevelsIntroSection />
         <PathsSection />
-        <BenefitsSection />
         <HowItWorksSection />
+        <BenefitsSection />
         <LevelAssessmentSection />
-        <LevelsSection />
+        <ExamModeSection />
         <FinalCtaSection />
         <Footer />
         <FeedbackWidget />

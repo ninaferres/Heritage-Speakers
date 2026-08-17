@@ -86,11 +86,10 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: { es: string; en
   );
 }
 
-export function LevelsSection() {
-  const { learningLanguage, uiLanguage } = useLanguage();
-  const [assessmentOpen, setAssessmentOpen] = useState(false);
+export function LevelsIntroSection() {
+  const { uiLanguage } = useLanguage();
   return (
-    <section className="block levels" id="levels">
+    <section className="block levels" id="levels-intro">
       <div className="wrap">
         <div className="head">
           <h2>{getString('levels.title', uiLanguage)}</h2>
@@ -100,7 +99,17 @@ export function LevelsSection() {
         </div>
 
         <CefrGuide uiLanguage={uiLanguage} />
+      </div>
+    </section>
+  );
+}
 
+export function ExamModeSection() {
+  const { learningLanguage, uiLanguage } = useLanguage();
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
+  return (
+    <section className="block levels" id="levels">
+      <div className="wrap">
         {learningLanguage ? (
           <>
             <span className="eyebrow" style={{ display: 'block', textAlign: 'center', marginBottom: '1.2rem' }}>
