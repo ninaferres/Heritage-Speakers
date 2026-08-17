@@ -201,19 +201,19 @@ section.block{padding:7.5rem 0}
 .block .head p{color:var(--muted);font-size:1.08rem;line-height:1.7;font-weight:400}
 
 .level-assessment{
-  background:linear-gradient(135deg, rgba(107,31,46,.07) 0%, var(--bone) 100%);
+  background:var(--bone);
   text-align:center;padding:6rem 1rem;
 }
 .level-assessment .eyebrow{color:var(--wine);opacity:.65}
 .level-assessment h2{color:var(--wine-ink);font-size:clamp(2rem,5vw,2.7rem);margin:.8rem 0 1.1rem;max-width:24ch;margin-left:auto;margin-right:auto;letter-spacing:-.01em}
 .level-assessment p{color:var(--muted);font-size:1.05rem;line-height:1.7;max-width:58ch;margin:0 auto 2.2rem;font-weight:400}
 
-.levels{background:linear-gradient(180deg, rgba(250,247,243,1) 0%, rgba(107,31,46,.04) 100%)}
+.levels{background:var(--bone)}
 .levels-intro{padding:4.4rem 0 3.6rem}
 .levels-intro .head{margin-bottom:1.8rem}
-.benefits{background:linear-gradient(135deg, rgba(107,31,46,.06) 0%, var(--bone) 100%)}
-.how{background:linear-gradient(135deg, var(--bone) 0%, rgba(107,31,46,.07) 100%)}
-.host{background:linear-gradient(135deg, rgba(107,31,46,.08) 0%, var(--bone) 100%)}
+.benefits{background:var(--bone)}
+.how{background:var(--bone)}
+.host{background:var(--bone)}
 
 /* ---------- why us: comparison table ---------- */
 .compare-table{max-width:900px;margin:0 auto;border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow)}
