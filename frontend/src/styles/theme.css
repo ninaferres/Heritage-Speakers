@@ -481,9 +481,8 @@ footer .copy{font-size:.86rem;color:rgba(250,247,243,.48);width:100%;text-align:
   .host-card{flex-direction:column;text-align:center;padding:2.2rem;gap:1.6rem}
   .host-avatar{flex:0 0 88px;width:88px;height:88px}
   .compare-head{grid-template-columns:1fr}
-  .compare-head-label.other{display:none}
   .compare-row{grid-template-columns:1fr}
-  .compare-cell.other{display:none}
+  .compare-cell.other{border-bottom:1px solid var(--line)}
   section.block{padding:3.2rem 0}
   .final{padding:4rem 1rem 5rem}
   .nav-panel{max-width:100%}
