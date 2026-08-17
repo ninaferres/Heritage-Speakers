@@ -17,8 +17,8 @@ export default function App() {
       <MicroLessonGateProvider>
         <Header />
         <Hero />
-        <PathsSection />
         <BenefitsSection />
+        <PathsSection />
         <LevelsIntroSection />
         <HowItWorksSection />
         <LevelAssessmentSection />
