@@ -17,10 +17,10 @@ export default function App() {
       <MicroLessonGateProvider>
         <Header />
         <Hero />
-        <LevelsIntroSection />
-        <PathsSection />
-        <HowItWorksSection />
         <BenefitsSection />
+        <LevelsIntroSection />
+        <HowItWorksSection />
+        <PathsSection />
         <LevelAssessmentSection />
         <ExamModeSection />
         <FinalCtaSection />
