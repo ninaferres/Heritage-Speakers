@@ -14,6 +14,39 @@ const ICONS: Record<SkillId, () => JSX.Element> = {
   Writing: WritingIcon,
 };
 
+const CEFR_GUIDE: { level: CefrLevel; es: { label: string; body: string }; en: { label: string; body: string } }[] = [
+  { level: 'A1', es: { label: 'Principiante', body: 'Entiendes y usas expresiones cotidianas muy básicas.' }, en: { label: 'Beginner', body: 'You understand and use very basic everyday expressions.' } },
+  { level: 'A2', es: { label: 'Elemental', body: 'Te comunicas en tareas simples sobre temas familiares.' }, en: { label: 'Elementary', body: 'You communicate in simple, routine tasks on familiar topics.' } },
+  { level: 'B1', es: { label: 'Intermedio', body: 'Te desenvuelves en la mayoría de situaciones y explicas experiencias.' }, en: { label: 'Intermediate', body: 'You handle most everyday situations and describe experiences.' } },
+  { level: 'B2', es: { label: 'Intermedio alto', body: 'Entiendes textos complejos e interactúas con fluidez.' }, en: { label: 'Upper intermediate', body: 'You understand complex text and interact with fluency.' } },
+  { level: 'C1', es: { label: 'Avanzado', body: 'Te expresas con fluidez y espontaneidad en contextos exigentes.' }, en: { label: 'Advanced', body: 'You express yourself fluently and spontaneously in demanding contexts.' } },
+  { level: 'C2', es: { label: 'Dominio', body: 'Entiendes prácticamente todo y te expresas con precisión nativa.' }, en: { label: 'Proficient', body: 'You understand virtually everything and express yourself with native-like precision.' } },
+];
+
+function CefrGuide({ uiLanguage }: { uiLanguage: 'en' | 'es' }) {
+  return (
+    <div className="cefr-guide">
+      <h3 className="cefr-guide-title">
+        {uiLanguage === 'es' ? 'Guía de niveles CEFR' : 'CEFR level guide'}
+      </h3>
+      <p className="cefr-guide-sub">
+        {uiLanguage === 'es'
+          ? 'El marco europeo (A1–C2) que usamos para medir cada destreza por separado.'
+          : 'The European framework (A1–C2) we use to measure each skill separately.'}
+      </p>
+      <div className="cefr-guide-grid">
+        {CEFR_GUIDE.map((g) => (
+          <div className="cefr-guide-card" key={g.level}>
+            <span className="cefr-guide-level">{g.level}</span>
+            <span className="cefr-guide-label">{g[uiLanguage].label}</span>
+            <p>{g[uiLanguage].body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLanguage: 'en' | 'es' }) {
   const [level, setLevel] = useState<CefrLevel>('A1');
   const { requestExercise } = useExerciseGate();
@@ -60,12 +93,14 @@ export function LevelsSection() {
     <section className="block levels" id="levels">
       <div className="wrap">
         <div className="head">
-          <span className="eyebrow">{getString('levels.eyebrow', uiLanguage)}</span>
+          <span className="eyebrow">{uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}</span>
           <h2>{getString('levels.title', uiLanguage)}</h2>
           <p>
             {getString('levels.description', uiLanguage)}
           </p>
         </div>
+
+        <CefrGuide uiLanguage={uiLanguage} />
 
         {learningLanguage ? (
           <>
@@ -76,7 +111,7 @@ export function LevelsSection() {
             </div>
             <p className="footnote">
               <button type="button" className="btn-linklike" onClick={() => setAssessmentOpen(true)} style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}>
-                {uiLanguage === 'es' ? '¿No sabes tu nivel? Haz una evaluación rápida (2 min)' : "Don't know your level? Take a quick 2-minute assessment"}
+                {uiLanguage === 'es' ? '¿No sabes tu nivel en una destreza? Haz un test rápido, elige habla, lectura, escucha o escritura' : "Don't know your level in a skill? Take a quick test, choose speaking, reading, listening, or writing"}
               </button>
             </p>
           </>

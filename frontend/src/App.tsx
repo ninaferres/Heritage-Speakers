@@ -8,6 +8,7 @@ import { FinalCtaSection } from './components/FinalCtaSection';
 import { Footer } from './components/Footer';
 import { ExerciseGateProvider } from './context/ExerciseGateContext';
 import { MicroLessonGateProvider } from './context/MicroLessonGateContext';
+import { FeedbackWidget } from './components/FeedbackWidget';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <HowItWorksSection />
         <FinalCtaSection />
         <Footer />
+        <FeedbackWidget />
       </MicroLessonGateProvider>
     </ExerciseGateProvider>
   );

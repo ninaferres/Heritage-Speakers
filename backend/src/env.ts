@@ -25,6 +25,10 @@ export const env = {
   // actually sound Mexican/Argentine/Colombian instead of all sharing one neutral accent.
   azureSpeechKey: optional('AZURE_SPEECH_KEY'),
   azureSpeechRegion: optional('AZURE_SPEECH_REGION') ?? 'eastus',
+  // Simple shared-secret gate for reading submitted feedback (GET /api/feedback) — there's no
+  // admin role in the app yet, so this is the lightweight phase-1 stand-in.
+  feedbackAdminKey: optional('FEEDBACK_ADMIN_KEY'),
+
   azureVoices: {
     'es-ES': optional('AZURE_VOICE_ES') ?? 'es-ES-ElviraNeural',
     'es-MX': optional('AZURE_VOICE_MX') ?? 'es-MX-DaliaNeural',

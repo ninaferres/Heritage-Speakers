@@ -113,6 +113,20 @@ export async function fetchDailyMicroLesson(skill: ClassSkill, learningLanguage:
   return res.json();
 }
 
+export async function submitFeedback(params: {
+  category: 'bug' | 'idea' | 'other';
+  message: string;
+  contactEmail?: string;
+  uiLanguage?: string;
+  learningLanguage?: string | null;
+  page?: string;
+}): Promise<void> {
+  await postJson('/feedback', {
+    ...params,
+    learningLanguage: params.learningLanguage ? normalizeLearningLanguage(params.learningLanguage) : undefined,
+  });
+}
+
 // Use Azure Speech via backend for high-quality speech synthesis
 export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob> {
   try {
