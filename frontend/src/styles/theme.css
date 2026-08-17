@@ -207,6 +207,7 @@ section.block{padding:4.5rem 0}
 .levels{background:var(--bone)}
 section.levels-intro{padding:3.2rem 0 2.6rem}
 .levels-intro .head{margin-bottom:1.6rem}
+section.exam-mode{padding-top:5.5rem;border-top:1px solid var(--line)}
 .benefits{background:var(--bone)}
 .how{background:var(--bone)}
 .host{background:var(--bone)}

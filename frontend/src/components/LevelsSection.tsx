@@ -125,13 +125,14 @@ export function ExamModeSection() {
   const { learningLanguage, uiLanguage } = useLanguage();
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   return (
-    <section className="block levels" id="levels">
+    <section className="block levels exam-mode" id="levels">
       <div className="wrap">
         {learningLanguage ? (
           <>
-            <span className="eyebrow" style={{ display: 'block', textAlign: 'center', marginBottom: '1.2rem' }}>
-              {uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}
-            </span>
+            <div className="head">
+              <span className="eyebrow">{uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}</span>
+              <h2>{uiLanguage === 'es' ? 'Elige tu destreza y tu nivel exacto' : 'Choose your skill and your exact level'}</h2>
+            </div>
             <div className="level-grid">
               {SKILLS.map((s) => (
                 <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
