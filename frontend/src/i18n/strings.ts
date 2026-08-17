@@ -113,7 +113,6 @@ export type StringKey =
   | 'listening.evaluating'
   | 'listening.checking'
   | 'listening.transcript'
-  | 'listening.unavailable'
   | 'assessSpeaking.start'
   | 'assessSpeaking.recording'
   | 'assessSpeaking.stop'
@@ -270,7 +269,6 @@ export const EN: Record<StringKey, string> = {
   'listening.evaluating': 'Evaluating…',
   'listening.checking': 'Checking listening accuracy…',
   'listening.transcript': 'Transcript',
-  'listening.unavailable': 'Audio playback is not available for this exercise language.',
   'assessSpeaking.start': 'Start Recording',
   'assessSpeaking.recording': 'Recording',
   'assessSpeaking.stop': 'Stop Recording',
@@ -428,7 +426,6 @@ export const ES: Record<StringKey, string> = {
   'listening.evaluating': 'Evaluando…',
   'listening.checking': 'Comprobando comprensión auditiva…',
   'listening.transcript': 'Transcripción',
-  'listening.unavailable': 'La reproducción de audio no está disponible para este idioma de ejercicio.',
   'assessSpeaking.start': 'Comenzar Grabación',
   'assessSpeaking.recording': 'Grabando',
   'assessSpeaking.stop': 'Detener Grabación',

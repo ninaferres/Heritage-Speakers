@@ -1,9 +1,8 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { ListeningExercise, CefrLevel, AccentId } from '../../data/types';
 import { evaluateListening, synthesizeSpeechTTS } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
-import { ACCENTS } from '../../data/accents';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString } from '../../i18n/strings';
 import { AnalyzingMessages } from './AnalyzingMessages';
@@ -11,18 +10,7 @@ import { AnalyzingMessages } from './AnalyzingMessages';
 export function ListeningRunner({ exercise, level, learningLanguage }: { exercise: ListeningExercise; level: CefrLevel; learningLanguage?: string | null }) {
   const { uiLanguage } = useLanguage();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [accent, setAccent] = useState<AccentId | undefined>(() => {
-    if (learningLanguage === 'ru') return 'ru-RU';
-    return exercise.defaultAccent;
-  });
-
-  useEffect(() => {
-    if (learningLanguage === 'ru') {
-      setAccent('ru-RU');
-    } else if (learningLanguage === 'es' && exercise.defaultAccent) {
-      setAccent(exercise.defaultAccent);
-    }
-  }, [learningLanguage, exercise.defaultAccent]);
+  const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
   const [isPlaying, setIsPlaying] = useState(false);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
@@ -35,10 +23,6 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
   const currentAnswered = answers[currentQuestionIndex]?.trim().length > 0;
 
   async function playAudio() {
-    if (!accent) {
-      setError(getString('listening.unavailable', uiLanguage));
-      return;
-    }
     setIsPlaying(true);
     setError(null);
     try {
@@ -124,16 +108,6 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
         <div className="exercise-block" style={{ borderLeftColor: 'var(--wine)', marginBottom: '2rem' }}>
           <h4>{getString('listening.audio', uiLanguage)}</h4>
           <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <select className="accent-select" value={accent} onChange={(e) => setAccent(e.target.value as AccentId)}>
-              {ACCENTS.filter((a) => {
-                // Filter based on current accent selection
-                if (accent?.startsWith('ru')) return a.id.startsWith('ru');
-                if (learningLanguage === 'ru') return a.id.startsWith('ru');
-                return a.id.startsWith('es');
-              }).map((a) => (
-                <option key={a.id} value={a.id}>{a.label}</option>
-              ))}
-            </select>
             <button className="btn btn-gold btn-small" onClick={playAudio} disabled={isPlaying}>
               {isPlaying ? getString('listening.playing', uiLanguage) : getString('listening.play', uiLanguage)}
             </button>

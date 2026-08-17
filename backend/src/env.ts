@@ -20,11 +20,6 @@ export const env = {
   groqApiKey: optional('GROQ_API_KEY'),
   groqModel: optional('GROQ_MODEL') ?? 'llama-3.3-70b-versatile',
 
-  // Azure Speech has genuine per-country neural Spanish voices (unlike Google, whose only
-  // Latin American option is one generic es-US voice shared across every country), so MX/AR/CO
-  // actually sound Mexican/Argentine/Colombian instead of all sharing one neutral accent.
-  azureSpeechKey: optional('AZURE_SPEECH_KEY'),
-  azureSpeechRegion: optional('AZURE_SPEECH_REGION') ?? 'eastus',
   // Simple shared-secret gate for reading submitted feedback (GET /api/feedback) — there's no
   // admin role in the app yet, so this is the lightweight phase-1 stand-in.
   feedbackAdminKey: optional('FEEDBACK_ADMIN_KEY'),
@@ -32,13 +27,13 @@ export const env = {
   resendApiKey: optional('RESEND_API_KEY'),
   resendFromEmail: optional('RESEND_FROM_EMAIL') ?? 'Heritage Speakers <onboarding@resend.dev>',
 
-  azureVoices: {
-    'es-ES': optional('AZURE_VOICE_ES') ?? 'es-ES-ElviraNeural',
-    'es-MX': optional('AZURE_VOICE_MX') ?? 'es-MX-DaliaNeural',
-    'es-AR': optional('AZURE_VOICE_AR') ?? 'es-AR-ElenaNeural',
-    'es-CO': optional('AZURE_VOICE_CO') ?? 'es-CO-SalomeNeural',
-    'ru-RU': optional('AZURE_VOICE_RU') ?? 'ru-RU-SvetlanaNeural',
-    'ru-Moscow': optional('AZURE_VOICE_RU_MOSCOW') ?? 'ru-RU-DmitryNeural',
+  // Only two voices needed: Peninsular Spanish and one Russian voice — no per-country Latin
+  // American rotation, since Google doesn't offer distinct MX/AR/CO voices (they'd all share
+  // the same generic es-US model), so we don't pretend otherwise.
+  googleTtsApiKey: optional('GOOGLE_TTS_API_KEY'),
+  googleTtsVoices: {
+    'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Neural2-A',
+    'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Wavenet-A',
   } as Record<string, string | undefined>,
 };
 
@@ -50,5 +45,5 @@ export const isGradingConfigured =
       ? Boolean(env.openaiApiKey)
       : Boolean(env.groqApiKey);
 export const isSttConfigured = Boolean(env.groqApiKey || env.openaiApiKey);
-export const isTtsConfigured = Boolean(env.azureSpeechKey);
+export const isTtsConfigured = Boolean(env.googleTtsApiKey);
 export const isResendConfigured = Boolean(env.resendApiKey);

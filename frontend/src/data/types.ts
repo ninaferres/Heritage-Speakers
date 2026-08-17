@@ -32,8 +32,8 @@ export interface ListeningAssessmentQuestion {
 }
 export type ExerciseQuestion = OpenQuestion | MultipleChoiceQuestion | MatchingQuestion | SpeakingAssessmentQuestion | ListeningAssessmentQuestion;
 
-/** Regional Spanish accent used for Listening TTS audio (advanced levels rotate through these). */
-export type AccentId = 'es-ES' | 'es-MX' | 'es-AR' | 'es-CO' | 'ru-RU' | 'ru-Moscow';
+/** Voice used for Listening TTS audio: Peninsular Spanish, or the single Russian voice. */
+export type AccentId = 'es-ES' | 'ru-RU';
 
 export interface ReadingExercise {
   skill: 'Reading';
@@ -46,7 +46,6 @@ export interface ListeningExercise {
   title: string;
   /** Script synthesized via the backend TTS endpoint at runtime — not a static audio file. */
   transcript: string;
-  defaultAccent?: AccentId;
   questions: ExerciseQuestion[];
 }
 export interface WritingExercise {

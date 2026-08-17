@@ -6,11 +6,7 @@ const LANGUAGE_NAME: Record<ExerciseLanguage, string> = { es: 'Spanish', ru: 'Ru
 
 const REGIONAL_GUIDANCE: Record<string, string> = {
   'es-ES': 'Write in Peninsular Spanish ONLY: use "vosotros" verb forms when addressing a group (never "ustedes" for that), "vale" as a filler word, and Spain-specific vocabulary (camarero not mesero, móvil not celular, ordenador not computadora, coche not carro, zumo not jugo, patatas not papas). Currency: euros. Do NOT use any Latin American vocabulary, diminutives in -ito/-ita as filler, or "ustedes" as the only plural you-form — this must sound like someone from Spain, not Latin America.',
-  'es-MX': 'Write in Mexican Spanish: use words like "ahorita", "platicar", "jitomate", diminutives (-ito/-ita), and polite service phrasing ("¿Qué se le ofrece?"). Currency: pesos mexicanos. Do not use "vosotros" (Mexican Spanish uses "ustedes").',
-  'es-AR': 'Write in Argentine Spanish: use authentic voseo grammar ("vos tenés", "vos sos", "contame", "vení" — NOT "tú tienes"/"tú eres"), and informal markers like "che", "buenísimo", "una locura" (meaning "amazing/wild"). Currency: pesos argentinos. Do not use "vosotros" or "tú" forms.',
-  'es-CO': 'Write in Colombian Spanish: use discourse markers like "pues", "¿cierto?", "la verdad", "chévere", and polite address. Currency: pesos colombianos. Do not use "vosotros" (Colombian Spanish uses "ustedes").',
   'ru-RU': 'Write in standard Russian (Moscow/central) with a neutral, clear register.',
-  'ru-Moscow': 'Write in standard Russian (Moscow/central) with a neutral, clear register, slightly more informal/colloquial in tone than a formal broadcast register.',
 };
 
 export function levelGuidance(level: CefrLevel): string {

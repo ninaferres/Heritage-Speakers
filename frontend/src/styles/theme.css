@@ -397,7 +397,6 @@ footer .copy{font-size:.86rem;color:rgba(250,247,243,.48);width:100%;text-align:
 .progress-shimmer{position:relative;overflow:hidden}
 .progress-shimmer::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmerSweep 1.6s ease-in-out infinite}
 @keyframes shimmerSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.accent-select{padding:.6rem .9rem;border:1.5px solid var(--wine);border-radius:10px;background:var(--bone);font-family:'Outfit',sans-serif;font-size:.9rem;cursor:pointer}
 
 /* ---------- micro-lesson step widgets ---------- */
 .word-chip{

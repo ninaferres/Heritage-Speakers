@@ -41,20 +41,11 @@ export type GeneratedExercise =
   | ({ skill: 'Writing' } & GeneratedWriting)
   | ({ skill: 'Speaking' } & GeneratedSpeaking)
   | ({ skill: 'Reading' } & GeneratedReading)
-  | ({ skill: 'Listening'; defaultAccent: string } & GeneratedListening);
+  | ({ skill: 'Listening' } & GeneratedListening);
 
-// Rotates which regional accent a Listening exercise uses by level, mirroring the
-// curated static content's rotation, so the AI writes authentic regional flavor
-// (voseo for Argentina, jitomate/pesos for Mexico, etc.) instead of generic Spanish.
-const SPANISH_ACCENT_BY_LEVEL: Record<CefrLevel, string> = {
-  A1: 'es-ES', A2: 'es-MX', B1: 'es-AR', B2: 'es-CO', C1: 'es-ES', C2: 'es-MX',
-};
-const RUSSIAN_ACCENT_BY_LEVEL: Record<CefrLevel, string> = {
-  A1: 'ru-RU', A2: 'ru-Moscow', B1: 'ru-RU', B2: 'ru-Moscow', C1: 'ru-RU', C2: 'ru-Moscow',
-};
-
-function accentForLevel(language: ExerciseLanguage, level: CefrLevel): string {
-  return language === 'ru' ? RUSSIAN_ACCENT_BY_LEVEL[level] : SPANISH_ACCENT_BY_LEVEL[level];
+// One voice per language: Peninsular Spanish, one Russian voice. No regional rotation.
+function accentForLanguage(language: ExerciseLanguage): string {
+  return language === 'ru' ? 'ru-RU' : 'es-ES';
 }
 
 // In-memory cache keyed by day, so every learner sees the same freshly-generated
@@ -76,7 +67,7 @@ export async function getDailyExercise(skill: SkillId, level: CefrLevel, languag
   const cached = cache.get(key);
   if (cached) return cached;
 
-  const accent = skill === 'Listening' ? accentForLevel(language, level) : undefined;
+  const accent = skill === 'Listening' ? accentForLanguage(language) : undefined;
   const system = exerciseSystemPrompt(skill, level, language, accent);
   const user = `Generate today's (${todayKey()}) ${skill} exercise for CEFR level ${level}. Make it fresh and different from a typical textbook example.`;
 
@@ -92,7 +83,7 @@ export async function getDailyExercise(skill: SkillId, level: CefrLevel, languag
     generated = { skill: 'Reading', ...result, questions: withOpenType(result.questions) };
   } else {
     const result = await generateStructuredJSON<GeneratedListening>({ system, user, schema: listeningExerciseSchema, schemaName: 'listening_exercise' });
-    generated = { skill: 'Listening', defaultAccent: accent!, ...result, questions: withOpenType(result.questions) };
+    generated = { skill: 'Listening', ...result, questions: withOpenType(result.questions) };
   }
 
   cache.set(key, generated);

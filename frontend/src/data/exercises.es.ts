@@ -122,7 +122,6 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     title: 'En el Restaurante',
     transcript:
       'CAMARERO: Buenas noches, ¿qué desea?\nCLIENTE: Un café y un bocadillo de jamón.\nCAMARERO: ¿Desea algo más?\nCLIENTE: Sí, un postre de chocolate.\nCAMARERO: Vale, perfecto. Son quince euros.',
-    defaultAccent: 'es-ES',
     questions: [
       { type: 'open', question: '¿Qué pide el cliente?' },
       { type: 'open', question: '¿Cuál es el precio total?', hint: 'Escucha el número' },
@@ -132,8 +131,7 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     skill: 'Listening',
     title: 'Compras en el Mercado',
     transcript:
-      'VENDEDOR: Buenos días, ¿qué va a llevar?\nCLIENTA: Quiero jitomates, lechuga, manzanas y leche.\nVENDEDOR: ¿De qué tamaño las manzanas?\nCLIENTA: Medianas, por favor. También deme ese queso.\nVENDEDOR: Muy bien. Son trescientos pesos en total.',
-    defaultAccent: 'es-MX',
+      'VENDEDOR: Buenos días, ¿qué va a llevar?\nCLIENTA: Quiero tomates, lechuga, manzanas y leche.\nVENDEDOR: ¿De qué tamaño las manzanas?\nCLIENTA: Medianas, por favor. También póngame ese queso.\nVENDEDOR: Muy bien. Son quince euros en total.',
     questions: [
       { type: 'open', question: '¿Qué frutas compra la clienta?' },
       { type: 'open', question: '¿Cuál es el precio total?', hint: 'Escucha el número' },
@@ -143,8 +141,7 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     skill: 'Listening',
     title: 'Entrevista sobre Viajes',
     transcript:
-      'ENTREVISTADOR: Contame, ¿cuál fue tu viaje más memorable?\nPERSONA: Uy, mi viaje a Perú, hace dos años. Fui a Machu Picchu y fue una locura, buenísimo.\nENTREVISTADOR: ¿Y con quién viajaste?\nPERSONA: Con mi familia y unos amigos.\nENTREVISTADOR: ¿Vos pensás volver algún día?\nPERSONA: Sí, seguro que sí. Me encantaría volver.',
-    defaultAccent: 'es-AR',
+      'ENTREVISTADOR: Cuéntame, ¿cuál fue tu viaje más memorable?\nPERSONA: Uy, mi viaje a Perú, hace dos años. Fui a Machu Picchu y fue una pasada, buenísimo.\nENTREVISTADOR: ¿Y con quién viajaste?\nPERSONA: Con mi familia y unos amigos.\nENTREVISTADOR: ¿Piensas volver algún día?\nPERSONA: Sí, seguro que sí. Me encantaría volver.',
     questions: [
       { type: 'open', question: '¿A dónde viajó la persona y con quién?' },
       { type: 'open', question: '¿Qué piensa hacer la persona en el futuro?' },
@@ -154,8 +151,7 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     skill: 'Listening',
     title: 'Debate sobre Redes Sociales',
     transcript:
-      'MODERADOR: Hoy vamos a debatir el impacto de las redes sociales. Ana, ¿cuál es su postura?\nANA: Pues yo creo que nos conectan, pero también generan ansiedad y comparación constante, ¿cierto?\nMODERADOR: Carlos, ¿usted qué opina?\nCARLOS: En parte estoy de acuerdo. Para mi negocio han sido clave, la verdad, pero comparto la preocupación por la salud mental de los jóvenes.\nMODERADOR: ¿Alguna solución?\nANA: Educación digital desde el colegio.\nCARLOS: Y límites de uso, sobre todo para los más chicos.',
-    defaultAccent: 'es-CO',
+      'MODERADOR: Hoy vamos a debatir el impacto de las redes sociales. Ana, ¿cuál es tu postura?\nANA: Pues yo creo que nos conectan, pero también generan ansiedad y comparación constante, ¿no?\nMODERADOR: Carlos, ¿tú qué opinas?\nCARLOS: En parte estoy de acuerdo. Para mi negocio han sido clave, la verdad, pero comparto la preocupación por la salud mental de los jóvenes.\nMODERADOR: ¿Alguna solución?\nANA: Educación digital desde el colegio.\nCARLOS: Y límites de uso, sobre todo para los más pequeños.',
     questions: [
       { type: 'open', question: '¿Cuáles son las dos posiciones principales del debate?' },
       { type: 'open', question: '¿En qué punto están de acuerdo Ana y Carlos?' },
@@ -166,7 +162,6 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     title: 'Reportaje sobre la Vivienda',
     transcript:
       'Buenas tardes. Hoy en el programa hablamos de una realidad que afecta a cada vez más familias en nuestro país: el acceso a la vivienda. Los precios del alquiler no han dejado de subir en los últimos años, especialmente en las grandes ciudades, y muchos jóvenes se ven obligados a seguir viviendo con sus padres mucho más tiempo del que les gustaría. Algunos ayuntamientos han empezado a limitar los precios, aunque los resultados, de momento, son desiguales. Os invito a reflexionar sobre qué medidas podrían realmente marcar la diferencia.',
-    defaultAccent: 'es-ES',
     questions: [
       { type: 'open', question: '¿Cuál es el tema principal del reportaje?' },
       { type: 'open', question: '¿Qué han hecho algunos ayuntamientos y con qué resultado?' },
@@ -176,8 +171,7 @@ export const EXERCISES_ES: Record<string, Exercise> = {
     skill: 'Listening',
     title: 'Análisis sobre el Trabajo Remoto',
     transcript:
-      'Miren, lo que estamos viendo en México desde la pandemia es un cambio bastante profundo en la forma de trabajar. Muchísimas empresas, sobre todo las medianas, se dieron cuenta de que el trabajo remoto no solo era viable, sino que hasta les convenía más: menos gastos en oficinas, más flexibilidad para retener talento. Ahora bien, esto también trajo sus complicaciones, ¿no? Porque no es lo mismo gestionar un equipo que está enfrente tuyo que uno disperso en cinco ciudades distintas. Entonces las empresas que de plano supieron adaptarse, con procesos claros y buena comunicación, son las que hoy están ganando la partida.',
-    defaultAccent: 'es-MX',
+      'Miren, lo que estamos viendo en nuestro país desde la pandemia es un cambio bastante profundo en la forma de trabajar. Muchísimas empresas, sobre todo las medianas, se dieron cuenta de que el trabajo remoto no solo era viable, sino que hasta les convenía más: menos gastos en oficinas, más flexibilidad para retener talento. Ahora bien, esto también trajo sus complicaciones, ¿no? Porque no es lo mismo gestionar un equipo que está enfrente tuyo que uno disperso en cinco ciudades distintas. Entonces las empresas que de verdad supieron adaptarse, con procesos claros y buena comunicación, son las que hoy están ganando la partida.',
     questions: [
       { type: 'open', question: '¿Qué cambio describe la persona y por qué se dio?' },
       { type: 'open', question: '¿Qué distingue a las empresas que "están ganando la partida" según el ponente?' },

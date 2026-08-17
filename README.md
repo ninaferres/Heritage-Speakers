@@ -58,9 +58,8 @@ without needing a database. The system prompt
 (`backend/src/prompts/exercisePrompts.ts`) encodes the same content rules
 established throughout this project: practical real-world scenarios only (no
 academic/literary/philosophical jargon), numbers spelled out as words, and —
-for Spanish Listening exercises — authentic regional flavor rotated by CEFR
-level (voseo for Argentina, "jitomate"/pesos for Mexico, Colombian discourse
-markers, vosotros for Spain).
+for Spanish Listening exercises — authentic Peninsular Spanish (vosotros,
+euros, Spain-specific vocabulary), the only Spanish variety used throughout.
 
 `ExerciseRunner.tsx` calls this endpoint first and falls back to the curated
 static bank in `data/exercises.es.ts` / `exercises.ru.ts` if generation fails
@@ -94,15 +93,13 @@ indicative, ser/estar, preposition choice, agreement, false friends, etc.).
 
 The old prototype linked to third-party mp3 files that no longer resolve. Listening
 exercises now store a transcript script instead of an audio URL; the runner calls
-`POST /api/tts` on demand, which synthesizes it through Azure Speech in the learner's
-choice of Spanish accent (Peninsular, Mexican, Argentine, or Colombian — each a
-distinct native voice, not one generic Latin American accent) or Russian voice —
-nothing to go stale.
+`POST /api/tts` on demand, which synthesizes it through Google Cloud Text-to-Speech
+using one Peninsular Spanish voice and one Russian voice — nothing to go stale.
 
 ### Network requirements
 
 The backend makes outbound HTTPS requests to:
-- `*.tts.speech.microsoft.com` and `*.api.cognitive.microsoft.com` for text-to-speech (listening exercises)
+- `texttospeech.googleapis.com` for text-to-speech (listening exercises)
 - `api.groq.com` for speech-to-text transcription and optionally AI grading
 - `api.openai.com` for speech-to-text transcription (fallback only) and optionally AI grading
 - `api.anthropic.com` for AI grading (if using Anthropic as the provider)
@@ -135,12 +132,13 @@ if no Groq key is set.
 
 ### 4. Text-to-speech (Listening)
 
-Create a free [Azure](https://portal.azure.com) Speech resource on the **F0** (free,
-500,000 characters/month) pricing tier. Set `AZURE_SPEECH_KEY` to "KEY 1" and
-`AZURE_SPEECH_REGION` to the resource's region (e.g. `eastus`). Voice names default
-to sensible built-in values (`AZURE_VOICE_ES` / `_MX` / `_AR` / `_CO` / `_RU` /
-`_RU_MOSCOW` can override them) — see the
-[voice gallery](https://speech.microsoft.com/portal/voicegallery) to pick different ones.
+Create a free project at [console.cloud.google.com](https://console.cloud.google.com),
+enable the **Cloud Text-to-Speech API**, then create an API key under
+**APIs & Services → Credentials** and set `GOOGLE_TTS_API_KEY`. The free tier covers
+1 million WaveNet/Neural2 characters per month, which doesn't expire. Only two voices
+are used — Peninsular Spanish and one Russian voice — with sensible built-in defaults;
+override them with `GOOGLE_TTS_VOICE_ES` / `GOOGLE_TTS_VOICE_RU` if you want different
+ones from the [voice list](https://cloud.google.com/text-to-speech/docs/voices).
 
 ### 5. Welcome emails (optional)
 

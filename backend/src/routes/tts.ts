@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
-import { synthesizeSpeech } from '../services/azureTts.js';
+import { synthesizeSpeech } from '../services/googleTts.js';
 
 const ttsSchema = z.object({
   text: z.string().min(1).max(4000),
-  accent: z.enum(['es-ES', 'es-MX', 'es-AR', 'es-CO', 'ru-RU', 'ru-Moscow']),
+  accent: z.enum(['es-ES', 'ru-RU']),
 });
 
 export const ttsRouter = Router();
