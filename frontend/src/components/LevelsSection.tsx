@@ -96,6 +96,7 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: { es: string; en
 
 export function LevelsIntroSection() {
   const { uiLanguage } = useLanguage();
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
   return (
     <section className="block levels levels-intro" id="levels-intro">
       <div className="wrap">
@@ -108,7 +109,14 @@ export function LevelsIntroSection() {
         </div>
 
         <CefrGuide uiLanguage={uiLanguage} />
+
+        <p className="footnote" style={{ marginTop: '1.6rem' }}>
+          <button type="button" className="btn-linklike" onClick={() => setAssessmentOpen(true)} style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}>
+            {uiLanguage === 'es' ? '¿No sabes tu nivel CEFR? Haz un test corto y guiado por destreza' : "Don't know your CEFR level? Take a short, guided test per skill"}
+          </button>
+        </p>
       </div>
+      {assessmentOpen && <AssessmentModal onClose={() => setAssessmentOpen(false)} />}
     </section>
   );
 }

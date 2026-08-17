@@ -1,7 +1,6 @@
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { PathsSection } from './components/PathsSection';
-import { LevelAssessmentSection } from './components/LevelAssessmentSection';
 import { LevelsIntroSection, ExamModeSection } from './components/LevelsSection';
 import { BenefitsSection } from './components/BenefitsSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
@@ -21,7 +20,6 @@ export default function App() {
         <HowItWorksSection />
         <PathsSection />
         <LevelsIntroSection />
-        <LevelAssessmentSection />
         <ExamModeSection />
         <FinalCtaSection />
         <Footer />

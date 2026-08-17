@@ -204,14 +204,6 @@ section.block{padding:4.5rem 0}
 .block .head h2{font-size:clamp(2rem,5vw,2.9rem);margin:.8rem 0 1.1rem;color:var(--wine-ink);letter-spacing:-.01em}
 .block .head p{color:var(--muted);font-size:1.08rem;line-height:1.7;font-weight:400}
 
-section.level-assessment{
-  background:var(--bone);
-  text-align:center;padding:2.8rem 1rem;
-}
-.level-assessment .eyebrow{color:var(--wine);opacity:.6}
-.level-assessment h2{color:var(--wine-ink);font-size:clamp(1.25rem,2.4vw,1.5rem);margin:.5rem 0 .7rem;max-width:26ch;margin-left:auto;margin-right:auto;letter-spacing:-.01em}
-.level-assessment p{color:var(--muted);font-size:.92rem;line-height:1.6;max-width:48ch;margin:0 auto 1.3rem;font-weight:400}
-
 .levels{background:var(--bone)}
 section.levels-intro{padding:3.2rem 0 2.6rem}
 .levels-intro .head{margin-bottom:1.6rem}
