@@ -16,7 +16,7 @@ export function LevelAssessmentSection() {
             ? 'Elige una destreza, habla, lectura, escucha o escritura, y haz un test corto y guiado. En unos minutos sabrás exactamente en qué nivel CEFR estás para esa destreza.'
             : 'Choose a skill, speaking, reading, listening, or writing, and take a short guided test. In a few minutes you\'ll know exactly which CEFR level you\'re at for that skill.'}
         </p>
-        <button className="btn btn-gold" onClick={() => setOpen(true)}>
+        <button className="btn btn-gold btn-small" onClick={() => setOpen(true)}>
           {uiLanguage === 'es' ? 'Hacer el test de nivel' : 'Take the level test'}
         </button>
       </div>
