@@ -24,6 +24,7 @@ const CEFR_GUIDE: { level: CefrLevel; es: { label: string; body: string }; en: {
 ];
 
 function CefrGuide({ uiLanguage }: { uiLanguage: 'en' | 'es' }) {
+  const [expanded, setExpanded] = useState(false);
   return (
     <div className="cefr-guide">
       <h3 className="cefr-guide-title">
@@ -34,15 +35,22 @@ function CefrGuide({ uiLanguage }: { uiLanguage: 'en' | 'es' }) {
           ? 'El marco europeo (A1–C2) que usamos para medir cada destreza por separado.'
           : 'The European framework (A1–C2) we use to measure each skill separately.'}
       </p>
-      <div className="cefr-guide-grid">
-        {CEFR_GUIDE.map((g) => (
-          <div className="cefr-guide-card" key={g.level}>
-            <span className="cefr-guide-level">{g.level}</span>
-            <span className="cefr-guide-label">{g[uiLanguage].label}</span>
-            <p>{g[uiLanguage].body}</p>
-          </div>
-        ))}
-      </div>
+
+      {expanded ? (
+        <div className="cefr-guide-grid">
+          {CEFR_GUIDE.map((g) => (
+            <div className="cefr-guide-card" key={g.level}>
+              <span className="cefr-guide-level">{g.level}</span>
+              <span className="cefr-guide-label">{g[uiLanguage].label}</span>
+              <p>{g[uiLanguage].body}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <button type="button" className="btn btn-ghost btn-small" style={{ margin: '0 auto', display: 'block' }} onClick={() => setExpanded(true)}>
+          {uiLanguage === 'es' ? 'Ver detalle de cada nivel' : 'See each level in detail'}
+        </button>
+      )}
     </div>
   );
 }
