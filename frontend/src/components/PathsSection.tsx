@@ -35,7 +35,7 @@ export function PathsSection() {
                 ? 'Elige una destreza (habla, lectura, escucha o escritura) y tu nivel CEFR exacto, del A1 al C2. ¿No sabes tu nivel? Hay un test rápido por destreza.'
                 : 'Choose a skill (speaking, reading, listening, or writing) and your exact CEFR level, from A1 to C2. Not sure of your level? There\'s a quick per-skill test.'}
             </p>
-            <a href="#levels" className="btn btn-wine">
+            <a href="#levels" target="_blank" rel="noopener noreferrer" className="btn btn-wine">
               {uiLanguage === 'es' ? 'Ir al modo examen' : 'Go to exam mode'}
             </a>
           </div>
