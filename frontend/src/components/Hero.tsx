@@ -21,9 +21,14 @@ export function Hero() {
             : 'You grew up understanding it. Now strengthen it, skill by skill. Spanish learning designed specifically for heritage speakers ready to own their inheritance.'}
         </p>
 
-        <a href="#how" className="btn btn-gold">
-          {uiLanguage === 'es' ? 'Ver cómo funciona' : 'See how it works'}
-        </a>
+        <div className="cta-row">
+          <a href="#paths" className="btn btn-gold">
+            {uiLanguage === 'es' ? 'Empezar' : 'Get started'}
+          </a>
+          <a href="#how" className="btn btn-outline">
+            {uiLanguage === 'es' ? 'Ver cómo funciona' : 'See how it works'}
+          </a>
+        </div>
       </div>
     </header>
   );
