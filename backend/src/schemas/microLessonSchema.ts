@@ -65,7 +65,7 @@ const errorDetectionSchema = {
   type: 'object',
   properties: {
     words: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 10, description: 'The sentence tokenized into words/punctuation, containing exactly one error.' },
-    incorrectWordIndex: { type: 'integer', description: 'Index into "words" of the incorrect word.' },
+    incorrectWordIndex: { type: 'integer', description: 'The 0-based index into the "words" array of the single incorrect word. MUST be a valid index (0 to words.length - 1) and MUST point at a word that is actually present in "words".' },
     correction: { type: 'string', description: 'The correct replacement for that word.' },
     explanation: { type: 'string', description: 'One short sentence explaining why it was wrong.' },
   },

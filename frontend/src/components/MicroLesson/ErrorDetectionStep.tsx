@@ -15,8 +15,15 @@ export function ErrorDetectionStep({
   const [hadMistake, setHadMistake] = useState(false);
   const [flashIndex, setFlashIndex] = useState<number | null>(null);
 
+  // Safety net: if the AI's incorrectWordIndex doesn't line up with a real word (or the
+  // intended word turns out unguessable), tapping through every option would otherwise leave
+  // the learner stuck forever with no way to reach "Continue". Once every word has been tried,
+  // reveal the answer and unlock progress instead of soft-locking the exercise.
+  const allTried = !solved && triedWrong.size >= content.words.length;
+  const revealed = solved || allTried;
+
   function tap(idx: number) {
-    if (solved || triedWrong.has(idx)) return;
+    if (revealed || triedWrong.has(idx)) return;
     if (idx === content.incorrectWordIndex) {
       setSolved(true);
     } else {
@@ -35,17 +42,17 @@ export function ErrorDetectionStep({
         {content.words.map((word, idx) => {
           const isTheError = idx === content.incorrectWordIndex;
           let className = 'word-chip pos-other';
-          if (solved && isTheError) className = 'word-chip pos-other step-flash-correct';
+          if (revealed && isTheError) className = 'word-chip pos-other step-flash-correct';
           else if (flashIndex === idx) className = 'word-chip pos-other step-flash-wrong';
           return (
             <button
               key={idx}
               className={className}
               onClick={() => tap(idx)}
-              disabled={solved || triedWrong.has(idx)}
+              disabled={revealed || triedWrong.has(idx)}
               style={{
-                textDecoration: solved && isTheError ? 'line-through' : 'none',
-                borderColor: solved && isTheError ? '#2e7d32' : triedWrong.has(idx) ? '#b3261e' : undefined,
+                textDecoration: revealed && isTheError ? 'line-through' : 'none',
+                borderColor: revealed && isTheError ? '#2e7d32' : triedWrong.has(idx) ? '#b3261e' : undefined,
               }}
             >
               {word}
@@ -54,7 +61,7 @@ export function ErrorDetectionStep({
         })}
       </div>
 
-      {solved && (
+      {revealed && (
         <>
           <div className="exercise-block" style={{ marginTop: '1.2rem' }}>
             <p style={{ margin: 0 }}>
