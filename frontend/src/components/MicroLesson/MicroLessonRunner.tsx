@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useStreaks } from '../../context/StreakContext';
 import { fetchDailyMicroLesson } from '../../api/client';
 import { MicroLesson, LessonStep, ClassSkill } from '../../data/microLessonTypes';
 import { SkillId, CefrLevel } from '../../data/types';
@@ -50,6 +51,7 @@ type Phase = 'skill_select' | 'level_select' | 'loading' | 'running' | 'review' 
 
 export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
   const { uiLanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
+  const { streaks, recordCompletion } = useStreaks();
   const [skill, setSkill] = useState<ClassSkill | null>(null);
   const [level, setLevel] = useState<CefrLevel | null>(null);
   const [lesson, setLesson] = useState<MicroLesson | null>(null);
@@ -85,6 +87,12 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
       cancelled = true;
     };
   }, [skill, level, learningLanguage, uiLanguage]);
+
+  useEffect(() => {
+    if (phase === 'results' && lesson) recordCompletion(lesson.skill, 'daily_practice');
+    // Only on the transition into "results" for this lesson, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   function advanceMain(step: LessonStep, correct?: boolean) {
     if (correct !== undefined) {
@@ -179,6 +187,11 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
                   style={{ padding: '1.5rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '600', cursor: 'pointer', fontSize: '1.05rem' }}
                 >
                   {SKILL_LABEL[s][uiLanguage]}
+                  {Boolean(streaks[s]?.current) && (
+                    <span style={{ display: 'block', marginTop: '.4rem', fontSize: '.85rem', fontWeight: 700, color: 'var(--gold)' }}>
+                      🔥 {streaks[s]!.current}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -347,6 +360,15 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
               <div className="exercise-block" style={{ flex: '1 1 140px' }}>
                 <h4>{uiLanguage === 'es' ? 'Tiempo' : 'Time'}</h4>
                 <p style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--wine-ink)', margin: 0 }}>{minutesSpent} min</p>
+              </div>
+              <div className="exercise-block" style={{ flex: '1 1 140px' }}>
+                <h4>{uiLanguage === 'es' ? 'Racha' : 'Streak'}</h4>
+                <p style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--wine-ink)', margin: 0 }}>
+                  🔥 {streaks[lesson.skill]?.current ?? 1}
+                </p>
+                <p style={{ color: 'var(--muted)', margin: 0 }}>
+                  {uiLanguage === 'es' ? `${SKILL_LABEL[lesson.skill].es}` : `${SKILL_LABEL[lesson.skill].en}`}
+                </p>
               </div>
               {reviewResults.length > 0 && (
                 <div className="exercise-block" style={{ flex: '1 1 140px' }}>

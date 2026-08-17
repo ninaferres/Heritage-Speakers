@@ -4,6 +4,7 @@ import { CefrLevel, SkillId } from '../data/types';
 import { SpeakingIcon, ReadingIcon, ListeningIcon, WritingIcon } from './icons/SkillIcons';
 import { useExerciseGate } from '../context/ExerciseGateContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useStreaks } from '../context/StreakContext';
 import { getString } from '../i18n/strings';
 import { AssessmentModal } from './Assessment/AssessmentModal';
 
@@ -58,8 +59,10 @@ function CefrGuide({ uiLanguage }: { uiLanguage: 'en' | 'es' }) {
 function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: { es: string; en: string }; uiLanguage: 'en' | 'es' }) {
   const [level, setLevel] = useState<CefrLevel>('A1');
   const { requestExercise } = useExerciseGate();
+  const { streaks } = useStreaks();
   const Icon = ICONS[id];
   const isMaintain = level === 'C2';
+  const streak = streaks[id.toLowerCase()]?.current ?? 0;
 
   const skillNames: Record<SkillId, { es: string; en: string }> = {
     Speaking: { es: 'Habla', en: 'Speaking' },
@@ -71,7 +74,14 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: { es: string; en
   return (
     <div className="skill-card" id={`skill-card-${id}`}>
       <div className="skill-icon"><Icon /></div>
-      <h3>{skillNames[id][uiLanguage]}</h3>
+      <h3>
+        {skillNames[id][uiLanguage]}
+        {streak > 0 && (
+          <span style={{ marginLeft: '.5rem', fontSize: '.85rem', fontWeight: 700, color: 'var(--gold)' }}>
+            🔥 {streak}
+          </span>
+        )}
+      </h3>
       <div className="sub">{sub[uiLanguage]}</div>
       <div className="chips">
         {CEFR_LEVELS.map((lvl) => (

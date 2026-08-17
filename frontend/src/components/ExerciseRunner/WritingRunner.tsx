@@ -4,11 +4,13 @@ import { evaluateWriting } from '../../api/client';
 import { ProductionEvaluation } from '../../data/feedback';
 import { ProductionFeedback } from './FeedbackPanel';
 import { useLanguage } from '../../context/LanguageContext';
+import { useStreaks } from '../../context/StreakContext';
 import { getString } from '../../i18n/strings';
 import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function WritingRunner({ exercise, level }: { exercise: WritingExercise; level: CefrLevel }) {
   const { uiLanguage, learningLanguage } = useLanguage();
+  const { recordCompletion } = useStreaks();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +24,7 @@ export function WritingRunner({ exercise, level }: { exercise: WritingExercise; 
     try {
       const res = await evaluateWriting({ level, prompt: exercise.prompt, text, learningLanguage });
       setResult(res);
+      recordCompletion('writing', 'exam_mode');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong evaluating your writing.');
     } finally {

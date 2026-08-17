@@ -4,11 +4,13 @@ import { evaluateListening, synthesizeSpeechTTS } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 import { useLanguage } from '../../context/LanguageContext';
+import { useStreaks } from '../../context/StreakContext';
 import { getString } from '../../i18n/strings';
 import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function ListeningRunner({ exercise, level, learningLanguage }: { exercise: ListeningExercise; level: CefrLevel; learningLanguage?: string | null }) {
   const { uiLanguage } = useLanguage();
+  const { recordCompletion } = useStreaks();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
   const [isPlaying, setIsPlaying] = useState(false);
@@ -64,6 +66,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
     try {
       const res = await evaluateListening({ level, transcript: exercise.transcript, questions: exercise.questions, answers, learningLanguage });
       setResult(res);
+      recordCompletion('listening', 'exam_mode');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong evaluating your answers.');
     } finally {

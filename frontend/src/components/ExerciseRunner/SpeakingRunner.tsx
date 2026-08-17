@@ -4,11 +4,13 @@ import { evaluateSpeaking } from '../../api/client';
 import { ProductionEvaluation } from '../../data/feedback';
 import { ProductionFeedback } from './FeedbackPanel';
 import { useLanguage } from '../../context/LanguageContext';
+import { useStreaks } from '../../context/StreakContext';
 import { getString } from '../../i18n/strings';
 import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise; level: CefrLevel }) {
   const { uiLanguage, learningLanguage } = useLanguage();
+  const { recordCompletion } = useStreaks();
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -70,6 +72,7 @@ export function SpeakingRunner({ exercise, level }: { exercise: SpeakingExercise
     try {
       const res = await evaluateSpeaking({ level, prompt: exercise.prompt, audioBlob, learningLanguage });
       setResult(res);
+      recordCompletion('speaking', 'exam_mode');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong evaluating your recording.');
     } finally {

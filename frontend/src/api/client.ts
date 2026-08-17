@@ -136,6 +136,27 @@ export async function submitFeedback(params: {
   });
 }
 
+export interface SkillStreak {
+  current: number;
+  longest: number;
+  lastCompletedOn: string | null;
+}
+
+export async function recordPracticeCompletion(skill: string, source: 'daily_practice' | 'exam_mode'): Promise<void> {
+  await postJson('/practice-completions', { skill, source });
+}
+
+export async function fetchStreaks(): Promise<Record<string, SkillStreak>> {
+  const res = await fetch(`${API_BASE}/practice-completions/streaks`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Request to /practice-completions/streaks failed (${res.status})`);
+  }
+  return res.json();
+}
+
 // Use Azure Speech via backend for high-quality speech synthesis
 export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob> {
   try {

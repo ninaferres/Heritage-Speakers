@@ -8,6 +8,7 @@ declare global {
     interface Request {
       userId?: string;
       userEmail?: string;
+      accessToken?: string;
     }
   }
 }
@@ -42,5 +43,6 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
   req.userId = data.user.id;
   req.userEmail = data.user.email ?? undefined;
+  req.accessToken = token;
   next();
 }

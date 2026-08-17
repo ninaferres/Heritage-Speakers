@@ -4,11 +4,13 @@ import { evaluateReading } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
 import { useLanguage } from '../../context/LanguageContext';
+import { useStreaks } from '../../context/StreakContext';
 import { getString } from '../../i18n/strings';
 import { AnalyzingMessages } from './AnalyzingMessages';
 
 export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; level: CefrLevel }) {
   const { uiLanguage, learningLanguage } = useLanguage();
+  const { recordCompletion } = useStreaks();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);
@@ -34,6 +36,7 @@ export function ReadingRunner({ exercise, level }: { exercise: ReadingExercise; 
     try {
       const res = await evaluateReading({ level, passage: exercise.passage, questions: exercise.questions, answers, learningLanguage });
       setResult(res);
+      recordCompletion('reading', 'exam_mode');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong evaluating your answers.');
     } finally {
