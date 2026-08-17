@@ -145,43 +145,45 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
     const activeLanguages = availableLearningLanguages.filter((l) => l.status === 'active');
     return (
       <div className="exercise-overlay">
-        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+        <div className="exercise-card" role="dialog" aria-modal="true">
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
-          <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
-            {getString('assessment.selectLanguageFirstTitle', uiLanguage)}
-          </h2>
-          <p style={{ marginBottom: '2rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            {getString('assessment.selectLanguageFirstBody', uiLanguage)}
-          </p>
+          <div>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
+              {getString('assessment.selectLanguageFirstTitle', uiLanguage)}
+            </h2>
+            <p style={{ marginBottom: '2rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+              {getString('assessment.selectLanguageFirstBody', uiLanguage)}
+            </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {activeLanguages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => setLearningLanguage(lang.code)}
-                style={{
-                  padding: '1.2rem',
-                  border: '2px solid var(--wine)',
-                  borderRadius: '12px',
-                  background: 'transparent',
-                  color: 'var(--wine-ink)',
-                  fontWeight: '700',
-                  fontSize: '1.1rem',
-                  cursor: 'pointer',
-                  transition: 'all .2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(107,31,46,.05)';
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--gold)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--wine)';
-                }}
-              >
-                {lang.nativeLabel}
-              </button>
-            ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {activeLanguages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setLearningLanguage(lang.code)}
+                  style={{
+                    padding: '1.2rem',
+                    border: '2px solid var(--wine)',
+                    borderRadius: '12px',
+                    background: 'transparent',
+                    color: 'var(--wine-ink)',
+                    fontWeight: '700',
+                    fontSize: '1.1rem',
+                    cursor: 'pointer',
+                    transition: 'all .2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(107,31,46,.05)';
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--gold)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--wine)';
+                  }}
+                >
+                  {lang.nativeLabel}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -191,48 +193,50 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   if (!selectedSkill) {
     return (
       <div className="exercise-overlay">
-        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+        <div className="exercise-card" role="dialog" aria-modal="true">
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
-          <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
-            {getString('assessment.determineLevel', uiLanguage)}
-          </h2>
-          <p style={{ marginBottom: '2rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            {getString('assessment.choose', uiLanguage)}. {getString('assessment.takes5Minutes', uiLanguage)}
-          </p>
+          <div>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
+              {getString('assessment.determineLevel', uiLanguage)}
+            </h2>
+            <p style={{ marginBottom: '2rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+              {getString('assessment.choose', uiLanguage)}. {getString('assessment.takes5Minutes', uiLanguage)}
+            </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            {SKILLS.map((skill) => (
-              <button
-                key={skill}
-                onClick={() => {
-                  setSelectedSkill(skill);
-                  setStage('test');
-                  setCurrentQuestionIndex(0);
-                  setAnswers({});
-                }}
-                style={{
-                  padding: '1.5rem',
-                  border: '2px solid var(--wine)',
-                  borderRadius: '12px',
-                  background: 'transparent',
-                  color: 'var(--wine-ink)',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all .2s ease',
-                  fontSize: '1.05rem',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(107,31,46,.05)';
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--gold)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--wine)';
-                }}
-              >
-                {getString(`skill.${skill}` as StringKey, uiLanguage)}
-              </button>
-            ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
+              {SKILLS.map((skill) => (
+                <button
+                  key={skill}
+                  onClick={() => {
+                    setSelectedSkill(skill);
+                    setStage('test');
+                    setCurrentQuestionIndex(0);
+                    setAnswers({});
+                  }}
+                  style={{
+                    padding: '1.5rem',
+                    border: '2px solid var(--wine)',
+                    borderRadius: '12px',
+                    background: 'transparent',
+                    color: 'var(--wine-ink)',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all .2s ease',
+                    fontSize: '1.05rem',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(107,31,46,.05)';
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--gold)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--wine)';
+                  }}
+                >
+                  {getString(`skill.${skill}` as StringKey, uiLanguage)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -242,51 +246,53 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   if (stage === 'result' && detectedLevel) {
     return (
       <div className="exercise-overlay">
-        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+        <div className="exercise-card" role="dialog" aria-modal="true">
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
-          <h2 style={{ marginBottom: '1rem', color: 'var(--wine-ink)', textAlign: 'center' }}>
-            {getString('assessment.yourLevel', uiLanguage)}: <span style={{ color: 'var(--gold)', fontSize: '1.4em' }}>{detectedLevel}</span>
-          </h2>
-          <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--muted)' }}>
-            {getString(`skill.${selectedSkill}` as StringKey, uiLanguage)} · CEFR {detectedLevel}
-          </p>
-
-          <div style={{
-            padding: '1.5rem',
-            backgroundColor: 'rgba(184,147,90,.1)',
-            borderRadius: '12px',
-            marginBottom: '2rem',
-            borderLeft: '4px solid var(--gold)',
-          }}>
-            <p style={{ marginBottom: '0.5rem', fontWeight: '600', color: 'var(--wine-ink)' }}>
-              {getString('assessment.complete', uiLanguage)}
+          <div>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--wine-ink)', textAlign: 'center' }}>
+              {getString('assessment.yourLevel', uiLanguage)}: <span style={{ color: 'var(--gold)', fontSize: '1.4em' }}>{detectedLevel}</span>
+            </h2>
+            <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--muted)' }}>
+              {getString(`skill.${selectedSkill}` as StringKey, uiLanguage)} · CEFR {detectedLevel}
             </p>
-            <p style={{ color: 'var(--charcoal)', lineHeight: 1.6 }}>
-              {getString('assessment.basedOnAnswers', uiLanguage)} {getString(`skill.${selectedSkill}` as StringKey, uiLanguage).toLowerCase()} {getString('assessment.yourLevelIs', uiLanguage)} <strong>{detectedLevel}</strong>.
-            </p>
-          </div>
 
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button
-              className="btn btn-outline"
-              onClick={() => {
-                setStage('skill-select');
-                setSelectedSkill(null);
-                setCurrentQuestionIndex(0);
-                setAnswers({});
-                setDetectedLevel(null);
-              }}
-              style={{ flex: 1 }}
-            >
-              {getString('assessment.testAnother', uiLanguage)}
-            </button>
-            <button
-              className="btn btn-wine"
-              onClick={onClose}
-              style={{ flex: 1 }}
-            >
-              {getString('assessment.startExercises', uiLanguage)}
-            </button>
+            <div style={{
+              padding: '1.5rem',
+              backgroundColor: 'rgba(184,147,90,.1)',
+              borderRadius: '12px',
+              marginBottom: '2rem',
+              borderLeft: '4px solid var(--gold)',
+            }}>
+              <p style={{ marginBottom: '0.5rem', fontWeight: '600', color: 'var(--wine-ink)' }}>
+                {getString('assessment.complete', uiLanguage)}
+              </p>
+              <p style={{ color: 'var(--charcoal)', lineHeight: 1.6 }}>
+                {getString('assessment.basedOnAnswers', uiLanguage)} {getString(`skill.${selectedSkill}` as StringKey, uiLanguage).toLowerCase()} {getString('assessment.yourLevelIs', uiLanguage)} <strong>{detectedLevel}</strong>.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                className="btn btn-outline"
+                onClick={() => {
+                  setStage('skill-select');
+                  setSelectedSkill(null);
+                  setCurrentQuestionIndex(0);
+                  setAnswers({});
+                  setDetectedLevel(null);
+                }}
+                style={{ flex: 1 }}
+              >
+                {getString('assessment.testAnother', uiLanguage)}
+              </button>
+              <button
+                className="btn btn-wine"
+                onClick={onClose}
+                style={{ flex: 1 }}
+              >
+                {getString('assessment.startExercises', uiLanguage)}
+              </button>
+            </div>
           </div>
         </div>
       </div>

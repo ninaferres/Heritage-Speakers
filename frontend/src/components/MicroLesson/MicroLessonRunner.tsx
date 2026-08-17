@@ -134,21 +134,23 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
     const activeLanguages = availableLearningLanguages.filter((l) => l.status === 'active');
     return (
       <div className="exercise-overlay">
-        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+        <div className="exercise-card" role="dialog" aria-modal="true">
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
-          <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
-            {uiLanguage === 'es' ? 'Elige primero qué idioma quieres aprender' : 'Choose a language to learn first'}
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {activeLanguages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => setLearningLanguage(lang.code)}
-                style={{ padding: '1.2rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '700', fontSize: '1.1rem', cursor: 'pointer' }}
-              >
-                {lang.nativeLabel}
-              </button>
-            ))}
+          <div>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
+              {uiLanguage === 'es' ? 'Elige primero qué idioma quieres aprender' : 'Choose a language to learn first'}
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {activeLanguages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setLearningLanguage(lang.code)}
+                  style={{ padding: '1.2rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '700', fontSize: '1.1rem', cursor: 'pointer' }}
+                >
+                  {lang.nativeLabel}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -158,24 +160,26 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
   if (phase === 'skill_select') {
     return (
       <div className="exercise-overlay">
-        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+        <div className="exercise-card" role="dialog" aria-modal="true">
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
-          <h2 style={{ marginBottom: '.6rem', color: 'var(--wine-ink)' }}>
-            {uiLanguage === 'es' ? '¿Qué quieres practicar hoy?' : 'What do you want to practice today?'}
-          </h2>
-          <p style={{ marginBottom: '1.8rem', color: 'var(--muted)' }}>
-            {uiLanguage === 'es' ? 'Una práctica corta (10-15 min) centrada solo en esa destreza.' : 'A short (10-15 min) practice focused only on that skill.'}
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
-            {CLASS_SKILLS.map((s) => (
-              <button
-                key={s}
-                onClick={() => { setSkill(s); setPhase('level_select'); }}
-                style={{ padding: '1.5rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '600', cursor: 'pointer', fontSize: '1.05rem' }}
-              >
-                {SKILL_LABEL[s][uiLanguage]}
-              </button>
-            ))}
+          <div>
+            <h2 style={{ marginBottom: '.6rem', color: 'var(--wine-ink)' }}>
+              {uiLanguage === 'es' ? '¿Qué quieres practicar hoy?' : 'What do you want to practice today?'}
+            </h2>
+            <p style={{ marginBottom: '1.8rem', color: 'var(--muted)' }}>
+              {uiLanguage === 'es' ? 'Una práctica corta (10-15 min) centrada solo en esa destreza.' : 'A short (10-15 min) practice focused only on that skill.'}
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
+              {CLASS_SKILLS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => { setSkill(s); setPhase('level_select'); }}
+                  style={{ padding: '1.5rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '600', cursor: 'pointer', fontSize: '1.05rem' }}
+                >
+                  {SKILL_LABEL[s][uiLanguage]}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -185,36 +189,38 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
   if (phase === 'level_select') {
     return (
       <div className="exercise-overlay">
-        <div className="exercise-card" style={{ maxWidth: '600px' }}>
+        <div className="exercise-card" role="dialog" aria-modal="true">
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
-          <span className="exercise-head-eyebrow">{skill && SKILL_LABEL[skill][uiLanguage]}</span>
-          <h2 style={{ marginBottom: '.6rem', color: 'var(--wine-ink)' }}>
-            {uiLanguage === 'es' ? '¿Cuál es tu nivel aproximado?' : "What's your approximate level?"}
-          </h2>
-          <p style={{ marginBottom: '1.8rem', color: 'var(--muted)' }}>
-            {uiLanguage === 'es'
-              ? 'Así la práctica no repite lo que ya dominas ni te salta cosas que aún no has visto.'
-              : "This way the practice won't repeat what you already know or skip ahead of what you haven't seen yet."}
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '1.4rem' }}>
-            {CEFR_LEVELS.map((lvl) => (
-              <button
-                key={lvl}
-                onClick={() => setLevel(lvl)}
-                style={{ padding: '1.2rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '700', cursor: 'pointer', fontSize: '1.1rem' }}
-              >
-                {lvl}
-              </button>
-            ))}
+          <div>
+            <span className="exercise-head-eyebrow">{skill && SKILL_LABEL[skill][uiLanguage]}</span>
+            <h2 style={{ marginBottom: '.6rem', color: 'var(--wine-ink)' }}>
+              {uiLanguage === 'es' ? '¿Cuál es tu nivel aproximado?' : "What's your approximate level?"}
+            </h2>
+            <p style={{ marginBottom: '1.8rem', color: 'var(--muted)' }}>
+              {uiLanguage === 'es'
+                ? 'Así la práctica no repite lo que ya dominas ni te salta cosas que aún no has visto.'
+                : "This way the practice won't repeat what you already know or skip ahead of what you haven't seen yet."}
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '1.4rem' }}>
+              {CEFR_LEVELS.map((lvl) => (
+                <button
+                  key={lvl}
+                  onClick={() => setLevel(lvl)}
+                  style={{ padding: '1.2rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '700', cursor: 'pointer', fontSize: '1.1rem' }}
+                >
+                  {lvl}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="btn-linklike"
+              onClick={() => setPhase('skill_select')}
+              style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
+            >
+              {uiLanguage === 'es' ? '← Elegir otra destreza' : '← Choose a different skill'}
+            </button>
           </div>
-          <button
-            type="button"
-            className="btn-linklike"
-            onClick={() => setPhase('skill_select')}
-            style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
-          >
-            {uiLanguage === 'es' ? '← Elegir otra destreza' : '← Choose a different skill'}
-          </button>
         </div>
       </div>
     );
@@ -253,7 +259,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
         <button className="modal-close" aria-label="Close daily practice" onClick={onClose}>✕</button>
 
         {phase === 'loading' && (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{skill && SKILL_LABEL[skill][uiLanguage]} · {level}</span>
             <div className="loading-inline" style={{ marginTop: '2rem' }}>
               <span className="spinner" />
@@ -265,19 +271,19 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
                 }
               />
             </div>
-          </>
+          </div>
         )}
 
         {phase !== 'loading' && error && (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{skill && SKILL_LABEL[skill][uiLanguage]}</span>
             <h2>{uiLanguage === 'es' ? 'No se pudo cargar' : 'Unavailable'}</h2>
             <p className="exercise-meta">{error}</p>
-          </>
+          </div>
         )}
 
         {phase === 'running' && !error && lesson && (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{lesson.grammarConcept}</span>
             <h2 style={{ marginBottom: '.6rem' }}>{lesson.title}</h2>
 
@@ -292,11 +298,11 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
               (correct) => advanceMain(lesson.steps[stepIndex], correct),
               () => advanceMain(lesson.steps[stepIndex])
             )}
-          </>
+          </div>
         )}
 
         {phase === 'review' && !error && lesson && (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{uiLanguage === 'es' ? 'Repaso rápido' : 'Quick review'}</span>
             <h2 style={{ marginBottom: '.4rem' }}>
               {uiLanguage === 'es' ? 'Repasemos lo que fallaste' : "Let's review what you missed"}
@@ -309,11 +315,11 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
               (correct) => advanceReview(correct),
               () => advanceReview(true)
             )}
-          </>
+          </div>
         )}
 
         {phase === 'results' && !error && lesson && (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{uiLanguage === 'es' ? '¡Práctica completada!' : 'Practice complete!'}</span>
             <h2 style={{ marginBottom: '1rem' }}>{lesson.title}</h2>
 
@@ -356,7 +362,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
                 {uiLanguage === 'es' ? 'Cerrar' : 'Close'}
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

@@ -60,7 +60,7 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
         <button className="modal-close" aria-label="Close exercise" onClick={onClose}>✕</button>
 
         {loadingExercise ? (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
             <div className="loading-inline" style={{ marginTop: '2rem' }}>
               <span className="spinner" />
@@ -72,15 +72,15 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
                 }
               />
             </div>
-          </>
+          </div>
         ) : !exercise ? (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
             <h2>{getString('exercise.notAvailable', uiLanguage)}</h2>
             <p className="exercise-meta">{getString('exercise.tryDifferent', uiLanguage)}</p>
-          </>
+          </div>
         ) : (
-          <>
+          <div>
             <span className="exercise-head-eyebrow">{getString(`skill.${skill}` as StringKey, uiLanguage)} · {level}</span>
             <h2>{exercise.title}</h2>
             <p className="exercise-meta">CEFR {level} · {getString('exercise.sessionLength', uiLanguage)}</p>
@@ -99,7 +99,7 @@ export function ExerciseRunner({ skill, level, onClose }: { skill: SkillId; leve
             {exercise.skill === 'Reading' && <ReadingRunner exercise={exercise} level={level} />}
             {exercise.skill === 'Listening' && <ListeningRunner exercise={exercise} level={level} learningLanguage={learningLanguage} />}
             {exercise.skill === 'Speaking' && <SpeakingRunner exercise={exercise} level={level} />}
-          </>
+          </div>
         )}
       </div>
     </div>
