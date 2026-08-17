@@ -34,8 +34,10 @@ export const env = {
   // more mechanical Neural2/Wavenet voices used previously).
   googleTtsApiKey: optional('GOOGLE_TTS_API_KEY'),
   googleTtsVoices: {
-    'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Chirp3-HD-Kore',
-    'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Chirp3-HD-Kore',
+    // "Leda" is Google's warm/conversational persona (vs. e.g. "Kore", which reads as neutral
+    // and informative) — closer to a teacher than an announcer.
+    'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Chirp3-HD-Leda',
+    'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Chirp3-HD-Leda',
   } as Record<string, string | undefined>,
 };
 
