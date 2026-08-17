@@ -209,6 +209,8 @@ section.block{padding:7.5rem 0}
 .level-assessment p{color:var(--muted);font-size:1.05rem;line-height:1.7;max-width:58ch;margin:0 auto 2.2rem;font-weight:400}
 
 .levels{background:linear-gradient(180deg, rgba(250,247,243,1) 0%, rgba(107,31,46,.04) 100%)}
+.levels-intro{padding:4.4rem 0 3.6rem}
+.levels-intro .head{margin-bottom:1.8rem}
 .benefits{background:linear-gradient(135deg, rgba(107,31,46,.06) 0%, var(--bone) 100%)}
 .how{background:linear-gradient(135deg, var(--bone) 0%, rgba(107,31,46,.07) 100%)}
 .host{background:linear-gradient(135deg, rgba(107,31,46,.08) 0%, var(--bone) 100%)}
@@ -232,17 +234,17 @@ section.block{padding:7.5rem 0}
 .compare-cell.us .compare-text{color:var(--charcoal);font-weight:500}
 
 /* ---------- CEFR level guide ---------- */
-.cefr-guide{margin-bottom:3.4rem}
+.cefr-guide{margin-bottom:0}
 .cefr-guide-title{font-size:1.02rem;color:var(--wine-ink);font-weight:700;text-align:center;letter-spacing:-.2px;margin-bottom:.4rem}
-.cefr-guide-sub{color:var(--muted);font-size:.92rem;text-align:center;max-width:52ch;margin:0 auto 1.6rem;line-height:1.6}
-.cefr-guide-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.9rem}
+.cefr-guide-sub{color:var(--muted);font-size:.92rem;text-align:center;max-width:52ch;margin:0 auto 1.3rem;line-height:1.6}
+.cefr-guide-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.7rem}
 .cefr-guide-card{
-  background:var(--card);border:1px solid var(--line);border-radius:16px;
-  padding:1.2rem 1rem;text-align:center;box-shadow:0 1px 2px rgba(58,15,25,.04);
+  background:var(--card);border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:14px;
+  padding:.9rem .8rem;text-align:center;box-shadow:0 1px 2px rgba(58,15,25,.04);
 }
-.cefr-guide-level{display:block;font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:var(--wine-ink);margin-bottom:.2rem}
-.cefr-guide-label{display:block;font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
-.cefr-guide-card p{color:var(--muted);font-size:.82rem;line-height:1.5;margin:0}
+.cefr-guide-level{display:block;font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:var(--wine-ink);margin-bottom:.15rem}
+.cefr-guide-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.cefr-guide-card p{color:var(--muted);font-size:.78rem;line-height:1.45;margin:0}
 
 .level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.3rem}
 .skill-card{

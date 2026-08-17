@@ -97,9 +97,10 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: { es: string; en
 export function LevelsIntroSection() {
   const { uiLanguage } = useLanguage();
   return (
-    <section className="block levels" id="levels-intro">
+    <section className="block levels levels-intro" id="levels-intro">
       <div className="wrap">
         <div className="head">
+          <span className="eyebrow">{getString('levels.eyebrow', uiLanguage)}</span>
           <h2>{getString('levels.title', uiLanguage)}</h2>
           <p>
             {getString('levels.description', uiLanguage)}
