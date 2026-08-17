@@ -212,7 +212,6 @@ section.block{padding:7.5rem 0}
 .benefits{background:linear-gradient(135deg, rgba(107,31,46,.06) 0%, var(--bone) 100%)}
 .how{background:linear-gradient(135deg, var(--bone) 0%, rgba(107,31,46,.07) 100%)}
 .host{background:linear-gradient(135deg, rgba(107,31,46,.08) 0%, var(--bone) 100%)}
-.whyus{background:var(--bone)}
 
 /* ---------- why us: comparison table ---------- */
 .compare-table{max-width:900px;margin:0 auto;border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow)}

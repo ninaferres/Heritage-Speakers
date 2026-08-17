@@ -5,18 +5,25 @@ import { getString } from '../i18n/strings';
 import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { AboutModal } from './AboutModal';
+import { WhyUsModal } from './WhyUsModal';
 import { getCopy } from '../i18n/copy';
 
 export function Header() {
   const [navOpen, setNavOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [whyUsOpen, setWhyUsOpen] = useState(false);
   const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
   const COPY = getCopy(uiLanguage);
 
   const handleOpenAbout = () => {
     setAboutOpen(true);
+    setNavOpen(false);
+  };
+
+  const handleOpenWhyUs = () => {
+    setWhyUsOpen(true);
     setNavOpen(false);
   };
 
@@ -129,6 +136,22 @@ export function Header() {
               >
                 {getString('about.title', uiLanguage)}
               </button>
+              <button
+                onClick={handleOpenWhyUs}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  fontSize: '0.95rem',
+                  border: '1.5px solid var(--wine)',
+                  borderRadius: '8px',
+                  background: 'transparent',
+                  color: 'var(--wine)',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                {uiLanguage === 'es' ? 'Por qué Heritage Speakers' : 'Why Heritage Speakers'}
+              </button>
             </div>
 
             <div>
@@ -159,6 +182,10 @@ export function Header() {
 
       {aboutOpen && (
         <AboutModal onClose={() => setAboutOpen(false)} />
+      )}
+
+      {whyUsOpen && (
+        <WhyUsModal onClose={() => setWhyUsOpen(false)} />
       )}
     </>
   );

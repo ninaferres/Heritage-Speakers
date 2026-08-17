@@ -6,7 +6,6 @@ import { LanguageSelector } from './components/LanguageSelector';
 import { LevelsSection } from './components/LevelsSection';
 import { BenefitsSection } from './components/BenefitsSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
-import { WhyUsSection } from './components/WhyUsSection';
 import { FinalCtaSection } from './components/FinalCtaSection';
 import { Footer } from './components/Footer';
 import { ExerciseGateProvider } from './context/ExerciseGateContext';
@@ -29,7 +28,6 @@ export default function App() {
         </section>
         <BenefitsSection />
         <HowItWorksSection />
-        <WhyUsSection />
         <FinalCtaSection />
         <Footer />
         <FeedbackWidget />
