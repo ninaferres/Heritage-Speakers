@@ -1,5 +1,7 @@
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { PathsSection } from './components/PathsSection';
+import { LevelAssessmentSection } from './components/LevelAssessmentSection';
 import { LanguageSelector } from './components/LanguageSelector';
 import { LevelsSection } from './components/LevelsSection';
 import { BenefitsSection } from './components/BenefitsSection';
@@ -16,6 +18,8 @@ export default function App() {
       <MicroLessonGateProvider>
         <Header />
         <Hero />
+        <PathsSection />
+        <LevelAssessmentSection />
         <LevelsSection />
         <section style={{ padding: '1rem 0', background: 'var(--bone)' }}>
           <div className="wrap">

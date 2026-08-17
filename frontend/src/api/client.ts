@@ -116,7 +116,8 @@ export async function fetchDailyMicroLesson(skill: ClassSkill, learningLanguage:
 export async function submitFeedback(params: {
   category: 'bug' | 'idea' | 'other';
   message: string;
-  contactEmail?: string;
+  contactEmail: string;
+  contactPhone: string;
   uiLanguage?: string;
   learningLanguage?: string | null;
   page?: string;

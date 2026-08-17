@@ -9,15 +9,17 @@ const LABELS = {
   es: {
     fab: 'Enviar sugerencia',
     title: 'Buzón de sugerencias',
-    intro: 'Cuéntanos qué falla o qué te gustaría ver. Lo lee Nina directamente.',
+    intro: 'Cuéntanos qué falla o qué te gustaría ver.',
     category: 'Tipo',
     bug: 'Algo no funciona',
     idea: 'Una idea o mejora',
     other: 'Otro',
     message: 'Tu mensaje',
     messagePlaceholder: 'Escribe aquí...',
-    email: 'Email (opcional, por si queremos responderte)',
+    email: 'Email',
     emailPlaceholder: 'tu@email.com',
+    phone: 'Teléfono',
+    phonePlaceholder: '+34 600 000 000',
     submit: 'Enviar',
     sending: 'Enviando…',
     success: 'Gracias, lo hemos recibido.',
@@ -27,15 +29,17 @@ const LABELS = {
   en: {
     fab: 'Send feedback',
     title: 'Feedback mailbox',
-    intro: "Tell us what's broken or what you'd like to see. Nina reads these directly.",
+    intro: "Tell us what's broken or what you'd like to see.",
     category: 'Type',
     bug: "Something's broken",
     idea: 'An idea or improvement',
     other: 'Other',
     message: 'Your message',
     messagePlaceholder: 'Write here...',
-    email: 'Email (optional, in case we want to reply)',
+    email: 'Email',
     emailPlaceholder: 'you@email.com',
+    phone: 'Phone',
+    phonePlaceholder: '+1 555 000 0000',
     submit: 'Send',
     sending: 'Sending…',
     success: "Thanks, we've received it.",
@@ -51,6 +55,7 @@ export function FeedbackWidget() {
   const [category, setCategory] = useState<Category>('idea');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -59,6 +64,7 @@ export function FeedbackWidget() {
     setCategory('idea');
     setMessage('');
     setEmail('');
+    setPhone('');
     setError(null);
     setSent(false);
   }
@@ -68,16 +74,19 @@ export function FeedbackWidget() {
     reset();
   }
 
+  const canSubmit = message.trim() && email.trim() && phone.trim();
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!canSubmit) return;
     setSubmitting(true);
     setError(null);
     try {
       await submitFeedback({
         category,
         message: message.trim(),
-        contactEmail: email.trim() || undefined,
+        contactEmail: email.trim(),
+        contactPhone: phone.trim(),
         uiLanguage,
         learningLanguage,
         page: window.location.pathname,
@@ -145,11 +154,23 @@ export function FeedbackWidget() {
                     placeholder={t.emailPlaceholder}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+
+                  <label className="field-label" htmlFor="feedback-phone">{t.phone}</label>
+                  <input
+                    id="feedback-phone"
+                    type="tel"
+                    className="field-input"
+                    placeholder={t.phonePlaceholder}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
                   />
 
                   {error && <div className="modal-error">{error}</div>}
 
-                  <button className="btn btn-wine" type="submit" disabled={submitting || !message.trim()}>
+                  <button className="btn btn-wine" type="submit" disabled={submitting || !canSubmit}>
                     {submitting ? t.sending : t.submit}
                   </button>
                 </form>
