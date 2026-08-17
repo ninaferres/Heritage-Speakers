@@ -13,6 +13,26 @@ function languageCodeFromVoice(voiceName: string): string {
   return parts.slice(0, 2).join('-');
 }
 
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+// Plain text fed straight to Neural2 tends to come out clipped and sing-songy — it has no cues
+// for where a real speaker would pause. Inserting short breaks at line breaks (speaker turns in
+// dialogues), sentence ends, and commas gives it a more natural, less robotic cadence.
+function toSsml(text: string): string {
+  const body = escapeXml(text)
+    .replace(/\n+/g, '<break time="450ms"/> ')
+    .replace(/([.!?])(\s+|$)/g, '$1<break time="350ms"/> ')
+    .replace(/,(\s+)/g, ',<break time="150ms"/> ');
+  return `<speak>${body}</speak>`;
+}
+
 /** Synthesizes speech via Google Cloud Text-to-Speech, for Listening exercises. */
 export async function synthesizeSpeech(text: string, accent: string): Promise<Buffer> {
   if (!isTtsConfigured) throw new TtsNotConfiguredError();
@@ -26,9 +46,11 @@ export async function synthesizeSpeech(text: string, accent: string): Promise<Bu
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      input: { text },
+      input: { ssml: toSsml(text) },
       voice: { languageCode: languageCodeFromVoice(voiceName), name: voiceName },
-      audioConfig: { audioEncoding: 'MP3' },
+      // Slightly slower than default (1.0) reads as calmer and more natural on Neural2 —
+      // at normal speed it tends to rush and over-emphasize pitch swings.
+      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.93 },
     }),
   });
 

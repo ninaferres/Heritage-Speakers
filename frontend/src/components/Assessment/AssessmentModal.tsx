@@ -350,6 +350,7 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
               selected={currentAnswer && typeof currentAnswer === 'object' && !isSpeakingResult(currentAnswer) ? (currentAnswer as Record<number, number>) : {}}
               onSelect={handleMatchPair}
               disabled={false}
+              uiLanguage={uiLanguage}
             />
           )}
 
