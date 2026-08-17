@@ -45,3 +45,9 @@ services:
         sync: false
       - key: AZURE_VOICE_RU_MOSCOW
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: FEEDBACK_ADMIN_KEY
+        sync: false
