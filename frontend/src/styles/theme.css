@@ -168,7 +168,11 @@ button{font-family:inherit}
 .hero > .wrap > .btn{animation:fadeInUp .8s ease-out .5s both}
 
 /* ---------- paths section (own block, bone background) ---------- */
-.paths{background:var(--bone)}
+section.paths{
+  background:rgba(107,31,46,.05);
+  padding:6rem 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
 .path-cards-light{
   display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;
   max-width:900px;margin:0 auto;text-align:left;
