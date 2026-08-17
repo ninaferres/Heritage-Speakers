@@ -47,7 +47,7 @@ function CefrGuide({ uiLanguage }: { uiLanguage: 'en' | 'es' }) {
   );
 }
 
-function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLanguage: 'en' | 'es' }) {
+function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: { es: string; en: string }; uiLanguage: 'en' | 'es' }) {
   const [level, setLevel] = useState<CefrLevel>('A1');
   const { requestExercise } = useExerciseGate();
   const Icon = ICONS[id];
@@ -64,7 +64,7 @@ function SkillCard({ id, sub, uiLanguage }: { id: SkillId; sub: string; uiLangua
     <div className="skill-card" id={`skill-card-${id}`}>
       <div className="skill-icon"><Icon /></div>
       <h3>{skillNames[id][uiLanguage]}</h3>
-      <div className="sub">{sub}</div>
+      <div className="sub">{sub[uiLanguage]}</div>
       <div className="chips">
         {CEFR_LEVELS.map((lvl) => (
           <button
@@ -103,6 +103,9 @@ export function LevelsSection() {
 
         {learningLanguage ? (
           <>
+            <span className="eyebrow" style={{ display: 'block', textAlign: 'center', marginBottom: '1.2rem' }}>
+              {uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}
+            </span>
             <div className="level-grid">
               {SKILLS.map((s) => (
                 <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
