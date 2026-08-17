@@ -19,6 +19,8 @@ export default function App() {
         <Header />
         <Hero />
         <PathsSection />
+        <BenefitsSection />
+        <HowItWorksSection />
         <LevelAssessmentSection />
         <LevelsSection />
         <section style={{ padding: '1rem 0', background: 'var(--bone)' }}>
@@ -26,8 +28,6 @@ export default function App() {
             <LanguageSelector />
           </div>
         </section>
-        <BenefitsSection />
-        <HowItWorksSection />
         <FinalCtaSection />
         <Footer />
         <FeedbackWidget />
