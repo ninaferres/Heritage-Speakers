@@ -2,12 +2,15 @@ import { createContext, useContext, useEffect, useRef, useState, ReactNode } fro
 import { useAuth } from './AuthContext';
 import { AuthModal } from '../components/AuthModal';
 import { ExerciseRunner } from '../components/ExerciseRunner/ExerciseRunner';
+import { ExamEntryModal } from '../components/ExamEntryModal';
 import { CefrLevel, SkillId } from '../data/types';
 import { pendingExerciseStore, PendingExercise } from '../hooks/usePendingExercise';
 
 interface ExerciseGateContextValue {
   /** Call this from any "try this exercise" control. Handles the auth gate transparently. */
   requestExercise: (skill: SkillId, level: CefrLevel) => void;
+  /** Opens the skill-then-level picker (same shape as Daily Practice's), which hands off to requestExercise. */
+  requestExamEntry: () => void;
 }
 
 const ExerciseGateContext = createContext<ExerciseGateContextValue | undefined>(undefined);
@@ -16,6 +19,7 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [active, setActive] = useState<PendingExercise | null>(null);
+  const [entryOpen, setEntryOpen] = useState(false);
   const wasSignedIn = useRef(Boolean(user));
 
   // Covers both same-tab email/password login and the full-page redirect
@@ -33,6 +37,17 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Lets "Modo examen" open a fresh tab and land straight on the skill/level picker, instead of
+  // just opening the homepage — mirrors MicroLessonGateContext's ?practice=daily handling.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('exam') !== '1') return;
+    params.delete('exam');
+    const newSearch = params.toString();
+    window.history.replaceState({}, '', window.location.pathname + (newSearch ? `?${newSearch}` : '') + window.location.hash);
+    setEntryOpen(true);
+  }, []);
+
   function requestExercise(skill: SkillId, level: CefrLevel) {
     if (user) {
       setActive({ skill, level });
@@ -49,7 +64,7 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ExerciseGateContext.Provider value={{ requestExercise }}>
+    <ExerciseGateContext.Provider value={{ requestExercise, requestExamEntry: () => setEntryOpen(true) }}>
       {children}
       {authModalOpen && (
         <AuthModal
@@ -60,6 +75,7 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
           onAuthenticated={handleAuthenticated}
         />
       )}
+      {entryOpen && <ExamEntryModal onClose={() => setEntryOpen(false)} />}
       {active && <ExerciseRunner skill={active.skill} level={active.level} onClose={() => setActive(null)} />}
     </ExerciseGateContext.Provider>
   );

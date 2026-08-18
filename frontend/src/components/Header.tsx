@@ -38,7 +38,7 @@ export function Header() {
 
   const handleGoToExamMode = () => {
     setNavOpen(false);
-    window.open(`${window.location.origin}${window.location.pathname}#levels`, '_blank', 'noopener,noreferrer');
+    window.open(`${window.location.origin}${window.location.pathname}?exam=1`, '_blank', 'noopener,noreferrer');
   };
 
   return (
