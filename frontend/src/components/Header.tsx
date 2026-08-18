@@ -38,9 +38,7 @@ export function Header() {
 
   const handleGoToExamMode = () => {
     setNavOpen(false);
-    requestAnimationFrame(() => {
-      document.getElementById('levels')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    window.open(`${window.location.origin}${window.location.pathname}#levels`, '_blank', 'noopener,noreferrer');
   };
 
   return (
