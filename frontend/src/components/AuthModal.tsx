@@ -2,7 +2,6 @@ import { FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getCopy } from '../i18n/copy';
 import { useLanguage } from '../context/LanguageContext';
-import { sendWelcomeEmail } from '../api/client';
 
 type Mode = 'signup' | 'login';
 
@@ -41,10 +40,8 @@ export function AuthModal({
       setError(result.error);
       return;
     }
-    if (mode === 'signup') {
-      // Best-effort: a failed welcome email should never block onboarding.
-      sendWelcomeEmail(uiLanguage).catch(() => {});
-    }
+    // Welcome email fires from AuthContext once a real session exists (immediately here if no
+    // email confirmation is required, or later when the learner confirms and signs in).
     onAuthenticated();
   }
 

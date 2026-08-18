@@ -1,6 +1,28 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '../lib/supabaseClient';
+import { sendWelcomeEmail } from '../api/client';
+
+// Matches LanguageContext's storage key — read directly instead of via useLanguage() so this
+// doesn't depend on provider nesting order.
+const UI_LANGUAGE_STORAGE_KEY = 'hs.uiLanguage';
+
+// Fires once per freshly-created account, regardless of how it signed in (password — with or
+// without Supabase's email-confirmation step delaying the session — or Google OAuth). Right
+// after signUp() often has no session yet if email confirmation is required, so sending from
+// there (as before) silently did nothing; onAuthStateChange only fires once a session actually
+// exists, whenever that ends up being. "Fresh" is inferred from the account's age rather than
+// tracked in localStorage, so a first login on a new device never re-sends it for an old account.
+const welcomedThisSession = new Set<string>();
+function maybeSendWelcomeEmail(user: User | undefined) {
+  if (!user || welcomedThisSession.has(user.id)) return;
+  const createdAt = user.created_at ? new Date(user.created_at).getTime() : 0;
+  const isFreshSignup = createdAt > 0 && Date.now() - createdAt < 5 * 60 * 1000;
+  if (!isFreshSignup) return;
+  welcomedThisSession.add(user.id);
+  const uiLanguage = localStorage.getItem(UI_LANGUAGE_STORAGE_KEY) === 'es' ? 'es' : 'en';
+  sendWelcomeEmail(uiLanguage).catch(() => {});
+}
 
 interface AuthContextValue {
   user: User | null;
@@ -27,9 +49,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
+      maybeSendWelcomeEmail(data.session?.user);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
+      maybeSendWelcomeEmail(next?.user);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
