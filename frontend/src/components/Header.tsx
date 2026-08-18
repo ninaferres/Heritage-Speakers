@@ -119,7 +119,7 @@ export function Header() {
                 <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleStartDailyPractice}>
                   {uiLanguage === 'es' ? 'Práctica diaria' : 'Daily practice'}
                 </button>
-                <button className="btn btn-wine" style={{ width: '100%' }} onClick={handleGoToExamMode}>
+                <button className="nav-btn-outline" onClick={handleGoToExamMode}>
                   {uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}
                 </button>
               </div>
@@ -145,39 +145,14 @@ export function Header() {
 
             <div>
               <div className="nav-section-label">{uiLanguage === 'es' ? 'Acerca de' : 'About'}</div>
-              <button
-                onClick={handleOpenAbout}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  fontSize: '0.95rem',
-                  border: 'none',
-                  borderRadius: '8px',
-                  background: 'var(--wine)',
-                  color: 'var(--bone)',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  marginBottom: '0.5rem',
-                }}
-              >
-                {getString('about.title', uiLanguage)}
-              </button>
-              <button
-                onClick={handleOpenWhyUs}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  fontSize: '0.95rem',
-                  border: '1.5px solid var(--wine)',
-                  borderRadius: '8px',
-                  background: 'transparent',
-                  color: 'var(--wine)',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                {uiLanguage === 'es' ? 'Por qué Heritage Speakers' : 'Why Heritage Speakers'}
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
+                <button className="nav-btn-outline" onClick={handleOpenAbout}>
+                  {getString('about.title', uiLanguage)}
+                </button>
+                <button className="nav-btn-outline" onClick={handleOpenWhyUs}>
+                  {uiLanguage === 'es' ? 'Por qué Heritage Speakers' : 'Why Heritage Speakers'}
+                </button>
+              </div>
             </div>
 
             <div>
@@ -185,8 +160,7 @@ export function Header() {
               {user ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
                   <button
-                    className="btn btn-gold"
-                    style={{ width: '100%' }}
+                    className="nav-btn-outline"
                     onClick={() => { setProfileOpen(true); setNavOpen(false); }}
                   >
                     {uiLanguage === 'es' ? 'Ver perfil' : 'View profile'}
@@ -198,7 +172,7 @@ export function Header() {
                 </div>
               ) : (
                 <div className="nav-auth-actions">
-                  <button className="btn btn-wine" onClick={() => { setAuthMode('login'); setNavOpen(false); }}>
+                  <button className="nav-btn-outline" onClick={() => { setAuthMode('login'); setNavOpen(false); }}>
                     {COPY.logIn}
                   </button>
                   <button className="btn btn-gold" onClick={() => { setAuthMode('signup'); setNavOpen(false); }}>
