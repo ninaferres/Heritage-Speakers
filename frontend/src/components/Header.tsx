@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { AboutModal } from './AboutModal';
 import { WhyUsModal } from './WhyUsModal';
+import { ProfilePanel } from './ProfilePanel';
 import { getCopy } from '../i18n/copy';
 
 export function Header() {
@@ -13,6 +14,7 @@ export function Header() {
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [whyUsOpen, setWhyUsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
   const COPY = getCopy(uiLanguage);
@@ -157,9 +159,18 @@ export function Header() {
             <div>
               <div className="nav-section-label">{uiLanguage === 'es' ? 'Cuenta' : 'Account'}</div>
               {user ? (
-                <div className="nav-user-chip">
-                  <span className="email" title={user.email ?? ''}>{user.email}</span>
-                  <button className="btn btn-ghost btn-small" onClick={() => signOut()}>{uiLanguage === 'es' ? 'Cerrar sesión' : 'Log out'}</button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
+                  <button
+                    className="btn btn-gold"
+                    style={{ width: '100%' }}
+                    onClick={() => { setProfileOpen(true); setNavOpen(false); }}
+                  >
+                    {uiLanguage === 'es' ? 'Ver perfil' : 'View profile'}
+                  </button>
+                  <div className="nav-user-chip">
+                    <span className="email" title={user.email ?? ''}>{user.email}</span>
+                    <button className="btn btn-ghost btn-small" onClick={() => signOut()}>{uiLanguage === 'es' ? 'Cerrar sesión' : 'Log out'}</button>
+                  </div>
                 </div>
               ) : (
                 <div className="nav-auth-actions">
@@ -186,6 +197,10 @@ export function Header() {
 
       {whyUsOpen && (
         <WhyUsModal onClose={() => setWhyUsOpen(false)} />
+      )}
+
+      {profileOpen && (
+        <ProfilePanel onClose={() => setProfileOpen(false)} />
       )}
     </>
   );

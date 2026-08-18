@@ -142,19 +142,64 @@ export interface SkillStreak {
   lastCompletedOn: string | null;
 }
 
+export interface ProfileData {
+  level: number;
+  totalPoints: number;
+  pointsForCurrentLevel: number;
+  pointsForNextLevel: number | null;
+  streaks: Record<string, SkillStreak>;
+}
+
+export interface League {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  weeklyPoints: number;
+  totalPoints: number;
+  level: number;
+  isMe: boolean;
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, { headers: await authHeaders() });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Request to ${path} failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function fetchProfile(): Promise<ProfileData> {
+  return getJson('/profile');
+}
+
+export async function fetchMyLeagues(): Promise<League[]> {
+  return getJson('/leagues');
+}
+
+export async function createLeague(name: string, displayName: string): Promise<League> {
+  return postJson('/leagues', { name, displayName });
+}
+
+export async function joinLeague(code: string, displayName: string): Promise<League> {
+  return postJson('/leagues/join', { code, displayName });
+}
+
+export async function fetchLeaderboard(leagueId: string): Promise<LeaderboardEntry[]> {
+  return getJson(`/leagues/${leagueId}/leaderboard`);
+}
+
 export async function recordPracticeCompletion(skill: string, source: 'daily_practice' | 'exam_mode'): Promise<void> {
   await postJson('/practice-completions', { skill, source });
 }
 
 export async function fetchStreaks(): Promise<Record<string, SkillStreak>> {
-  const res = await fetch(`${API_BASE}/practice-completions/streaks`, {
-    headers: await authHeaders(),
-  });
-  if (!res.ok) {
-    const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.error || `Request to /practice-completions/streaks failed (${res.status})`);
-  }
-  return res.json();
+  return getJson('/practice-completions/streaks');
 }
 
 // Use Azure Speech via backend for high-quality speech synthesis

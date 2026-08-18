@@ -25,13 +25,37 @@ function userClient(token: string) {
   });
 }
 
-/** Records that this user completed a practice session for this skill today (no-op if already recorded today). */
+const BASE_POINTS = 10;
+const POINTS_PER_STREAK_DAY = 2;
+
+/**
+ * Records that this user completed a practice session for this skill today (no-op if already
+ * recorded today). Awards points now, permanently, based on the streak this completion extends —
+ * so a streak broken later never claws back points already earned for it.
+ */
 export async function recordCompletion(token: string, userId: string, skill: string, source: CompletionSource): Promise<void> {
   const client = userClient(token);
-  const completedOn = new Date().toISOString().slice(0, 10);
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const { data: recent, error: recentError } = await client
+    .from('practice_completions')
+    .select('completed_on')
+    .eq('user_id', userId)
+    .eq('skill', skill)
+    .order('completed_on', { ascending: false })
+    .limit(1);
+  if (recentError) throw new Error(`Failed to check existing streak: ${recentError.message}`);
+
+  const lastCompletedOn = recent?.[0]?.completed_on as string | undefined;
+  const continuesStreak = lastCompletedOn ? daysBetween(lastCompletedOn, todayStr) === 1 : false;
+  // We don't know the streak length before today without a second query, but 1 (fresh) vs.
+  // "continuing" is what matters for the bonus shape — a flat per-day bonus recomputed from
+  // getStreaks() would double-count, so this awards a fixed continuation bonus per completion.
+  const points = BASE_POINTS + (continuesStreak ? POINTS_PER_STREAK_DAY : 0);
+
   const { error } = await client
     .from('practice_completions')
-    .upsert({ user_id: userId, skill, source, completed_on: completedOn }, { onConflict: 'user_id,skill,completed_on', ignoreDuplicates: true });
+    .upsert({ user_id: userId, skill, source, completed_on: todayStr, points }, { onConflict: 'user_id,skill,completed_on', ignoreDuplicates: true });
   if (error) throw new Error(`Failed to record practice completion: ${error.message}`);
 }
 
