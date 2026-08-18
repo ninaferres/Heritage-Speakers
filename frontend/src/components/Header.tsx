@@ -8,6 +8,7 @@ import { AboutModal } from './AboutModal';
 import { WhyUsModal } from './WhyUsModal';
 import { ProfilePanel } from './ProfilePanel';
 import { getCopy } from '../i18n/copy';
+import { useMicroLessonGate } from '../context/MicroLessonGateContext';
 
 export function Header() {
   const [navOpen, setNavOpen] = useState(false);
@@ -17,6 +18,7 @@ export function Header() {
   const [profileOpen, setProfileOpen] = useState(false);
   const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
+  const { requestMicroLesson } = useMicroLessonGate();
   const COPY = getCopy(uiLanguage);
 
   const handleOpenAbout = () => {
@@ -27,6 +29,18 @@ export function Header() {
   const handleOpenWhyUs = () => {
     setWhyUsOpen(true);
     setNavOpen(false);
+  };
+
+  const handleStartDailyPractice = () => {
+    setNavOpen(false);
+    requestMicroLesson();
+  };
+
+  const handleGoToExamMode = () => {
+    setNavOpen(false);
+    requestAnimationFrame(() => {
+      document.getElementById('levels')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
   return (
@@ -99,6 +113,18 @@ export function Header() {
             <div className="nav-panel-head">
               <BrandLockup variant="wine" />
               <button className="nav-panel-close" aria-label="Close menu" onClick={() => setNavOpen(false)}>✕</button>
+            </div>
+
+            <div>
+              <div className="nav-section-label">{uiLanguage === 'es' ? 'Practicar' : 'Practice'}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
+                <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleStartDailyPractice}>
+                  {uiLanguage === 'es' ? 'Práctica diaria' : 'Daily practice'}
+                </button>
+                <button className="btn btn-wine" style={{ width: '100%' }} onClick={handleGoToExamMode}>
+                  {uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}
+                </button>
+              </div>
             </div>
 
             <div>
