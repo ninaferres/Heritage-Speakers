@@ -11,6 +11,11 @@ export const env = {
 
   supabaseUrl: optional('SUPABASE_URL'),
   supabaseAnonKey: optional('SUPABASE_ANON_KEY'),
+  // Only used for the feedback mailbox's admin read (GET /api/feedback), which has no per-user
+  // JWT to scope a request-level client to — that route is public data with no per-row owner, so
+  // it deliberately bypasses RLS instead. Never use this key for anything reachable without an
+  // equivalent auth check first.
+  supabaseServiceRoleKey: optional('SUPABASE_SERVICE_ROLE_KEY'),
 
   aiProvider: (optional('AI_PROVIDER') ?? 'groq') as 'anthropic' | 'openai' | 'groq',
   anthropicApiKey: optional('ANTHROPIC_API_KEY'),

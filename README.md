@@ -151,10 +151,12 @@ while testing — verify a domain in Resend and point `RESEND_FROM_EMAIL` at it
 
 ### 6. Feedback mailbox (optional)
 
-The feedback widget's `POST /api/feedback` always works and writes to a local
-`backend/data/feedback.json` file (no database yet). Set `FEEDBACK_ADMIN_KEY` to
-any secret string to enable reading submissions back via
-`GET /api/feedback` with header `x-admin-key: <that secret>`.
+The feedback widget's `POST /api/feedback` writes to a `feedback` table in
+Supabase (see `backend/supabase/feedback.sql` — run it once in the Supabase
+SQL editor). Set `FEEDBACK_ADMIN_KEY` to any secret string and
+`SUPABASE_SERVICE_ROLE_KEY` (from the Supabase project settings) to enable
+reading submissions back via `GET /api/feedback` with header
+`x-admin-key: <that secret>`.
 
 ### Running locally
 
