@@ -1,0 +1,147 @@
+/** Countries with their international dial code, for the WhatsApp number field at sign-up.
+ * iso2 doubles as the source for the flag emoji (regional-indicator symbols), so we don't have to
+ * hand-maintain emoji separately. Spain is pinned first since it's this app's home market;
+ * everything else is sorted alphabetically by the active UI language's name. */
+
+export interface Country {
+  iso2: string;
+  dialCode: string;
+  nameEn: string;
+  nameEs: string;
+}
+
+export const COUNTRIES: Country[] = [
+  { iso2: 'ES', dialCode: '+34', nameEn: 'Spain', nameEs: 'España' },
+  { iso2: 'US', dialCode: '+1', nameEn: 'United States', nameEs: 'Estados Unidos' },
+  { iso2: 'MX', dialCode: '+52', nameEn: 'Mexico', nameEs: 'México' },
+  { iso2: 'AR', dialCode: '+54', nameEn: 'Argentina', nameEs: 'Argentina' },
+  { iso2: 'CO', dialCode: '+57', nameEn: 'Colombia', nameEs: 'Colombia' },
+  { iso2: 'PE', dialCode: '+51', nameEn: 'Peru', nameEs: 'Perú' },
+  { iso2: 'VE', dialCode: '+58', nameEn: 'Venezuela', nameEs: 'Venezuela' },
+  { iso2: 'CL', dialCode: '+56', nameEn: 'Chile', nameEs: 'Chile' },
+  { iso2: 'EC', dialCode: '+593', nameEn: 'Ecuador', nameEs: 'Ecuador' },
+  { iso2: 'GT', dialCode: '+502', nameEn: 'Guatemala', nameEs: 'Guatemala' },
+  { iso2: 'CU', dialCode: '+53', nameEn: 'Cuba', nameEs: 'Cuba' },
+  { iso2: 'BO', dialCode: '+591', nameEn: 'Bolivia', nameEs: 'Bolivia' },
+  { iso2: 'DO', dialCode: '+1', nameEn: 'Dominican Republic', nameEs: 'República Dominicana' },
+  { iso2: 'HN', dialCode: '+504', nameEn: 'Honduras', nameEs: 'Honduras' },
+  { iso2: 'PY', dialCode: '+595', nameEn: 'Paraguay', nameEs: 'Paraguay' },
+  { iso2: 'SV', dialCode: '+503', nameEn: 'El Salvador', nameEs: 'El Salvador' },
+  { iso2: 'NI', dialCode: '+505', nameEn: 'Nicaragua', nameEs: 'Nicaragua' },
+  { iso2: 'CR', dialCode: '+506', nameEn: 'Costa Rica', nameEs: 'Costa Rica' },
+  { iso2: 'PA', dialCode: '+507', nameEn: 'Panama', nameEs: 'Panamá' },
+  { iso2: 'UY', dialCode: '+598', nameEn: 'Uruguay', nameEs: 'Uruguay' },
+  { iso2: 'PR', dialCode: '+1', nameEn: 'Puerto Rico', nameEs: 'Puerto Rico' },
+  { iso2: 'GQ', dialCode: '+240', nameEn: 'Equatorial Guinea', nameEs: 'Guinea Ecuatorial' },
+  { iso2: 'RU', dialCode: '+7', nameEn: 'Russia', nameEs: 'Rusia' },
+  { iso2: 'UA', dialCode: '+380', nameEn: 'Ukraine', nameEs: 'Ucrania' },
+  { iso2: 'BY', dialCode: '+375', nameEn: 'Belarus', nameEs: 'Bielorrusia' },
+  { iso2: 'KZ', dialCode: '+7', nameEn: 'Kazakhstan', nameEs: 'Kazajistán' },
+  { iso2: 'AL', dialCode: '+355', nameEn: 'Albania', nameEs: 'Albania' },
+  { iso2: 'DE', dialCode: '+49', nameEn: 'Germany', nameEs: 'Alemania' },
+  { iso2: 'AD', dialCode: '+376', nameEn: 'Andorra', nameEs: 'Andorra' },
+  { iso2: 'AO', dialCode: '+244', nameEn: 'Angola', nameEs: 'Angola' },
+  { iso2: 'SA', dialCode: '+966', nameEn: 'Saudi Arabia', nameEs: 'Arabia Saudí' },
+  { iso2: 'DZ', dialCode: '+213', nameEn: 'Algeria', nameEs: 'Argelia' },
+  { iso2: 'AM', dialCode: '+374', nameEn: 'Armenia', nameEs: 'Armenia' },
+  { iso2: 'AU', dialCode: '+61', nameEn: 'Australia', nameEs: 'Australia' },
+  { iso2: 'AT', dialCode: '+43', nameEn: 'Austria', nameEs: 'Austria' },
+  { iso2: 'AZ', dialCode: '+994', nameEn: 'Azerbaijan', nameEs: 'Azerbaiyán' },
+  { iso2: 'BE', dialCode: '+32', nameEn: 'Belgium', nameEs: 'Bélgica' },
+  { iso2: 'BA', dialCode: '+387', nameEn: 'Bosnia and Herzegovina', nameEs: 'Bosnia y Herzegovina' },
+  { iso2: 'BR', dialCode: '+55', nameEn: 'Brazil', nameEs: 'Brasil' },
+  { iso2: 'BG', dialCode: '+359', nameEn: 'Bulgaria', nameEs: 'Bulgaria' },
+  { iso2: 'CV', dialCode: '+238', nameEn: 'Cape Verde', nameEs: 'Cabo Verde' },
+  { iso2: 'CM', dialCode: '+237', nameEn: 'Cameroon', nameEs: 'Camerún' },
+  { iso2: 'CA', dialCode: '+1', nameEn: 'Canada', nameEs: 'Canadá' },
+  { iso2: 'QA', dialCode: '+974', nameEn: 'Qatar', nameEs: 'Catar' },
+  { iso2: 'CN', dialCode: '+86', nameEn: 'China', nameEs: 'China' },
+  { iso2: 'CY', dialCode: '+357', nameEn: 'Cyprus', nameEs: 'Chipre' },
+  { iso2: 'VA', dialCode: '+39', nameEn: 'Vatican City', nameEs: 'Ciudad del Vaticano' },
+  { iso2: 'CI', dialCode: '+225', nameEn: "Côte d'Ivoire", nameEs: 'Costa de Marfil' },
+  { iso2: 'HR', dialCode: '+385', nameEn: 'Croatia', nameEs: 'Croacia' },
+  { iso2: 'DK', dialCode: '+45', nameEn: 'Denmark', nameEs: 'Dinamarca' },
+  { iso2: 'EG', dialCode: '+20', nameEn: 'Egypt', nameEs: 'Egipto' },
+  { iso2: 'AE', dialCode: '+971', nameEn: 'United Arab Emirates', nameEs: 'Emiratos Árabes Unidos' },
+  { iso2: 'SK', dialCode: '+421', nameEn: 'Slovakia', nameEs: 'Eslovaquia' },
+  { iso2: 'SI', dialCode: '+386', nameEn: 'Slovenia', nameEs: 'Eslovenia' },
+  { iso2: 'EE', dialCode: '+372', nameEn: 'Estonia', nameEs: 'Estonia' },
+  { iso2: 'ET', dialCode: '+251', nameEn: 'Ethiopia', nameEs: 'Etiopía' },
+  { iso2: 'PH', dialCode: '+63', nameEn: 'Philippines', nameEs: 'Filipinas' },
+  { iso2: 'FI', dialCode: '+358', nameEn: 'Finland', nameEs: 'Finlandia' },
+  { iso2: 'FR', dialCode: '+33', nameEn: 'France', nameEs: 'Francia' },
+  { iso2: 'GE', dialCode: '+995', nameEn: 'Georgia', nameEs: 'Georgia' },
+  { iso2: 'GH', dialCode: '+233', nameEn: 'Ghana', nameEs: 'Ghana' },
+  { iso2: 'GR', dialCode: '+30', nameEn: 'Greece', nameEs: 'Grecia' },
+  { iso2: 'HT', dialCode: '+509', nameEn: 'Haiti', nameEs: 'Haití' },
+  { iso2: 'NL', dialCode: '+31', nameEn: 'Netherlands', nameEs: 'Países Bajos' },
+  { iso2: 'IN', dialCode: '+91', nameEn: 'India', nameEs: 'India' },
+  { iso2: 'ID', dialCode: '+62', nameEn: 'Indonesia', nameEs: 'Indonesia' },
+  { iso2: 'IQ', dialCode: '+964', nameEn: 'Iraq', nameEs: 'Irak' },
+  { iso2: 'IR', dialCode: '+98', nameEn: 'Iran', nameEs: 'Irán' },
+  { iso2: 'IE', dialCode: '+353', nameEn: 'Ireland', nameEs: 'Irlanda' },
+  { iso2: 'IS', dialCode: '+354', nameEn: 'Iceland', nameEs: 'Islandia' },
+  { iso2: 'IL', dialCode: '+972', nameEn: 'Israel', nameEs: 'Israel' },
+  { iso2: 'IT', dialCode: '+39', nameEn: 'Italy', nameEs: 'Italia' },
+  { iso2: 'JM', dialCode: '+1', nameEn: 'Jamaica', nameEs: 'Jamaica' },
+  { iso2: 'JP', dialCode: '+81', nameEn: 'Japan', nameEs: 'Japón' },
+  { iso2: 'JO', dialCode: '+962', nameEn: 'Jordan', nameEs: 'Jordania' },
+  { iso2: 'KE', dialCode: '+254', nameEn: 'Kenya', nameEs: 'Kenia' },
+  { iso2: 'KW', dialCode: '+965', nameEn: 'Kuwait', nameEs: 'Kuwait' },
+  { iso2: 'LV', dialCode: '+371', nameEn: 'Latvia', nameEs: 'Letonia' },
+  { iso2: 'LB', dialCode: '+961', nameEn: 'Lebanon', nameEs: 'Líbano' },
+  { iso2: 'LY', dialCode: '+218', nameEn: 'Libya', nameEs: 'Libia' },
+  { iso2: 'LT', dialCode: '+370', nameEn: 'Lithuania', nameEs: 'Lituania' },
+  { iso2: 'LU', dialCode: '+352', nameEn: 'Luxembourg', nameEs: 'Luxemburgo' },
+  { iso2: 'MY', dialCode: '+60', nameEn: 'Malaysia', nameEs: 'Malasia' },
+  { iso2: 'MA', dialCode: '+212', nameEn: 'Morocco', nameEs: 'Marruecos' },
+  { iso2: 'MK', dialCode: '+389', nameEn: 'North Macedonia', nameEs: 'Macedonia del Norte' },
+  { iso2: 'MT', dialCode: '+356', nameEn: 'Malta', nameEs: 'Malta' },
+  { iso2: 'MD', dialCode: '+373', nameEn: 'Moldova', nameEs: 'Moldavia' },
+  { iso2: 'MC', dialCode: '+377', nameEn: 'Monaco', nameEs: 'Mónaco' },
+  { iso2: 'ME', dialCode: '+382', nameEn: 'Montenegro', nameEs: 'Montenegro' },
+  { iso2: 'MZ', dialCode: '+258', nameEn: 'Mozambique', nameEs: 'Mozambique' },
+  { iso2: 'NG', dialCode: '+234', nameEn: 'Nigeria', nameEs: 'Nigeria' },
+  { iso2: 'NO', dialCode: '+47', nameEn: 'Norway', nameEs: 'Noruega' },
+  { iso2: 'NZ', dialCode: '+64', nameEn: 'New Zealand', nameEs: 'Nueva Zelanda' },
+  { iso2: 'OM', dialCode: '+968', nameEn: 'Oman', nameEs: 'Omán' },
+  { iso2: 'PK', dialCode: '+92', nameEn: 'Pakistan', nameEs: 'Pakistán' },
+  { iso2: 'PL', dialCode: '+48', nameEn: 'Poland', nameEs: 'Polonia' },
+  { iso2: 'PT', dialCode: '+351', nameEn: 'Portugal', nameEs: 'Portugal' },
+  { iso2: 'GB', dialCode: '+44', nameEn: 'United Kingdom', nameEs: 'Reino Unido' },
+  { iso2: 'CZ', dialCode: '+420', nameEn: 'Czech Republic', nameEs: 'República Checa' },
+  { iso2: 'RO', dialCode: '+40', nameEn: 'Romania', nameEs: 'Rumanía' },
+  { iso2: 'RW', dialCode: '+250', nameEn: 'Rwanda', nameEs: 'Ruanda' },
+  { iso2: 'SN', dialCode: '+221', nameEn: 'Senegal', nameEs: 'Senegal' },
+  { iso2: 'RS', dialCode: '+381', nameEn: 'Serbia', nameEs: 'Serbia' },
+  { iso2: 'SG', dialCode: '+65', nameEn: 'Singapore', nameEs: 'Singapur' },
+  { iso2: 'SY', dialCode: '+963', nameEn: 'Syria', nameEs: 'Siria' },
+  { iso2: 'ZA', dialCode: '+27', nameEn: 'South Africa', nameEs: 'Sudáfrica' },
+  { iso2: 'SE', dialCode: '+46', nameEn: 'Sweden', nameEs: 'Suecia' },
+  { iso2: 'CH', dialCode: '+41', nameEn: 'Switzerland', nameEs: 'Suiza' },
+  { iso2: 'TH', dialCode: '+66', nameEn: 'Thailand', nameEs: 'Tailandia' },
+  { iso2: 'TW', dialCode: '+886', nameEn: 'Taiwan', nameEs: 'Taiwán' },
+  { iso2: 'TZ', dialCode: '+255', nameEn: 'Tanzania', nameEs: 'Tanzania' },
+  { iso2: 'TN', dialCode: '+216', nameEn: 'Tunisia', nameEs: 'Túnez' },
+  { iso2: 'TR', dialCode: '+90', nameEn: 'Turkey', nameEs: 'Turquía' },
+  { iso2: 'UG', dialCode: '+256', nameEn: 'Uganda', nameEs: 'Uganda' },
+  { iso2: 'VN', dialCode: '+84', nameEn: 'Vietnam', nameEs: 'Vietnam' },
+  { iso2: 'YE', dialCode: '+967', nameEn: 'Yemen', nameEs: 'Yemen' },
+  { iso2: 'ZM', dialCode: '+260', nameEn: 'Zambia', nameEs: 'Zambia' },
+  { iso2: 'ZW', dialCode: '+263', nameEn: 'Zimbabwe', nameEs: 'Zimbabue' },
+  { iso2: 'KR', dialCode: '+82', nameEn: 'South Korea', nameEs: 'Corea del Sur' },
+];
+
+/** Converts an ISO-3166 alpha-2 code into a flag emoji via regional-indicator symbols. */
+export function flagEmoji(iso2: string): string {
+  return iso2
+    .toUpperCase()
+    .replace(/./g, (char) => String.fromCodePoint(0x1f1e6 + char.charCodeAt(0) - 65));
+}
+
+export function sortedCountries(uiLanguage: 'en' | 'es'): Country[] {
+  const [pinned, rest] = [COUNTRIES[0], COUNTRIES.slice(1)];
+  const collator = new Intl.Collator(uiLanguage);
+  rest.sort((a, b) => collator.compare(uiLanguage === 'es' ? a.nameEs : a.nameEn, uiLanguage === 'es' ? b.nameEs : b.nameEn));
+  return [pinned, ...rest];
+}

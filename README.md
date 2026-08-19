@@ -128,6 +128,37 @@ feedback submissions fail.
 
 Auth itself needs no setup here: registered users live in Supabase's built-in
 `auth.users`, visible under Authentication → Users, not in the Table Editor.
+Each user's WhatsApp number (country code + number, collected right after
+sign-in — see below) is saved on that same row as user metadata, so it shows up
+there too, no separate table needed.
+
+#### "Continue with Apple"
+
+This one can't be turned on from code — Apple requires you to own a paid
+[Apple Developer](https://developer.apple.com/) account ($99/year) and register
+the app there yourself:
+
+1. In the Apple Developer portal: create an **App ID**, a **Services ID** (this
+   is the OAuth "client ID"), and a **Sign in with Apple key** (gives you a
+   `.p8` private key + Key ID + your Team ID).
+2. On the Services ID, add Supabase's callback URL as an authorized redirect —
+   Supabase shows you the exact URL to use once you open the Apple provider
+   panel (Authentication → Providers → Apple).
+3. Back in Supabase, paste in the Services ID, Team ID, Key ID, and the private
+   key, then toggle the provider on.
+
+Until that's done, the "Continue with Apple" button in the app will show
+Supabase's "provider not enabled" error — the frontend code is ready and
+waiting, it just needs those credentials on Supabase's side.
+
+#### Required WhatsApp number
+
+Every account — password, Google, or Apple — is asked for a WhatsApp number
+(with a country picker) right after their first sign-in, via a screen that
+blocks the rest of the app until it's filled in. This needed no new table: it's
+saved straight onto the Supabase auth user via `updateUser()`, so it's just
+sitting in `user_metadata` next to the account, visible under Authentication →
+Users → (click a user) → raw user meta data.
 
 ### 2. AI grading
 

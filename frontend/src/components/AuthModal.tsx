@@ -14,7 +14,7 @@ export function AuthModal({
   onAuthenticated: () => void;
   initialMode?: Mode;
 }) {
-  const { signInWithPassword, signUpWithPassword, signInWithGoogle, isConfigured } = useAuth();
+  const { signInWithPassword, signUpWithPassword, signInWithGoogle, signInWithApple, isConfigured } = useAuth();
   const { uiLanguage } = useLanguage();
   const COPY = getCopy(uiLanguage);
   const [mode, setMode] = useState<Mode>(initialMode);
@@ -57,6 +57,16 @@ export function AuthModal({
     if (result.error) setError(result.error);
   }
 
+  async function handleApple() {
+    setError(null);
+    if (!isConfigured) {
+      setError(COPY.authNotConfigured);
+      return;
+    }
+    const result = await signInWithApple();
+    if (result.error) setError(result.error);
+  }
+
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -78,6 +88,10 @@ export function AuthModal({
 
         <button type="button" className="btn btn-google" onClick={handleGoogle}>
           <GoogleIcon /> {COPY.continueWithGoogle}
+        </button>
+
+        <button type="button" className="btn btn-apple" onClick={handleApple}>
+          <AppleIcon /> {COPY.continueWithApple}
         </button>
 
         <div className="modal-divider">{COPY.or}</div>
@@ -137,6 +151,15 @@ function GoogleIcon() {
       <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
       <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.3 35.4 26.8 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.5 5C9.6 39.6 16.2 44 24 44z" />
       <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.8l6.3 5.3C40.8 36 44 30.9 44 24c0-1.3-.1-2.7-.4-3.5z" />
+    </svg>
+  );
+}
+
+function AppleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+      <path d="M17.05 12.5c-.03-2.6 2.12-3.85 2.22-3.91-1.21-1.77-3.09-2.01-3.76-2.04-1.6-.16-3.13.94-3.94.94-.82 0-2.06-.92-3.4-.9-1.75.03-3.37 1.02-4.27 2.59-1.82 3.16-.47 7.83 1.31 10.4.87 1.25 1.9 2.66 3.26 2.61 1.31-.05 1.8-.85 3.38-.85s2.03.85 3.41.82c1.42-.02 2.31-1.28 3.17-2.54.99-1.46 1.4-2.87 1.42-2.94-.03-.02-2.75-1.06-2.78-4.18h-.02z" />
+      <path d="M14.68 4.79c.72-.87 1.2-2.08 1.07-3.29-1.03.04-2.29.68-3.03 1.55-.67.77-1.25 2-1.09 3.18 1.16.09 2.34-.58 3.05-1.44z" />
     </svg>
   );
 }

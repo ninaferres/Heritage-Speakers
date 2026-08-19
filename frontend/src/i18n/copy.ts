@@ -7,6 +7,7 @@ interface CopyShape {
   logIn: string;
   signUp: string;
   continueWithGoogle: string;
+  continueWithApple: string;
   or: string;
   emailLabel: string;
   passwordLabel: string;
@@ -17,6 +18,12 @@ interface CopyShape {
   legalNote: string;
   pleaseWait: string;
   authNotConfigured: string;
+  phoneGateTitle: string;
+  phoneGateBody: string;
+  countryLabel: string;
+  whatsappLabel: string;
+  phoneGateAction: string;
+  phoneGateError: string;
 }
 
 const COPY_EN: CopyShape = {
@@ -25,6 +32,7 @@ const COPY_EN: CopyShape = {
   logIn: 'Log In',
   signUp: 'Sign Up',
   continueWithGoogle: 'Continue with Google',
+  continueWithApple: 'Continue with Apple',
   or: 'or',
   emailLabel: 'Email address',
   passwordLabel: 'Password',
@@ -35,6 +43,12 @@ const COPY_EN: CopyShape = {
   legalNote: 'Free during our beta. No payment required.',
   pleaseWait: 'Please wait…',
   authNotConfigured: 'Authentication is not configured yet. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable sign up.',
+  phoneGateTitle: 'One last step',
+  phoneGateBody: "We'll use your WhatsApp number to reach you personally during our beta — never for spam.",
+  countryLabel: 'Country',
+  whatsappLabel: 'WhatsApp number',
+  phoneGateAction: 'Save and continue',
+  phoneGateError: 'Enter a valid WhatsApp number.',
 };
 
 const COPY_ES: CopyShape = {
@@ -43,6 +57,7 @@ const COPY_ES: CopyShape = {
   logIn: 'Iniciar Sesión',
   signUp: 'Registrarse',
   continueWithGoogle: 'Continuar con Google',
+  continueWithApple: 'Continuar con Apple',
   or: 'o',
   emailLabel: 'Correo electrónico',
   passwordLabel: 'Contraseña',
@@ -53,6 +68,12 @@ const COPY_ES: CopyShape = {
   legalNote: 'Gratis durante nuestra beta. No se requiere pago.',
   pleaseWait: 'Un momento…',
   authNotConfigured: 'La autenticación aún no está configurada. Configura VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY para habilitar el registro.',
+  phoneGateTitle: 'Un último paso',
+  phoneGateBody: 'Usaremos tu número de WhatsApp para contactarte de forma personal durante nuestra beta. Nunca para spam.',
+  countryLabel: 'País',
+  whatsappLabel: 'Número de WhatsApp',
+  phoneGateAction: 'Guardar y continuar',
+  phoneGateError: 'Introduce un número de WhatsApp válido.',
 };
 
 export function getCopy(uiLanguage: 'en' | 'es'): CopyShape {

@@ -10,12 +10,14 @@ import { ExerciseGateProvider } from './context/ExerciseGateContext';
 import { MicroLessonGateProvider } from './context/MicroLessonGateContext';
 import { StreakProvider } from './context/StreakContext';
 import { FeedbackWidget } from './components/FeedbackWidget';
+import { PhoneGateModal } from './components/PhoneGateModal';
 
 export default function App() {
   return (
     <StreakProvider>
       <ExerciseGateProvider>
         <MicroLessonGateProvider>
+          <PhoneGateModal />
           <Header />
           <Hero />
           <BenefitsSection />
