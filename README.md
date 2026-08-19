@@ -109,7 +109,7 @@ cloud provider with egress policy), you may need to allowlist these hosts.
 
 ## Setup
 
-### 1. Supabase (auth)
+### 1. Supabase (auth + database)
 
 Create a free project at [supabase.com](https://supabase.com), enable the Google
 OAuth provider under Authentication → Providers if you want "Continue with
@@ -117,6 +117,17 @@ Google" to work, and copy:
 
 - Project URL → `SUPABASE_URL` (backend) / `VITE_SUPABASE_URL` (frontend)
 - `anon` public key → `SUPABASE_ANON_KEY` (backend) / `VITE_SUPABASE_ANON_KEY` (frontend)
+
+Then create the database tables: open the Supabase dashboard → SQL Editor → New
+query, paste all of `backend/supabase/setup_all.sql`, and Run. That one script
+sets up streaks/points, friend leagues, and the feedback mailbox (it's just the
+three files next to it concatenated in dependency order). Every statement is
+idempotent, so re-running it is safe. Until it's run, sign-up and exercises
+still work, but nothing gets recorded — no streaks, no points, no leagues, and
+feedback submissions fail.
+
+Auth itself needs no setup here: registered users live in Supabase's built-in
+`auth.users`, visible under Authentication → Users, not in the Table Editor.
 
 ### 2. AI grading
 
@@ -152,8 +163,8 @@ while testing — verify a domain in Resend and point `RESEND_FROM_EMAIL` at it
 ### 6. Feedback mailbox (optional)
 
 The feedback widget's `POST /api/feedback` writes to a `feedback` table in
-Supabase (see `backend/supabase/feedback.sql` — run it once in the Supabase
-SQL editor). Set `FEEDBACK_ADMIN_KEY` to any secret string and
+Supabase (created by the setup script in step 1). Set `FEEDBACK_ADMIN_KEY` to
+any secret string and
 `SUPABASE_SERVICE_ROLE_KEY` (from the Supabase project settings) to enable
 reading submissions back via `GET /api/feedback` with header
 `x-admin-key: <that secret>`.
