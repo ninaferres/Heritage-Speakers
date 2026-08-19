@@ -5,6 +5,11 @@ import { useLanguage } from '../context/LanguageContext';
 
 type Mode = 'signup' | 'login';
 
+// Apple sign-in needs the Apple provider turned on in the Supabase dashboard first (requires an
+// Apple Developer account + Services ID/key — see README). Flip this back on once that's done;
+// signInWithApple() and its button below are already fully wired and don't need any other change.
+const APPLE_SIGN_IN_ENABLED = false;
+
 export function AuthModal({
   onClose,
   onAuthenticated,
@@ -90,9 +95,11 @@ export function AuthModal({
           <GoogleIcon /> {COPY.continueWithGoogle}
         </button>
 
-        <button type="button" className="btn btn-apple" onClick={handleApple}>
-          <AppleIcon /> {COPY.continueWithApple}
-        </button>
+        {APPLE_SIGN_IN_ENABLED && (
+          <button type="button" className="btn btn-apple" onClick={handleApple}>
+            <AppleIcon /> {COPY.continueWithApple}
+          </button>
+        )}
 
         <div className="modal-divider">{COPY.or}</div>
 
