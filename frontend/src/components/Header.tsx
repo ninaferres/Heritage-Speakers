@@ -119,7 +119,7 @@ export function Header() {
                 <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleStartDailyPractice}>
                   {uiLanguage === 'es' ? 'Práctica diaria' : 'Daily practice'}
                 </button>
-                <button className="nav-btn-outline" onClick={handleGoToExamMode}>
+                <button className="btn btn-wine" style={{ width: '100%' }} onClick={handleGoToExamMode}>
                   {uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}
                 </button>
               </div>
@@ -160,7 +160,7 @@ export function Header() {
               {user ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
                   <button
-                    className="nav-btn-outline"
+                    className="nav-btn-outline nav-btn-outline-gold"
                     onClick={() => { setProfileOpen(true); setNavOpen(false); }}
                   >
                     {uiLanguage === 'es' ? 'Ver perfil' : 'View profile'}
