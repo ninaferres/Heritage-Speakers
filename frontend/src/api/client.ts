@@ -202,8 +202,9 @@ export async function fetchStreaks(): Promise<Record<string, SkillStreak>> {
   return getJson('/practice-completions/streaks');
 }
 
-// Use Azure Speech via backend for high-quality speech synthesis
-export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId }): Promise<Blob> {
+// Uses Google Cloud TTS via the backend. `level` lets the backend slow down for beginners and run
+// closer to natural native pace for advanced levels, instead of one flat rate for everyone.
+export async function synthesizeSpeechTTS(params: { text: string; accent: AccentId; level?: CefrLevel }): Promise<Blob> {
   try {
     const response = await fetch(`${API_BASE}/tts`, {
       method: 'POST',

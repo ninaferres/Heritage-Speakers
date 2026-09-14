@@ -1,17 +1,19 @@
 import { useRef, useState } from 'react';
 import { ListeningComprehensionContent } from '../../data/microLessonTypes';
 import { synthesizeSpeechTTS } from '../../api/client';
-import { AccentId } from '../../data/types';
+import { AccentId, CefrLevel } from '../../data/types';
 
 export function ListeningComprehensionStep({
   content,
   uiLanguage,
   learningLanguage,
+  level,
   onComplete,
 }: {
   content: ListeningComprehensionContent;
   uiLanguage: 'en' | 'es';
   learningLanguage: string | null;
+  level: CefrLevel;
   onComplete: (correct: boolean) => void;
 }) {
   const [answers, setAnswers] = useState<(string | null)[]>(content.questions.map(() => null));
@@ -28,7 +30,7 @@ export function ListeningComprehensionStep({
     setIsPlaying(true);
     setPlayError(null);
     try {
-      const blob = await synthesizeSpeechTTS({ text: content.transcript, accent });
+      const blob = await synthesizeSpeechTTS({ text: content.transcript, accent, level });
       const url = URL.createObjectURL(blob);
       if (!audioRef.current) audioRef.current = new Audio();
       audioRef.current.src = url;

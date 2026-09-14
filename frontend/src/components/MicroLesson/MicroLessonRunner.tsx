@@ -271,7 +271,7 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
       case 'reading_comprehension':
         return <ReadingComprehensionStep key={step.id} content={step.content} uiLanguage={uiLanguage} onComplete={onComplete} />;
       case 'listening_comprehension':
-        return <ListeningComprehensionStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} onComplete={onComplete} />;
+        return <ListeningComprehensionStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} level={level!} onComplete={onComplete} />;
       case 'speaking_practice':
         return <SpeakingPracticeStep key={step.id} content={step.content} uiLanguage={uiLanguage} learningLanguage={learningLanguage} level={level!} onComplete={onComplete} />;
       case 'writing_practice':

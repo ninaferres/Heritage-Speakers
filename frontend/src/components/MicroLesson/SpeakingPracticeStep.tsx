@@ -41,7 +41,7 @@ export function SpeakingPracticeStep({
     setPlayError(null);
     setPlayingWhich(which);
     try {
-      const blob = await synthesizeSpeechTTS({ text, accent });
+      const blob = await synthesizeSpeechTTS({ text, accent, level });
       const url = URL.createObjectURL(blob);
       if (!audioRef.current) audioRef.current = new Audio();
       audioRef.current.src = url;

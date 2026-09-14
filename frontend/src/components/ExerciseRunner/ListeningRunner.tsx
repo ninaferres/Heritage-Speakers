@@ -28,7 +28,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
     setIsPlaying(true);
     setError(null);
     try {
-      const audioBlob = await synthesizeSpeechTTS({ text: exercise.transcript, accent });
+      const audioBlob = await synthesizeSpeechTTS({ text: exercise.transcript, accent, level });
 
       const audioUrl = URL.createObjectURL(audioBlob);
       if (!audioRef.current) {

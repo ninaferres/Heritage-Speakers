@@ -48,8 +48,23 @@ function toSsml(text: string): string {
   return `<speak>${body}</speak>`;
 }
 
+// Chirp 3 HD's generative model already paces and pauses like a real speaker at its natural rate
+// (1.0) — forcing every level to the same slow, deliberate pace (as before) fights that natural
+// rhythm and is itself a common cause of TTS sounding stilted/robotic. Instead, only slow down for
+// the levels that actually need it for comprehension (A1/A2), and let everything from B1 up run at
+// (or above) the model's own natural pace, closer to how a real person actually talks.
+const SPEAKING_RATE_BY_LEVEL: Record<string, number> = {
+  A1: 0.85,
+  A2: 0.9,
+  B1: 0.97,
+  B2: 1.0,
+  C1: 1.03,
+  C2: 1.05,
+};
+const DEFAULT_SPEAKING_RATE = 0.95;
+
 /** Synthesizes speech via Google Cloud Text-to-Speech, for Listening exercises. */
-export async function synthesizeSpeech(text: string, accent: string): Promise<Buffer> {
+export async function synthesizeSpeech(text: string, accent: string, level?: string): Promise<Buffer> {
   if (!isTtsConfigured) throw new TtsNotConfiguredError();
 
   const voiceName = env.googleTtsVoices[accent];
@@ -57,15 +72,15 @@ export async function synthesizeSpeech(text: string, accent: string): Promise<Bu
     throw new TtsNotConfiguredError(`No Google TTS voice configured for accent "${accent}". Set the matching GOOGLE_TTS_VOICE_* env var.`);
   }
 
+  const speakingRate = (level && SPEAKING_RATE_BY_LEVEL[level]) || DEFAULT_SPEAKING_RATE;
+
   const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${env.googleTtsApiKey}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       input: { ssml: toSsml(text) },
       voice: { languageCode: languageCodeFromVoice(voiceName), name: voiceName },
-      // Slightly slower than default (1.0) reads as calmer and more deliberate, matching a
-      // teacher speaking clearly rather than a fast native pace.
-      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.93 },
+      audioConfig: { audioEncoding: 'MP3', speakingRate },
     }),
   });
 
