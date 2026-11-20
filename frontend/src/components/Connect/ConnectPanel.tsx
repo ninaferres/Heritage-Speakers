@@ -12,10 +12,11 @@ import {
   ConnectLanguageVerification,
   ConnectVerificationStatus,
 } from '../../api/client';
-import { detectTimezone, DAY_KEYS, DAY_LABEL } from '../../utils/connectSchedule';
+import { detectTimezone } from '../../utils/connectSchedule';
 import { VerifyLanguageModal } from './VerifyLanguageModal';
 import { MatchList } from './MatchList';
 import { MySessions } from './MySessions';
+import { WeeklyAvailabilityGrid } from './WeeklyAvailabilityGrid';
 
 const LANGUAGE_LABEL: Record<'es' | 'ru', { es: string; en: string }> = {
   es: { es: 'Español', en: 'Spanish' },
@@ -30,7 +31,6 @@ const VERIFICATION_LABEL: Record<ConnectVerificationStatus, { es: string; en: st
 };
 
 const EMPTY_AVAILABILITY: ConnectAvailability = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -271,44 +271,11 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
               <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '.4rem' }}>
                 {uiLanguage === 'es' ? `Zona horaria detectada: ${profile?.timezone ?? detectTimezone()}` : `Detected timezone: ${profile?.timezone ?? detectTimezone()}`}
               </p>
-              <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '1rem' }}>
-                {uiLanguage === 'es' ? 'Toca las horas en las que puedes dar clase (mínimo 1 hora por franja).' : 'Tap the hours you can teach (1 hour minimum per slot).'}
+              <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '.8rem' }}>
+                {uiLanguage === 'es' ? 'Toca las casillas en las que puedes dar clase (mínimo 1 hora por franja).' : 'Tap the cells you can teach (1 hour minimum per slot).'}
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
-                {DAY_KEYS.map((day) => (
-                  <div key={day}>
-                    <p style={{ fontWeight: 600, color: 'var(--wine-ink)', fontSize: '.85rem', marginBottom: '.3rem' }}>
-                      {DAY_LABEL[day][uiLanguage]}
-                    </p>
-                    <div style={{ display: 'flex', gap: '.3rem', overflowX: 'auto', paddingBottom: '.2rem' }}>
-                      {HOURS.map((hour) => {
-                        const active = availability[day].includes(hour);
-                        return (
-                          <button
-                            key={hour}
-                            onClick={() => toggleHour(day, hour)}
-                            style={{
-                              flexShrink: 0,
-                              width: '2.4rem',
-                              padding: '.4rem 0',
-                              borderRadius: '8px',
-                              border: `1.5px solid ${active ? 'var(--wine)' : 'var(--line)'}`,
-                              background: active ? 'var(--wine)' : 'transparent',
-                              color: active ? '#fff' : 'var(--wine-ink)',
-                              fontWeight: 600,
-                              fontSize: '.78rem',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {String(hour).padStart(2, '0')}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <WeeklyAvailabilityGrid availability={availability} onToggle={toggleHour} uiLanguage={uiLanguage} />
             </div>
 
             {/* Bio */}
