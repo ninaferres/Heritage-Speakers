@@ -5,9 +5,16 @@ import {
   saveConnectProfile,
   fetchConnectCredits,
   fetchConnectReferralCode,
+  fetchLanguageVerifications,
   ConnectProfile,
   ConnectAvailabilityBlock,
+  ConnectLanguageVerification,
+  ConnectVerificationStatus,
 } from '../../api/client';
+import { detectTimezone } from '../../utils/connectSchedule';
+import { VerifyLanguageModal } from './VerifyLanguageModal';
+import { MatchList } from './MatchList';
+import { MySessions } from './MySessions';
 
 const LANGUAGE_LABEL: Record<'es' | 'ru', { es: string; en: string }> = {
   es: { es: 'Español', en: 'Spanish' },
@@ -20,25 +27,29 @@ const BLOCK_LABEL: Record<ConnectAvailabilityBlock, { es: string; en: string }> 
   evening: { es: 'Noche', en: 'Evening' },
 };
 
-const ALL_BLOCKS: ConnectAvailabilityBlock[] = ['morning', 'afternoon', 'evening'];
+const VERIFICATION_LABEL: Record<ConnectVerificationStatus, { es: string; en: string }> = {
+  pending: { es: 'pendiente de revisión', en: 'pending review' },
+  verified: { es: 'verificado', en: 'verified' },
+  rejected: { es: 'no confirmado', en: 'not confirmed' },
+  flagged_for_review: { es: 'en revisión', en: 'under review' },
+};
 
-function detectTimezone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  } catch {
-    return 'UTC';
-  }
-}
+const ALL_BLOCKS: ConnectAvailabilityBlock[] = ['morning', 'afternoon', 'evening'];
 
 function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
+type Tab = 'profile' | 'find' | 'sessions';
+
 export function ConnectPanel({ onClose }: { onClose: () => void }) {
   const { uiLanguage } = useLanguage();
+  const [tab, setTab] = useState<Tab>('profile');
+
   const [profile, setProfile] = useState<ConnectProfile | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [verifications, setVerifications] = useState<ConnectLanguageVerification[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [bio, setBio] = useState('');
@@ -51,15 +62,17 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [verifyingLanguage, setVerifyingLanguage] = useState<'es' | 'ru' | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([fetchConnectProfile(), fetchConnectCredits(), fetchConnectReferralCode()])
-      .then(([p, c, code]) => {
+    Promise.all([fetchConnectProfile(), fetchConnectCredits(), fetchConnectReferralCode(), fetchLanguageVerifications()])
+      .then(([p, c, code, v]) => {
         if (cancelled) return;
         setProfile(p);
         setCredits(c);
         setReferralCode(code);
+        setVerifications(v);
         setBio(p.bio ?? '');
         setNativeLanguages(p.nativeLanguages);
         setLearningLanguages(p.learningLanguages);
@@ -76,6 +89,19 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
       cancelled = true;
     };
   }, []);
+
+  function handleToggleNative(lang: 'es' | 'ru') {
+    const next = toggle(nativeLanguages, lang);
+    setNativeLanguages(next);
+    const hasVerification = verifications.some((v) => v.language === lang);
+    if (next.includes(lang) && !hasVerification) {
+      setVerifyingLanguage(lang);
+    }
+  }
+
+  function handleVerified(lang: 'es' | 'ru', status: ConnectVerificationStatus) {
+    setVerifications((prev) => [...prev.filter((v) => v.language !== lang), { language: lang, status }]);
+  }
 
   async function handleSave() {
     setError(null);
@@ -123,14 +149,30 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
         <h2 style={{ marginBottom: '.4rem', color: 'var(--wine-ink)' }}>
           {uiLanguage === 'es' ? 'Practica conversación con otra persona' : 'Practice conversation with someone else'}
         </h2>
-        <p style={{ color: 'var(--muted)', marginBottom: '1.8rem' }}>
+        <p style={{ color: 'var(--muted)', marginBottom: '1.6rem' }}>
           {uiLanguage === 'es'
             ? 'Da una clase corta en tu idioma nativo y gana un crédito. Gasta un crédito para reservar una clase y practicar el idioma que estás aprendiendo. Todo gratis, sin dinero de por medio.'
             : "Give a short lesson in your native language and earn a credit. Spend a credit to book a lesson and practice the language you're learning. All free — no money involved."}
         </p>
 
+        <div className="modal-tabs" role="tablist" style={{ marginBottom: '1.6rem' }}>
+          <button type="button" role="tab" className={`modal-tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>
+            {uiLanguage === 'es' ? 'Mi perfil' : 'My profile'}
+          </button>
+          <button type="button" role="tab" className={`modal-tab ${tab === 'find' ? 'active' : ''}`} onClick={() => setTab('find')}>
+            {uiLanguage === 'es' ? 'Buscar' : 'Find a partner'}
+          </button>
+          <button type="button" role="tab" className={`modal-tab ${tab === 'sessions' ? 'active' : ''}`} onClick={() => setTab('sessions')}>
+            {uiLanguage === 'es' ? 'Mis sesiones' : 'My sessions'}
+          </button>
+        </div>
+
         {loading ? (
           <p style={{ color: 'var(--muted)' }}>{uiLanguage === 'es' ? 'Cargando…' : 'Loading…'}</p>
+        ) : tab === 'find' ? (
+          <MatchList learningLanguages={learningLanguages} />
+        ) : tab === 'sessions' ? (
+          <MySessions />
         ) : (
           <>
             {/* Credits card */}
@@ -152,17 +194,45 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
               <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginBottom: '.6rem' }}>
                 {uiLanguage === 'es' ? 'Hablo nativamente' : 'I natively speak'}
               </p>
-              <div style={{ display: 'flex', gap: '.6rem', marginBottom: '1.2rem' }}>
+              <div style={{ display: 'flex', gap: '.6rem', marginBottom: '.5rem', flexWrap: 'wrap' }}>
                 {(['es', 'ru'] as const).map((lang) => (
                   <button
                     key={lang}
-                    onClick={() => setNativeLanguages((prev) => toggle(prev, lang))}
+                    onClick={() => handleToggleNative(lang)}
                     className={nativeLanguages.includes(lang) ? 'btn btn-wine btn-small' : 'btn btn-ghost btn-small'}
                   >
                     {LANGUAGE_LABEL[lang][uiLanguage]}
                   </button>
                 ))}
               </div>
+              {nativeLanguages.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.2rem', marginBottom: '1rem' }}>
+                  {nativeLanguages.map((lang) => {
+                    const v = verifications.find((x) => x.language === lang);
+                    return (
+                      <p key={lang} style={{ margin: 0, fontSize: '.82rem', color: 'var(--muted)' }}>
+                        {LANGUAGE_LABEL[lang][uiLanguage]}:{' '}
+                        {v ? (
+                          VERIFICATION_LABEL[v.status][uiLanguage]
+                        ) : (
+                          <button type="button" className="btn-linklike" onClick={() => setVerifyingLanguage(lang)} style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}>
+                            {uiLanguage === 'es' ? 'verificar ahora' : 'verify now'}
+                          </button>
+                        )}
+                        {v?.status === 'rejected' && (
+                          <>
+                            {' · '}
+                            <button type="button" className="btn-linklike" onClick={() => setVerifyingLanguage(lang)} style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}>
+                              {uiLanguage === 'es' ? 'reintentar' : 'try again'}
+                            </button>
+                          </>
+                        )}
+                      </p>
+                    );
+                  })}
+                </div>
+              )}
+
               <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginBottom: '.6rem' }}>
                 {uiLanguage === 'es' ? 'Quiero practicar' : 'I want to practice'}
               </p>
@@ -177,13 +247,6 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
                   </button>
                 ))}
               </div>
-              {nativeLanguages.length > 0 && (
-                <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginTop: '.8rem' }}>
-                  {uiLanguage === 'es'
-                    ? 'Antes de poder dar clases, te pediremos grabar un audio corto para confirmar que eres hablante nativo.'
-                    : "Before you can teach, we'll ask you to record a short clip to confirm you're a native speaker."}
-                </p>
-              )}
             </div>
 
             {/* Availability */}
@@ -269,6 +332,14 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
           </>
         )}
       </div>
+
+      {verifyingLanguage && (
+        <VerifyLanguageModal
+          language={verifyingLanguage}
+          onClose={() => setVerifyingLanguage(null)}
+          onVerified={(status) => handleVerified(verifyingLanguage, status)}
+        />
+      )}
     </div>
   );
 }

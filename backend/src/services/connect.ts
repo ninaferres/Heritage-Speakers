@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { env, isAuthConfigured } from '../env.js';
+import { identifyLanguage } from './languageIdMock.js';
 
 export class ConnectNotConfiguredError extends Error {
   constructor() {
@@ -89,4 +90,149 @@ export async function getConnectReferralCode(token: string): Promise<string> {
   const { data, error } = await client.rpc('get_or_create_connect_referral_code');
   if (error) throw new Error(`Failed to load referral code: ${error.message}`);
   return data as string;
+}
+
+// ----------------------------------------------------------------------------
+// Phase 2 — native-language verification + matching/booking.
+// ----------------------------------------------------------------------------
+
+export type VerificationStatus = 'pending' | 'verified' | 'rejected' | 'flagged_for_review';
+export interface LanguageVerification {
+  language: string;
+  status: VerificationStatus;
+}
+
+const VERIFICATION_BUCKET = 'connect-verification-clips';
+const LID_CONFIDENCE_THRESHOLD = 0.6;
+
+/**
+ * Uploads the recorded clip to private storage, runs it through the (mocked) language
+ * identifier, and records the resulting status. Re-submitting for the same language replaces
+ * the previous attempt (onConflict upsert) rather than accumulating duplicate rows.
+ */
+export async function submitLanguageVerification(
+  token: string,
+  userId: string,
+  language: string,
+  audioBuffer: Buffer,
+  mimeType: string
+): Promise<LanguageVerification> {
+  const client = userClient(token);
+  const path = `${userId}/${language}-${Date.now()}.webm`;
+
+  const { error: uploadError } = await client.storage.from(VERIFICATION_BUCKET).upload(path, audioBuffer, { contentType: mimeType, upsert: true });
+  if (uploadError) throw new Error(`Failed to upload verification clip: ${uploadError.message}`);
+
+  const lid = await identifyLanguage(audioBuffer, language);
+  const status: VerificationStatus = lid.detectedLanguage === language && lid.confidence >= LID_CONFIDENCE_THRESHOLD ? 'verified' : 'rejected';
+
+  const { data, error } = await client
+    .from('connect_language_verifications')
+    .upsert({ user_id: userId, language, audio_path: path, lid_result: lid, status, flag_count: 0 }, { onConflict: 'user_id,language' })
+    .select('language, status')
+    .single();
+  if (error) throw new Error(`Failed to save verification: ${error.message}`);
+  return { language: data.language, status: data.status };
+}
+
+export async function getLanguageVerifications(token: string, userId: string): Promise<LanguageVerification[]> {
+  const client = userClient(token);
+  const { data, error } = await client.from('connect_language_verifications').select('language, status').eq('user_id', userId);
+  if (error) throw new Error(`Failed to load verifications: ${error.message}`);
+  return data ?? [];
+}
+
+export interface ConnectMatch {
+  userId: string;
+  bio: string | null;
+  timezone: string | null;
+  availability: ConnectAvailability;
+  reliabilityPct: number | null;
+  sessionsCount: number;
+}
+
+/** Candidate native speakers for a language, via the get_connect_matches SECURITY DEFINER RPC
+ * (connect_profiles' own RLS only lets a user read their own row, so browsing goes through this
+ * controlled, filtered path instead of a broadened SELECT policy). */
+export async function getConnectMatches(token: string, language: string): Promise<ConnectMatch[]> {
+  const client = userClient(token);
+  const { data, error } = await client.rpc('get_connect_matches', { p_language: language });
+  if (error) throw new Error(`Failed to load matches: ${error.message}`);
+  return (data ?? []).map((row: any) => ({
+    userId: row.user_id,
+    bio: row.bio,
+    timezone: row.timezone,
+    availability: row.availability ?? EMPTY_AVAILABILITY,
+    reliabilityPct: row.reliability_pct === null ? null : Number(row.reliability_pct),
+    sessionsCount: Number(row.sessions_count),
+  }));
+}
+
+export interface ConnectSession {
+  id: string;
+  learnerId: string;
+  nativeSpeakerId: string;
+  language: string;
+  mode: 'audio' | 'text';
+  scheduledAt: string;
+  durationMinutesPlanned: number;
+  status: string;
+}
+
+function sessionFromRow(row: any): ConnectSession {
+  return {
+    id: row.id,
+    learnerId: row.learner_id,
+    nativeSpeakerId: row.native_speaker_id,
+    language: row.language,
+    mode: row.mode,
+    scheduledAt: row.scheduled_at,
+    durationMinutesPlanned: row.duration_minutes_planned,
+    status: row.status,
+  };
+}
+
+export interface BookSessionInput {
+  nativeSpeakerId: string;
+  language: string;
+  scheduledAt: string;
+  mode?: 'audio' | 'text';
+  durationMinutes?: number;
+}
+
+/** Books a session (atomic credit check + debit) via the book_connect_session RPC. */
+export async function bookConnectSession(token: string, input: BookSessionInput): Promise<ConnectSession> {
+  const client = userClient(token);
+  const { data: sessionId, error: rpcError } = await client.rpc('book_connect_session', {
+    p_native_speaker_id: input.nativeSpeakerId,
+    p_language: input.language,
+    p_scheduled_at: input.scheduledAt,
+    p_mode: input.mode ?? 'audio',
+    p_duration_minutes: input.durationMinutes ?? 15,
+  });
+  if (rpcError) throw new Error(rpcError.message);
+
+  const { data, error } = await client.from('connect_sessions').select('*').eq('id', sessionId).single();
+  if (error) throw new Error(`Booked, but failed to load the session: ${error.message}`);
+  return sessionFromRow(data);
+}
+
+/** This user's sessions (as learner or native speaker), most imminent first. */
+export async function getMyConnectSessions(token: string, userId: string): Promise<ConnectSession[]> {
+  const client = userClient(token);
+  const { data, error } = await client
+    .from('connect_sessions')
+    .select('*')
+    .or(`learner_id.eq.${userId},native_speaker_id.eq.${userId}`)
+    .order('scheduled_at', { ascending: true });
+  if (error) throw new Error(`Failed to load sessions: ${error.message}`);
+  return (data ?? []).map(sessionFromRow);
+}
+
+/** Cancels a still-scheduled session and refunds the learner's credit, via the
+ * cancel_connect_session RPC. */
+export async function cancelConnectSession(token: string, sessionId: string): Promise<void> {
+  const client = userClient(token);
+  const { error } = await client.rpc('cancel_connect_session', { p_session_id: sessionId });
+  if (error) throw new Error(error.message);
 }

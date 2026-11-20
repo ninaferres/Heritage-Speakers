@@ -206,10 +206,10 @@ create policy "Anyone can submit feedback"
 -- statement is idempotent.
 --
 -- This creates the FULL schema (all tables) up front so later phases never need risky ALTERs
--- on tables already holding data — but only the "profile" slice (connect_profiles,
--- connect_credit_transactions, connect_referrals) is actually wired to the app yet. The rest
--- (sessions, flags, reports, blocks, suspensions, messages) sit ready for the booking/session-room
--- phases to come.
+-- on tables already holding data. Phase 1 wired up connect_profiles, connect_credit_transactions
+-- and connect_referrals. Phase 2 (this update) adds native-language verification and
+-- matching/booking. Still to come: the session room (Jitsi + text chat), no-show handling,
+-- flags/reports/blocks enforcement, and analytics.
 
 -- ----------------------------------------------------------------------------
 -- 1. Profiles — bio, which languages someone teaches/learns here, availability + timezone.
@@ -549,3 +549,187 @@ create policy "Participants can send session messages"
       where s.id = session_id and (s.learner_id = auth.uid() or s.native_speaker_id = auth.uid())
     )
   );
+
+
+-- ----------------------------------------------------------------------------
+-- 11. Phase 2 — native-language verification storage + matching/booking.
+-- ----------------------------------------------------------------------------
+
+-- Private bucket for the 15-20s native-speaker verification clips. Each file lives under
+-- "<user_id>/...", and the policies below only let a user read/write their own folder.
+insert into storage.buckets (id, name, public)
+values ('connect-verification-clips', 'connect-verification-clips', false)
+on conflict (id) do nothing;
+
+drop policy if exists "Users can upload their own verification clips" on storage.objects;
+create policy "Users can upload their own verification clips"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'connect-verification-clips'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "Users can read their own verification clips" on storage.objects;
+create policy "Users can read their own verification clips"
+  on storage.objects for select
+  using (
+    bucket_id = 'connect-verification-clips'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+-- Widen the credit ledger's allowed reasons to cover a booking being cancelled (refunds the
+-- learner's spent credit as a new row, never by rewriting the original debit).
+alter table public.connect_credit_transactions drop constraint if exists connect_credit_transactions_reason_check;
+alter table public.connect_credit_transactions add constraint connect_credit_transactions_reason_check
+  check (reason in ('taught_session', 'booked_session', 'referral_bonus', 'admin_adjustment', 'session_cancelled'));
+
+-- Attendance reliability: % of this user's past sessions (as either learner or native speaker)
+-- where they actually showed up, counting only sessions that have actually run their course
+-- (scheduled/cancelled sessions don't count either way yet). Null with sessions_count = 0 means
+-- "no history yet" — the frontend shows that as "new to Connect", never a fabricated 100%.
+create or replace function public.get_connect_reliability(p_user_id uuid)
+returns table (reliability_pct numeric, sessions_count bigint)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with mine as (
+    select
+      case
+        when learner_id = p_user_id then status <> 'no_show_learner'
+        else status <> 'no_show_native'
+      end as showed_up
+    from public.connect_sessions
+    where (learner_id = p_user_id or native_speaker_id = p_user_id)
+      and status in ('completed', 'abandoned_early', 'no_show_learner', 'no_show_native')
+  )
+  select
+    case when count(*) = 0 then null else round(100.0 * count(*) filter (where showed_up) / count(*), 0) end,
+    count(*)
+  from mine;
+$$;
+
+-- Candidate native speakers for a language the caller wants to practice: excludes the caller
+-- themselves, anyone blocked in either direction, and anyone currently suspended from Connect.
+-- SECURITY DEFINER because connect_profiles' own RLS only lets a user read their own row —
+-- browsing other people's profiles has to go through a controlled, filtered path like this one
+-- rather than a broadened blanket SELECT policy.
+create or replace function public.get_connect_matches(p_language text)
+returns table (
+  user_id uuid,
+  bio text,
+  timezone text,
+  availability jsonb,
+  reliability_pct numeric,
+  sessions_count bigint
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p.user_id, p.bio, p.timezone, p.availability, r.reliability_pct, r.sessions_count
+  from public.connect_profiles p
+  cross join lateral public.get_connect_reliability(p.user_id) r
+  where p.user_id <> auth.uid()
+    and p_language = any(p.native_languages)
+    and not exists (
+      select 1 from public.connect_blocks b
+      where (b.user_id = p.user_id and b.blocked_user_id = auth.uid())
+         or (b.user_id = auth.uid() and b.blocked_user_id = p.user_id)
+    )
+    and not exists (
+      select 1 from public.connect_suspensions s
+      where s.user_id = p.user_id and s.starts_at <= now() and (s.ends_at is null or s.ends_at > now())
+    )
+  order by r.reliability_pct desc nulls last;
+$$;
+
+-- Books a session atomically: checks the learner has a credit, neither side has blocked the
+-- other, and the native speaker isn't suspended — then creates the session and debits the
+-- learner's credit in the same transaction. The native speaker is credited later, when the
+-- session is actually marked completed (a later phase), never at booking time.
+create or replace function public.book_connect_session(
+  p_native_speaker_id uuid,
+  p_language text,
+  p_scheduled_at timestamptz,
+  p_mode text default 'audio',
+  p_duration_minutes integer default 15
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_balance integer;
+  v_session_id uuid;
+begin
+  if p_native_speaker_id = auth.uid() then
+    raise exception 'You cannot book a session with yourself.';
+  end if;
+
+  select coalesce(sum(amount), 0) into v_balance from public.connect_credit_transactions where user_id = auth.uid();
+  if v_balance < 1 then
+    raise exception 'Not enough credits to book a session.';
+  end if;
+
+  if exists (
+    select 1 from public.connect_blocks
+    where (user_id = auth.uid() and blocked_user_id = p_native_speaker_id)
+       or (user_id = p_native_speaker_id and blocked_user_id = auth.uid())
+  ) then
+    raise exception 'Booking is not available between these two users.';
+  end if;
+
+  if exists (
+    select 1 from public.connect_suspensions
+    where user_id = p_native_speaker_id and starts_at <= now() and (ends_at is null or ends_at > now())
+  ) then
+    raise exception 'This native speaker is currently unavailable on Connect.';
+  end if;
+
+  insert into public.connect_sessions (learner_id, native_speaker_id, language, mode, scheduled_at, duration_minutes_planned)
+  values (auth.uid(), p_native_speaker_id, p_language, p_mode, p_scheduled_at, p_duration_minutes)
+  returning id into v_session_id;
+
+  insert into public.connect_credit_transactions (user_id, amount, reason, session_id)
+  values (auth.uid(), -1, 'booked_session', v_session_id);
+
+  return v_session_id;
+end;
+$$;
+
+-- Cancels a still-scheduled session (either party may do it) and refunds the learner's credit.
+create or replace function public.cancel_connect_session(p_session_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_learner_id uuid;
+  v_status text;
+  v_is_participant boolean;
+begin
+  select learner_id, status, (learner_id = auth.uid() or native_speaker_id = auth.uid())
+    into v_learner_id, v_status, v_is_participant
+    from public.connect_sessions where id = p_session_id;
+
+  if v_learner_id is null then
+    raise exception 'Session not found.';
+  end if;
+  if not v_is_participant then
+    raise exception 'Not your session.';
+  end if;
+  if v_status <> 'scheduled' then
+    raise exception 'Only a scheduled session can be cancelled.';
+  end if;
+
+  update public.connect_sessions set status = 'cancelled' where id = p_session_id;
+
+  insert into public.connect_credit_transactions (user_id, amount, reason, session_id)
+  values (v_learner_id, 1, 'session_cancelled', p_session_id);
+end;
+$$;

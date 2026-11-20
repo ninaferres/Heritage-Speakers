@@ -16,3 +16,16 @@ export const connectProfileInputSchema = z.object({
 });
 
 export type ConnectProfileInputBody = z.infer<typeof connectProfileInputSchema>;
+
+export const connectLanguageSchema = z.enum(['es', 'ru']);
+
+export const bookConnectSessionSchema = z.object({
+  nativeSpeakerId: z.string().uuid(),
+  language: connectLanguageSchema,
+  scheduledAt: z.string().datetime(),
+  mode: z.enum(['audio', 'text']).optional(),
+  durationMinutes: z.number().int().min(10).max(30).optional(),
+});
+
+export type BookConnectSessionBody = z.infer<typeof bookConnectSessionSchema>;
+

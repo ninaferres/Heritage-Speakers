@@ -277,3 +277,81 @@ export async function fetchConnectReferralCode(): Promise<string> {
   return code;
 }
 
+export type ConnectVerificationStatus = 'pending' | 'verified' | 'rejected' | 'flagged_for_review';
+export interface ConnectLanguageVerification {
+  language: 'es' | 'ru';
+  status: ConnectVerificationStatus;
+}
+
+export async function submitLanguageVerification(language: 'es' | 'ru', audioBlob: Blob): Promise<ConnectLanguageVerification> {
+  const form = new FormData();
+  form.append('language', language);
+  form.append('audio', audioBlob, 'verification.webm');
+
+  const res = await fetch(`${API_BASE}/connect/verify-language`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: form,
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Verification upload failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function fetchLanguageVerifications(): Promise<ConnectLanguageVerification[]> {
+  return getJson('/connect/verifications');
+}
+
+export interface ConnectMatch {
+  userId: string;
+  bio: string | null;
+  timezone: string | null;
+  availability: ConnectAvailability;
+  reliabilityPct: number | null;
+  sessionsCount: number;
+}
+
+export async function fetchConnectMatches(language: 'es' | 'ru'): Promise<ConnectMatch[]> {
+  return getJson(`/connect/matches?language=${language}`);
+}
+
+export interface ConnectSession {
+  id: string;
+  learnerId: string;
+  nativeSpeakerId: string;
+  language: 'es' | 'ru';
+  mode: 'audio' | 'text';
+  scheduledAt: string;
+  durationMinutesPlanned: number;
+  status: string;
+}
+
+export interface BookConnectSessionInput {
+  nativeSpeakerId: string;
+  language: 'es' | 'ru';
+  scheduledAt: string;
+  mode?: 'audio' | 'text';
+  durationMinutes?: number;
+}
+
+export async function bookConnectSession(input: BookConnectSessionInput): Promise<ConnectSession> {
+  return postJson('/connect/sessions', input);
+}
+
+export async function fetchMyConnectSessions(): Promise<ConnectSession[]> {
+  return getJson('/connect/sessions');
+}
+
+export async function cancelConnectSession(sessionId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/connect/sessions/${sessionId}/cancel`, {
+    method: 'POST',
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Request failed (${res.status})`);
+  }
+}
+
