@@ -7,11 +7,12 @@ import {
   fetchConnectReferralCode,
   fetchLanguageVerifications,
   ConnectProfile,
-  ConnectAvailabilityBlock,
+  ConnectAvailability,
+  ConnectDayKey,
   ConnectLanguageVerification,
   ConnectVerificationStatus,
 } from '../../api/client';
-import { detectTimezone } from '../../utils/connectSchedule';
+import { detectTimezone, DAY_KEYS, DAY_LABEL } from '../../utils/connectSchedule';
 import { VerifyLanguageModal } from './VerifyLanguageModal';
 import { MatchList } from './MatchList';
 import { MySessions } from './MySessions';
@@ -21,12 +22,6 @@ const LANGUAGE_LABEL: Record<'es' | 'ru', { es: string; en: string }> = {
   ru: { es: 'Ruso', en: 'Russian' },
 };
 
-const BLOCK_LABEL: Record<ConnectAvailabilityBlock, { es: string; en: string }> = {
-  morning: { es: 'Mañana', en: 'Morning' },
-  afternoon: { es: 'Tarde', en: 'Afternoon' },
-  evening: { es: 'Noche', en: 'Evening' },
-};
-
 const VERIFICATION_LABEL: Record<ConnectVerificationStatus, { es: string; en: string }> = {
   pending: { es: 'pendiente de revisión', en: 'pending review' },
   verified: { es: 'verificado', en: 'verified' },
@@ -34,7 +29,8 @@ const VERIFICATION_LABEL: Record<ConnectVerificationStatus, { es: string; en: st
   flagged_for_review: { es: 'en revisión', en: 'under review' },
 };
 
-const ALL_BLOCKS: ConnectAvailabilityBlock[] = ['morning', 'afternoon', 'evening'];
+const EMPTY_AVAILABILITY: ConnectAvailability = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -55,8 +51,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
   const [bio, setBio] = useState('');
   const [nativeLanguages, setNativeLanguages] = useState<('es' | 'ru')[]>([]);
   const [learningLanguages, setLearningLanguages] = useState<('es' | 'ru')[]>([]);
-  const [weekday, setWeekday] = useState<ConnectAvailabilityBlock[]>([]);
-  const [weekend, setWeekend] = useState<ConnectAvailabilityBlock[]>([]);
+  const [availability, setAvailability] = useState<ConnectAvailability>(EMPTY_AVAILABILITY);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -76,8 +71,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
         setBio(p.bio ?? '');
         setNativeLanguages(p.nativeLanguages);
         setLearningLanguages(p.learningLanguages);
-        setWeekday(p.availability.weekday);
-        setWeekend(p.availability.weekend);
+        setAvailability(p.availability);
       })
       .catch(() => {
         // Connect is a supplementary section — the panel still shows a usable empty form below.
@@ -103,6 +97,10 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
     setVerifications((prev) => [...prev.filter((v) => v.language !== lang), { language: lang, status }]);
   }
 
+  function toggleHour(day: ConnectDayKey, hour: number) {
+    setAvailability((prev) => ({ ...prev, [day]: toggle(prev[day], hour) }));
+  }
+
   async function handleSave() {
     setError(null);
     setSaving(true);
@@ -112,7 +110,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
         nativeLanguages,
         learningLanguages,
         timezone: profile?.timezone ?? detectTimezone(),
-        availability: { weekday, weekend },
+        availability,
       });
       setProfile(updated);
       setSaved(true);
@@ -151,8 +149,8 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
         </h2>
         <p style={{ color: 'var(--muted)', marginBottom: '1.6rem' }}>
           {uiLanguage === 'es'
-            ? 'Da una clase corta en tu idioma nativo y gana un crédito. Gasta un crédito para reservar una clase y practicar el idioma que estás aprendiendo. Todo gratis, sin dinero de por medio.'
-            : "Give a short lesson in your native language and earn a credit. Spend a credit to book a lesson and practice the language you're learning. All free — no money involved."}
+            ? 'Da una clase corta en tu idioma nativo y gana créditos. Gasta créditos para reservar una clase y practicar el idioma que estás aprendiendo. Todo gratis, sin dinero de por medio.'
+            : "Give a short lesson in your native language and earn credits. Spend credits to book a lesson and practice the language you're learning. All free — no money involved."}
         </p>
 
         <div className="modal-tabs" role="tablist" style={{ marginBottom: '1.6rem' }}>
@@ -175,15 +173,31 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
           <MySessions />
         ) : (
           <>
-            {/* Credits card */}
-            <div className="exercise-block" style={{ marginBottom: '1.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h4 style={{ margin: 0, marginBottom: '.2rem' }}>{uiLanguage === 'es' ? 'Tus créditos' : 'Your credits'}</h4>
-                <p style={{ margin: 0, color: 'var(--muted)', fontSize: '.85rem' }}>
-                  {uiLanguage === 'es' ? '+1 al dar una clase · -1 al reservar una' : '+1 for teaching · -1 for booking'}
-                </p>
+            {/* Credits card — deliberately the most visually prominent thing on this tab */}
+            <div
+              style={{
+                marginBottom: '1.8rem',
+                padding: '1.5rem',
+                borderRadius: '16px',
+                border: '2px solid var(--gold)',
+                background: 'rgba(184,147,90,.1)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.8rem' }}>
+                <h4 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--wine-ink)' }}>
+                  {uiLanguage === 'es' ? 'TUS CRÉDITOS' : 'YOUR CREDITS'}
+                </h4>
+                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--wine-ink)', lineHeight: 1 }}>{credits ?? 0}</span>
               </div>
-              <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--wine-ink)' }}>{credits ?? 0}</span>
+              <p style={{ margin: 0, color: 'var(--charcoal)', fontSize: '.88rem', lineHeight: 1.5 }}>
+                {uiLanguage === 'es'
+                  ? 'Ganas créditos dando clases en tu idioma nativo, según su duración, y los gastas al reservar una clase para practicar.'
+                  : 'You earn credits by teaching your native language, based on duration, and spend them to book a lesson to practice.'}
+              </p>
+              <div style={{ marginTop: '.8rem', paddingTop: '.8rem', borderTop: '1px solid rgba(184,147,90,.35)', fontSize: '.85rem', color: 'var(--wine-ink)', fontWeight: 600 }}>
+                10 min = 1 {uiLanguage === 'es' ? 'crédito' : 'credit'} · 20 min = 2 {uiLanguage === 'es' ? 'créditos' : 'credits'} · 30 min = 3{' '}
+                {uiLanguage === 'es' ? 'créditos (máximo)' : 'credits (max)'}
+              </div>
             </div>
 
             {/* Languages */}
@@ -254,37 +268,45 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
               <h3 style={{ fontSize: '1rem', color: 'var(--wine-ink)', marginBottom: '.3rem' }}>
                 {uiLanguage === 'es' ? 'Disponibilidad' : 'Availability'}
               </h3>
-              <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '.8rem' }}>
+              <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '.4rem' }}>
                 {uiLanguage === 'es' ? `Zona horaria detectada: ${profile?.timezone ?? detectTimezone()}` : `Detected timezone: ${profile?.timezone ?? detectTimezone()}`}
               </p>
-
-              <p style={{ fontWeight: 600, color: 'var(--wine-ink)', fontSize: '.9rem', marginBottom: '.5rem' }}>
-                {uiLanguage === 'es' ? 'Entre semana' : 'Weekdays'}
+              <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '1rem' }}>
+                {uiLanguage === 'es' ? 'Toca las horas en las que puedes dar clase (mínimo 1 hora por franja).' : 'Tap the hours you can teach (1 hour minimum per slot).'}
               </p>
-              <div style={{ display: 'flex', gap: '.6rem', marginBottom: '1rem' }}>
-                {ALL_BLOCKS.map((block) => (
-                  <button
-                    key={block}
-                    onClick={() => setWeekday((prev) => toggle(prev, block))}
-                    className={weekday.includes(block) ? 'btn btn-wine btn-small' : 'btn btn-ghost btn-small'}
-                  >
-                    {BLOCK_LABEL[block][uiLanguage]}
-                  </button>
-                ))}
-              </div>
 
-              <p style={{ fontWeight: 600, color: 'var(--wine-ink)', fontSize: '.9rem', marginBottom: '.5rem' }}>
-                {uiLanguage === 'es' ? 'Fin de semana' : 'Weekends'}
-              </p>
-              <div style={{ display: 'flex', gap: '.6rem' }}>
-                {ALL_BLOCKS.map((block) => (
-                  <button
-                    key={block}
-                    onClick={() => setWeekend((prev) => toggle(prev, block))}
-                    className={weekend.includes(block) ? 'btn btn-wine btn-small' : 'btn btn-ghost btn-small'}
-                  >
-                    {BLOCK_LABEL[block][uiLanguage]}
-                  </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
+                {DAY_KEYS.map((day) => (
+                  <div key={day}>
+                    <p style={{ fontWeight: 600, color: 'var(--wine-ink)', fontSize: '.85rem', marginBottom: '.3rem' }}>
+                      {DAY_LABEL[day][uiLanguage]}
+                    </p>
+                    <div style={{ display: 'flex', gap: '.3rem', overflowX: 'auto', paddingBottom: '.2rem' }}>
+                      {HOURS.map((hour) => {
+                        const active = availability[day].includes(hour);
+                        return (
+                          <button
+                            key={hour}
+                            onClick={() => toggleHour(day, hour)}
+                            style={{
+                              flexShrink: 0,
+                              width: '2.4rem',
+                              padding: '.4rem 0',
+                              borderRadius: '8px',
+                              border: `1.5px solid ${active ? 'var(--wine)' : 'var(--line)'}`,
+                              background: active ? 'var(--wine)' : 'transparent',
+                              color: active ? '#fff' : 'var(--wine-ink)',
+                              fontWeight: 600,
+                              fontSize: '.78rem',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {String(hour).padStart(2, '0')}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

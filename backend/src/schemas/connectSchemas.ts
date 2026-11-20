@@ -1,10 +1,17 @@
 import { z } from 'zod';
 
-const availabilityBlockSchema = z.enum(['morning', 'afternoon', 'evening']);
+const hourSlotSchema = z.array(z.number().int().min(0).max(23));
 
+// A recurring weekly template: one array of available hours (0-23, each a 1-hour slot start)
+// per day of week, in the user's own timezone. 1 hour is the minimum granularity on purpose.
 export const connectAvailabilitySchema = z.object({
-  weekday: z.array(availabilityBlockSchema),
-  weekend: z.array(availabilityBlockSchema),
+  mon: hourSlotSchema,
+  tue: hourSlotSchema,
+  wed: hourSlotSchema,
+  thu: hourSlotSchema,
+  fri: hourSlotSchema,
+  sat: hourSlotSchema,
+  sun: hourSlotSchema,
 });
 
 export const connectProfileInputSchema = z.object({
@@ -24,7 +31,8 @@ export const bookConnectSessionSchema = z.object({
   language: connectLanguageSchema,
   scheduledAt: z.string().datetime(),
   mode: z.enum(['audio', 'text']).optional(),
-  durationMinutes: z.number().int().min(10).max(30).optional(),
+  // Pricing is 1 credit per 10 minutes — 30 min (3 credits) is the hard cap.
+  durationMinutes: z.union([z.literal(10), z.literal(20), z.literal(30)]).optional(),
 });
 
 export type BookConnectSessionBody = z.infer<typeof bookConnectSessionSchema>;

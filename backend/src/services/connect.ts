@@ -19,11 +19,10 @@ function userClient(token: string) {
   });
 }
 
-export type ConnectAvailabilityBlock = 'morning' | 'afternoon' | 'evening';
-export interface ConnectAvailability {
-  weekday: ConnectAvailabilityBlock[];
-  weekend: ConnectAvailabilityBlock[];
-}
+export type ConnectDayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+// A recurring weekly template: available hours (0-23, each a 1-hour slot) per day of week, in
+// the user's own timezone. 1 hour is the minimum granularity on purpose.
+export type ConnectAvailability = Record<ConnectDayKey, number[]>;
 
 export interface ConnectProfile {
   bio: string | null;
@@ -33,7 +32,7 @@ export interface ConnectProfile {
   availability: ConnectAvailability;
 }
 
-const EMPTY_AVAILABILITY: ConnectAvailability = { weekday: [], weekend: [] };
+const EMPTY_AVAILABILITY: ConnectAvailability = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
 
 function fromRow(row: any): ConnectProfile {
   return {
@@ -197,6 +196,7 @@ export interface BookSessionInput {
   language: string;
   scheduledAt: string;
   mode?: 'audio' | 'text';
+  /** 10, 20 or 30 — 1 credit per 10 minutes, 30 is the hard cap. */
   durationMinutes?: number;
 }
 
@@ -208,7 +208,7 @@ export async function bookConnectSession(token: string, input: BookSessionInput)
     p_language: input.language,
     p_scheduled_at: input.scheduledAt,
     p_mode: input.mode ?? 'audio',
-    p_duration_minutes: input.durationMinutes ?? 15,
+    p_duration_minutes: input.durationMinutes ?? 10,
   });
   if (rpcError) throw new Error(rpcError.message);
 

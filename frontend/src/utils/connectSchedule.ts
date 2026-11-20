@@ -1,11 +1,14 @@
-import { ConnectAvailabilityBlock } from '../api/client';
+export const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
+export type DayKey = (typeof DAY_KEYS)[number];
 
-/** Default local hour (24h) each coarse availability block represents, for turning a block
- * choice into one concrete bookable time. */
-export const BLOCK_HOUR: Record<ConnectAvailabilityBlock, number> = {
-  morning: 9,
-  afternoon: 15,
-  evening: 19,
+export const DAY_LABEL: Record<DayKey, { es: string; en: string }> = {
+  mon: { es: 'Lunes', en: 'Monday' },
+  tue: { es: 'Martes', en: 'Tuesday' },
+  wed: { es: 'Miércoles', en: 'Wednesday' },
+  thu: { es: 'Jueves', en: 'Thursday' },
+  fri: { es: 'Viernes', en: 'Friday' },
+  sat: { es: 'Sábado', en: 'Saturday' },
+  sun: { es: 'Domingo', en: 'Sunday' },
 };
 
 export function detectTimezone(): string {
@@ -16,12 +19,12 @@ export function detectTimezone(): string {
   }
 }
 
-/** "weekday" or "weekend" for a yyyy-mm-dd date string, evaluated as a plain calendar date
- * (no timezone math needed here — a Saturday is a Saturday everywhere). */
-export function dayTypeOf(dateStr: string): 'weekday' | 'weekend' {
+/** Maps a yyyy-mm-dd date string to our Monday-first day key, as a plain calendar date (no
+ * timezone math needed — a Tuesday is a Tuesday everywhere). */
+export function dayKeyOf(dateStr: string): DayKey {
   const [y, m, d] = dateStr.split('-').map(Number);
-  const day = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-  return day === 0 || day === 6 ? 'weekend' : 'weekday';
+  const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0 = Sunday, 1 = Monday, ...
+  return DAY_KEYS[(jsDay + 6) % 7];
 }
 
 /** The next `count` dates (as yyyy-mm-dd strings), starting today. */

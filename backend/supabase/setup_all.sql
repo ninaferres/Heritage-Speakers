@@ -224,9 +224,10 @@ create table if not exists public.connect_profiles (
   -- IANA zone (e.g. "Europe/Madrid"), captured from the browser — never store/display raw UTC
   -- or the viewer's own zone for someone else's availability.
   timezone text,
-  -- {"weekday": ["morning","afternoon","evening"], "weekend": [...]} — coarse blocks, not exact
-  -- times, matching how the picker is specified.
-  availability jsonb not null default '{"weekday": [], "weekend": []}'::jsonb,
+  -- {"mon": [9, 14], "tue": [...], ...} — a recurring weekly template, one entry per day of
+  -- week, each value an hour (0-23) marking the start of an available 1-hour slot in the
+  -- user's OWN timezone (the one stored above). 1 hour is the minimum granularity on purpose.
+  availability jsonb not null default '{"mon": [], "tue": [], "wed": [], "thu": [], "fri": [], "sat": [], "sun": []}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -646,16 +647,18 @@ as $$
   order by r.reliability_pct desc nulls last;
 $$;
 
--- Books a session atomically: checks the learner has a credit, neither side has blocked the
--- other, and the native speaker isn't suspended — then creates the session and debits the
--- learner's credit in the same transaction. The native speaker is credited later, when the
+-- Books a session atomically: checks the learner has enough credits for the chosen duration,
+-- neither side has blocked the other, and the native speaker isn't suspended — then creates the
+-- session and debits the learner in the same transaction. Pricing is 1 credit per 10 minutes
+-- (10 min = 1 credit, 20 min = 2, 30 min = 3 — the hard cap, so a default booking never reads as
+-- "an hour" to either side). The native speaker is credited the same amount later, when the
 -- session is actually marked completed (a later phase), never at booking time.
 create or replace function public.book_connect_session(
   p_native_speaker_id uuid,
   p_language text,
   p_scheduled_at timestamptz,
   p_mode text default 'audio',
-  p_duration_minutes integer default 15
+  p_duration_minutes integer default 10
 )
 returns uuid
 language plpgsql
@@ -664,15 +667,21 @@ set search_path = public
 as $$
 declare
   v_balance integer;
+  v_credits_needed integer;
   v_session_id uuid;
 begin
+  if p_duration_minutes not in (10, 20, 30) then
+    raise exception 'Duration must be 10, 20 or 30 minutes.';
+  end if;
+  v_credits_needed := p_duration_minutes / 10;
+
   if p_native_speaker_id = auth.uid() then
     raise exception 'You cannot book a session with yourself.';
   end if;
 
   select coalesce(sum(amount), 0) into v_balance from public.connect_credit_transactions where user_id = auth.uid();
-  if v_balance < 1 then
-    raise exception 'Not enough credits to book a session.';
+  if v_balance < v_credits_needed then
+    raise exception 'Not enough credits for a % minute session (needs %, you have %).', p_duration_minutes, v_credits_needed, v_balance;
   end if;
 
   if exists (
@@ -695,13 +704,15 @@ begin
   returning id into v_session_id;
 
   insert into public.connect_credit_transactions (user_id, amount, reason, session_id)
-  values (auth.uid(), -1, 'booked_session', v_session_id);
+  values (auth.uid(), -v_credits_needed, 'booked_session', v_session_id);
 
   return v_session_id;
 end;
 $$;
 
--- Cancels a still-scheduled session (either party may do it) and refunds the learner's credit.
+-- Cancels a still-scheduled session (either party may do it) and refunds the learner the exact
+-- amount originally debited for it (read back from the ledger, never assumed to be a flat 1 —
+-- pricing is duration-dependent).
 create or replace function public.cancel_connect_session(p_session_id uuid)
 returns void
 language plpgsql
@@ -712,6 +723,7 @@ declare
   v_learner_id uuid;
   v_status text;
   v_is_participant boolean;
+  v_spent integer;
 begin
   select learner_id, status, (learner_id = auth.uid() or native_speaker_id = auth.uid())
     into v_learner_id, v_status, v_is_participant
@@ -727,9 +739,13 @@ begin
     raise exception 'Only a scheduled session can be cancelled.';
   end if;
 
+  select coalesce(-sum(amount), 0) into v_spent
+    from public.connect_credit_transactions
+    where session_id = p_session_id and reason = 'booked_session';
+
   update public.connect_sessions set status = 'cancelled' where id = p_session_id;
 
   insert into public.connect_credit_transactions (user_id, amount, reason, session_id)
-  values (v_learner_id, 1, 'session_cancelled', p_session_id);
+  values (v_learner_id, v_spent, 'session_cancelled', p_session_id);
 end;
 $$;

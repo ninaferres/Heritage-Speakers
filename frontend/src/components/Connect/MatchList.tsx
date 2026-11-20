@@ -1,22 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { fetchConnectMatches, ConnectMatch, ConnectAvailabilityBlock } from '../../api/client';
+import { fetchConnectMatches, ConnectMatch } from '../../api/client';
 import { BookSessionModal } from './BookSessionModal';
+import { DAY_KEYS } from '../../utils/connectSchedule';
 
-const BLOCK_LABEL: Record<ConnectAvailabilityBlock, { es: string; en: string }> = {
-  morning: { es: 'mañana', en: 'morning' },
-  afternoon: { es: 'tarde', en: 'afternoon' },
-  evening: { es: 'noche', en: 'evening' },
-};
-
+/** Total weekly available hours across all 7 days — a quick-scan summary; exact days/times are
+ * shown in the booking modal once you've picked someone. */
 function describeAvailability(match: ConnectMatch, uiLanguage: 'en' | 'es'): string {
-  const weekday = match.availability.weekday.map((b) => BLOCK_LABEL[b][uiLanguage]).join(', ');
-  const weekend = match.availability.weekend.map((b) => BLOCK_LABEL[b][uiLanguage]).join(', ');
-  const parts: string[] = [];
-  if (weekday) parts.push(`${uiLanguage === 'es' ? 'entre semana' : 'weekdays'}: ${weekday}`);
-  if (weekend) parts.push(`${uiLanguage === 'es' ? 'fin de semana' : 'weekends'}: ${weekend}`);
-  if (parts.length === 0) return uiLanguage === 'es' ? 'Sin disponibilidad indicada' : 'No availability set yet';
-  return parts.join(' · ');
+  const totalHours = DAY_KEYS.reduce((sum, day) => sum + match.availability[day].length, 0);
+  if (totalHours === 0) return uiLanguage === 'es' ? 'Sin disponibilidad indicada' : 'No availability set yet';
+  return uiLanguage === 'es' ? `${totalHours} h/semana disponibles` : `${totalHours} h/week available`;
 }
 
 export function MatchList({ learningLanguages }: { learningLanguages: ('es' | 'ru')[] }) {

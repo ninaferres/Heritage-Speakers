@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { bookConnectSession, ConnectMatch, ConnectAvailabilityBlock } from '../../api/client';
-import { BLOCK_HOUR, dayTypeOf, upcomingDates, zonedTimeToUtcIso, formatInZone, detectTimezone } from '../../utils/connectSchedule';
+import { bookConnectSession, fetchConnectCredits, ConnectMatch } from '../../api/client';
+import { dayKeyOf, upcomingDates, zonedTimeToUtcIso, formatInZone, detectTimezone } from '../../utils/connectSchedule';
 
-const BLOCK_LABEL: Record<ConnectAvailabilityBlock, { es: string; en: string }> = {
-  morning: { es: 'Mañana', en: 'Morning' },
-  afternoon: { es: 'Tarde', en: 'Afternoon' },
-  evening: { es: 'Noche', en: 'Evening' },
-};
+const DURATIONS = [10, 20, 30] as const;
+const CREDITS_FOR: Record<number, number> = { 10: 1, 20: 2, 30: 3 };
+
+function formatHour(hour: number): string {
+  return `${String(hour).padStart(2, '0')}:00`;
+}
 
 export function BookSessionModal({
   match,
@@ -25,30 +26,38 @@ export function BookSessionModal({
   const nativeTz = match.timezone || 'UTC';
   const myTz = useMemo(() => detectTimezone(), []);
 
-  const dates = useMemo(() => upcomingDates(14), []);
-  const [selectedDate, setSelectedDate] = useState(dates[0]);
-  const dayType = dayTypeOf(selectedDate);
-  const availableBlocks = match.availability[dayType];
+  // Only offer dates within the next 14 days that this person has actually marked available.
+  const dates = useMemo(() => upcomingDates(14).filter((d) => match.availability[dayKeyOf(d)].length > 0), [match]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(dates[0] ?? null);
+  const availableHours = selectedDate ? [...match.availability[dayKeyOf(selectedDate)]].sort((a, b) => a - b) : [];
+  const [selectedHour, setSelectedHour] = useState<number | null>(availableHours[0] ?? null);
+  const [duration, setDuration] = useState<10 | 20 | 30>(10);
 
-  const [selectedBlock, setSelectedBlock] = useState<ConnectAvailabilityBlock | null>(availableBlocks[0] ?? null);
+  const [credits, setCredits] = useState<number | null>(null);
+  useEffect(() => {
+    fetchConnectCredits().then(setCredits).catch(() => {});
+  }, []);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
   function handleDateChange(date: string) {
     setSelectedDate(date);
-    const blocks = match.availability[dayTypeOf(date)];
-    setSelectedBlock(blocks[0] ?? null);
+    const hours = [...match.availability[dayKeyOf(date)]].sort((a, b) => a - b);
+    setSelectedHour(hours[0] ?? null);
   }
 
-  const scheduledAtIso = selectedBlock ? zonedTimeToUtcIso(selectedDate, BLOCK_HOUR[selectedBlock], nativeTz) : null;
+  const creditsNeeded = CREDITS_FOR[duration];
+  const notEnoughCredits = credits !== null && credits < creditsNeeded;
+  const scheduledAtIso = selectedDate && selectedHour !== null ? zonedTimeToUtcIso(selectedDate, selectedHour, nativeTz) : null;
 
   async function handleConfirm() {
     if (!scheduledAtIso) return;
     setSubmitting(true);
     setError(null);
     try {
-      await bookConnectSession({ nativeSpeakerId: match.userId, language, scheduledAt: scheduledAtIso });
+      await bookConnectSession({ nativeSpeakerId: match.userId, language, scheduledAt: scheduledAtIso, durationMinutes: duration });
       setDone(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : (uiLanguage === 'es' ? 'No se pudo reservar la sesión.' : 'Could not book the session.'));
@@ -86,50 +95,70 @@ export function BookSessionModal({
       <div className="modal-card" role="dialog" aria-modal="true">
         <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
         <h3>{uiLanguage === 'es' ? 'Reservar sesión' : 'Book a session'}</h3>
-        <p className="modal-copy">
-          {uiLanguage === 'es' ? 'Esto gastará 1 de tus créditos.' : 'This will spend 1 of your credits.'}
-        </p>
 
-        <label className="field-label" htmlFor="book-date">{uiLanguage === 'es' ? 'Fecha' : 'Date'}</label>
-        <select id="book-date" className="field-input" value={selectedDate} onChange={(e) => handleDateChange(e.target.value)}>
-          {dates.map((d) => (
-            <option key={d} value={d}>
-              {new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(`${d}T12:00:00Z`))}
-            </option>
+        <label className="field-label">{uiLanguage === 'es' ? 'Duración' : 'Duration'}</label>
+        <div style={{ display: 'flex', gap: '.6rem', marginBottom: '1.2rem' }}>
+          {DURATIONS.map((d) => (
+            <button
+              key={d}
+              onClick={() => setDuration(d)}
+              className={duration === d ? 'btn btn-wine btn-small' : 'btn btn-ghost btn-small'}
+              style={{ flex: 1 }}
+            >
+              {d} min · {CREDITS_FOR[d]} {uiLanguage === 'es' ? (CREDITS_FOR[d] === 1 ? 'crédito' : 'créditos') : (CREDITS_FOR[d] === 1 ? 'credit' : 'credits')}
+            </button>
           ))}
-        </select>
+        </div>
 
-        <label className="field-label">{uiLanguage === 'es' ? 'Franja horaria' : 'Time block'}</label>
-        {availableBlocks.length === 0 ? (
-          <p style={{ color: 'var(--muted)', fontSize: '.88rem', marginBottom: '1rem' }}>
-            {uiLanguage === 'es' ? 'Esta persona no tiene disponibilidad ese día. Prueba otra fecha.' : "This person isn't available that day. Try another date."}
+        {dates.length === 0 ? (
+          <p style={{ color: 'var(--muted)', fontSize: '.9rem', marginBottom: '1rem' }}>
+            {uiLanguage === 'es' ? 'Esta persona no tiene disponibilidad marcada en los próximos 14 días.' : "This person hasn't marked any availability in the next 14 days."}
           </p>
         ) : (
-          <div style={{ display: 'flex', gap: '.6rem', marginBottom: '1rem' }}>
-            {availableBlocks.map((block) => (
-              <button
-                key={block}
-                onClick={() => setSelectedBlock(block)}
-                className={selectedBlock === block ? 'btn btn-wine btn-small' : 'btn btn-ghost btn-small'}
-              >
-                {BLOCK_LABEL[block][uiLanguage]}
-              </button>
-            ))}
+          <>
+            <label className="field-label" htmlFor="book-date">{uiLanguage === 'es' ? 'Fecha' : 'Date'}</label>
+            <select id="book-date" className="field-input" value={selectedDate ?? ''} onChange={(e) => handleDateChange(e.target.value)}>
+              {dates.map((d) => (
+                <option key={d} value={d}>
+                  {new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(`${d}T12:00:00Z`))}
+                </option>
+              ))}
+            </select>
+
+            <label className="field-label">{uiLanguage === 'es' ? 'Hora' : 'Time'}</label>
+            <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              {availableHours.map((hour) => (
+                <button
+                  key={hour}
+                  onClick={() => setSelectedHour(hour)}
+                  className={selectedHour === hour ? 'btn btn-wine btn-small' : 'btn btn-ghost btn-small'}
+                >
+                  {formatHour(hour)}
+                </button>
+              ))}
+            </div>
+
+            {scheduledAtIso && (
+              <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginBottom: '1.2rem' }}>
+                {uiLanguage === 'es'
+                  ? `${formatInZone(scheduledAtIso, nativeTz, locale)} (su hora) · ${formatInZone(scheduledAtIso, myTz, locale)} (tu hora)`
+                  : `${formatInZone(scheduledAtIso, nativeTz, locale)} (their time) · ${formatInZone(scheduledAtIso, myTz, locale)} (your time)`}
+              </p>
+            )}
+          </>
+        )}
+
+        {notEnoughCredits && (
+          <div className="modal-error">
+            {uiLanguage === 'es' ? `No tienes suficientes créditos (tienes ${credits}, necesitas ${creditsNeeded}).` : `Not enough credits (you have ${credits}, need ${creditsNeeded}).`}
           </div>
         )}
-
-        {scheduledAtIso && (
-          <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginBottom: '1.2rem' }}>
-            {uiLanguage === 'es'
-              ? `${formatInZone(scheduledAtIso, nativeTz, locale)} (su hora) · ${formatInZone(scheduledAtIso, myTz, locale)} (tu hora)`
-              : `${formatInZone(scheduledAtIso, nativeTz, locale)} (their time) · ${formatInZone(scheduledAtIso, myTz, locale)} (your time)`}
-          </p>
-        )}
-
         {error && <div className="modal-error">{error}</div>}
 
-        <button className="btn btn-gold" style={{ width: '100%' }} disabled={!scheduledAtIso || submitting} onClick={handleConfirm}>
-          {submitting ? (uiLanguage === 'es' ? 'Reservando…' : 'Booking…') : (uiLanguage === 'es' ? 'Confirmar reserva' : 'Confirm booking')}
+        <button className="btn btn-gold" style={{ width: '100%' }} disabled={!scheduledAtIso || submitting || notEnoughCredits} onClick={handleConfirm}>
+          {submitting
+            ? (uiLanguage === 'es' ? 'Reservando…' : 'Booking…')
+            : (uiLanguage === 'es' ? `Confirmar (-${creditsNeeded})` : `Confirm (-${creditsNeeded})`)}
         </button>
       </div>
     </div>

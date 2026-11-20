@@ -237,11 +237,10 @@ export async function synthesizeSpeechTTS(params: { text: string; accent: Accent
   }
 }
 
-export type ConnectAvailabilityBlock = 'morning' | 'afternoon' | 'evening';
-export interface ConnectAvailability {
-  weekday: ConnectAvailabilityBlock[];
-  weekend: ConnectAvailabilityBlock[];
-}
+export type ConnectDayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+// A recurring weekly template: available hours (0-23, each a 1-hour slot) per day of week, in
+// the user's own timezone. 1 hour is the minimum granularity on purpose.
+export type ConnectAvailability = Record<ConnectDayKey, number[]>;
 
 export interface ConnectProfile {
   bio: string | null;
@@ -333,7 +332,8 @@ export interface BookConnectSessionInput {
   language: 'es' | 'ru';
   scheduledAt: string;
   mode?: 'audio' | 'text';
-  durationMinutes?: number;
+  /** 10, 20 or 30 minutes — 1 credit per 10 minutes, 30 is the hard cap. */
+  durationMinutes?: 10 | 20 | 30;
 }
 
 export async function bookConnectSession(input: BookConnectSessionInput): Promise<ConnectSession> {
