@@ -16,15 +16,15 @@ export const connectAvailabilitySchema = z.object({
 
 export const connectProfileInputSchema = z.object({
   bio: z.string().max(500).optional(),
-  nativeLanguages: z.array(z.enum(['es', 'ru'])).optional(),
-  learningLanguages: z.array(z.enum(['es', 'ru'])).optional(),
+  nativeLanguages: z.array(z.enum(['es', 'ru', 'en'])).optional(),
+  learningLanguages: z.array(z.enum(['es', 'ru', 'en'])).optional(),
   timezone: z.string().min(1).max(100).optional(),
   availability: connectAvailabilitySchema.optional(),
 });
 
 export type ConnectProfileInputBody = z.infer<typeof connectProfileInputSchema>;
 
-export const connectLanguageSchema = z.enum(['es', 'ru']);
+export const connectLanguageSchema = z.enum(['es', 'ru', 'en']);
 
 export const bookConnectSessionSchema = z.object({
   nativeSpeakerId: z.string().uuid(),

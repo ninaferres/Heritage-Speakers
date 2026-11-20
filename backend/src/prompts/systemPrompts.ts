@@ -1,19 +1,29 @@
-export type ExerciseLanguage = 'es' | 'ru';
+export type ExerciseLanguage = 'es' | 'ru' | 'en';
 
 function languageName(language: ExerciseLanguage): string {
-  return language === 'ru' ? 'Russian' : 'Spanish';
+  if (language === 'ru') return 'Russian';
+  if (language === 'en') return 'English';
+  return 'Spanish';
 }
 
 function grammarFocus(language: ExerciseLanguage): string {
-  return language === 'ru'
-    ? 'case usage (nominative/genitive/dative/accusative/instrumental/prepositional), verb aspect (perfective vs. imperfective), verb conjugation, gender/number/case agreement, word order, and stress placement'
-    : 'verb tense and mood accuracy (subjunctive vs. indicative, preterite vs. imperfect), prepositional placement, word usage and register, orthographic accuracy (accents, spelling), and syntactic word order';
+  if (language === 'ru') {
+    return 'case usage (nominative/genitive/dative/accusative/instrumental/prepositional), verb aspect (perfective vs. imperfective), verb conjugation, gender/number/case agreement, word order, and stress placement';
+  }
+  if (language === 'en') {
+    return 'verb tense and aspect accuracy (simple vs. continuous vs. perfect), article usage (a/an/the/zero article — a common heritage-speaker gap), preposition choice, subject-verb agreement, word order, and spelling';
+  }
+  return 'verb tense and mood accuracy (subjunctive vs. indicative, preterite vs. imperfect), prepositional placement, word usage and register, orthographic accuracy (accents, spelling), and syntactic word order';
 }
 
 function ruleExamples(language: ExerciseLanguage): string {
-  return language === 'ru'
-    ? 'e.g. case government, verb aspect, verb conjugation, gender/number/case agreement, word order, false friend'
-    : 'e.g. subjunctive vs. indicative, ser vs. estar, preposition choice, gender/number agreement, false friend, register';
+  if (language === 'ru') {
+    return 'e.g. case government, verb aspect, verb conjugation, gender/number/case agreement, word order, false friend';
+  }
+  if (language === 'en') {
+    return 'e.g. article usage, tense/aspect choice, preposition choice, subject-verb agreement, false friend, register';
+  }
+  return 'e.g. subjunctive vs. indicative, ser vs. estar, preposition choice, gender/number agreement, false friend, register';
 }
 
 function baseRules(language: ExerciseLanguage): string {

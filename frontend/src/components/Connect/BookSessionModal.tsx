@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { bookConnectSession, fetchConnectCredits, ConnectMatch } from '../../api/client';
+import { bookConnectSession, fetchConnectCredits, ConnectMatch, ConnectLanguage } from '../../api/client';
 import { dayKeyOf, upcomingDates, zonedTimeToUtcIso, formatInZone, detectTimezone } from '../../utils/connectSchedule';
 
 const DURATIONS = [10, 20, 30] as const;
@@ -17,7 +17,7 @@ export function BookSessionModal({
   onBooked,
 }: {
   match: ConnectMatch;
-  language: 'es' | 'ru';
+  language: ConnectLanguage;
   onClose: () => void;
   onBooked: () => void;
 }) {

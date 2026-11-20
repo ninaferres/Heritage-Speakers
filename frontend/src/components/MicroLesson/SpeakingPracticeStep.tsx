@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { SpeakingPromptContent } from '../../data/microLessonTypes';
-import { AccentId, CefrLevel } from '../../data/types';
+import { CefrLevel, accentForLearningLanguage } from '../../data/types';
 import { evaluateSpeaking, synthesizeSpeechTTS } from '../../api/client';
 import { ProductionEvaluation } from '../../data/feedback';
 import { ProductionFeedback } from '../ExerciseRunner/FeedbackPanel';
@@ -20,7 +20,7 @@ export function SpeakingPracticeStep({
   level: CefrLevel;
   onComplete: (correct: boolean) => void;
 }) {
-  const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
+  const accent = accentForLearningLanguage(learningLanguage);
   const [showModel, setShowModel] = useState(false);
   const [playingWhich, setPlayingWhich] = useState<'prompt' | 'model' | null>(null);
   const [playError, setPlayError] = useState<string | null>(null);

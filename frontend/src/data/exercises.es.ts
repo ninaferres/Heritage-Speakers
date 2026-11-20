@@ -1,5 +1,6 @@
 import { CefrLevel, Exercise, SkillId } from './types';
 import { EXERCISES_RU } from './exercises.ru';
+import { EXERCISES_EN } from './exercises.en';
 
 /**
  * Spanish exercise bank, keyed "<level>-<skill>". This is the 'es' track;
@@ -226,6 +227,7 @@ export const EXERCISES_ES: Record<string, Exercise> = {
 export function getExerciseBank(learningLanguageCode: string): Record<string, Exercise> {
   if (learningLanguageCode === 'es') return EXERCISES_ES;
   if (learningLanguageCode === 'ru') return EXERCISES_RU;
+  if (learningLanguageCode === 'en') return EXERCISES_EN;
   return {};
 }
 

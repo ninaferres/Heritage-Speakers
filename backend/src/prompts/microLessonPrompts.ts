@@ -1,10 +1,10 @@
 import { CefrLevel, levelGuidance } from './exercisePrompts.js';
 
-export type MicroLessonLanguage = 'es' | 'ru';
+export type MicroLessonLanguage = 'es' | 'ru' | 'en';
 export type UiLanguage = 'en' | 'es';
 export type ClassSkill = 'listening' | 'reading' | 'grammar_syntax' | 'vocabulary' | 'speaking' | 'writing';
 
-const LANGUAGE_NAME: Record<MicroLessonLanguage, string> = { es: 'Spanish', ru: 'Russian' };
+const LANGUAGE_NAME: Record<MicroLessonLanguage, string> = { es: 'Spanish', ru: 'Russian', en: 'English' };
 const UI_LANGUAGE_NAME: Record<UiLanguage, string> = { en: 'English', es: 'Spanish' };
 
 const COMMON_RULES = `Rules:

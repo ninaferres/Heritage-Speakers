@@ -1,10 +1,10 @@
 /**
  * UI Language: controls interface language (English or Español)
- * Learning Language: what you want to learn — English UI offers Spanish or Russian;
- * Spanish UI offers Russian (Spanish speakers are already native, so they only pick Russian).
+ * Learning Language: what you want to learn — both English UI and Spanish UI now offer every
+ * other active language (English UI: Spanish or Russian; Spanish UI: Russian or English).
  */
 export type UILanguageCode = 'en' | 'es';
-export type LearningLanguageCode = 'es' | 'ru' | 'zh';
+export type LearningLanguageCode = 'es' | 'ru' | 'en' | 'zh';
 export type LanguageStatus = 'active' | 'coming-soon';
 
 export interface UILanguage {
@@ -60,6 +60,12 @@ export const LEARNING_LANGUAGES_BY_UI: Record<UILanguageCode, LearningLanguage[]
       code: 'ru',
       label: 'Russian',
       nativeLabel: 'Русский',
+      status: 'active',
+    },
+    {
+      code: 'en',
+      label: 'English',
+      nativeLabel: 'English',
       status: 'active',
     },
     {

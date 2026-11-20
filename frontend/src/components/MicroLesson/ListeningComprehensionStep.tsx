@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { ListeningComprehensionContent } from '../../data/microLessonTypes';
 import { synthesizeSpeechTTS } from '../../api/client';
-import { AccentId, CefrLevel } from '../../data/types';
+import { CefrLevel, accentForLearningLanguage } from '../../data/types';
 
 export function ListeningComprehensionStep({
   content,
@@ -26,7 +26,7 @@ export function ListeningComprehensionStep({
   const allCorrect = checked && content.questions.every((q, i) => answers[i] === q.answer);
 
   async function playAudio() {
-    const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
+    const accent = accentForLearningLanguage(learningLanguage);
     setIsPlaying(true);
     setPlayError(null);
     try {

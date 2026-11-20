@@ -8,7 +8,7 @@ export const feedbackSchema = z.object({
   contactEmail: z.string().email().max(200),
   contactPhone: z.string().min(1).max(40),
   uiLanguage: z.enum(['en', 'es']).optional(),
-  learningLanguage: z.enum(['es', 'ru']).optional(),
+  learningLanguage: z.enum(['es', 'ru', 'en']).optional(),
   page: z.string().max(300).optional(),
 });
 

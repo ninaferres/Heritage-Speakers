@@ -749,3 +749,42 @@ begin
   values (v_learner_id, v_spent, 'session_cancelled', p_session_id);
 end;
 $$;
+
+
+-- ----------------------------------------------------------------------------
+-- 12. Redeeming a friend's invite code — the other half of "invite a friend", alongside
+-- get_or_create_connect_referral_code() above. The actual +1 credit for the inviter is granted
+-- later, when the invitee completes their first Connect session (a later phase); this just
+-- records the link so that future check can find it.
+-- ----------------------------------------------------------------------------
+
+create or replace function public.redeem_connect_referral_code(p_code text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_inviter_id uuid;
+  v_row_id uuid;
+begin
+  select id, inviter_id into v_row_id, v_inviter_id
+    from public.connect_referrals
+    where code = upper(p_code) and invitee_id is null
+    limit 1;
+
+  if v_row_id is null then
+    raise exception 'Invalid or already-used invite code.';
+  end if;
+
+  if v_inviter_id = auth.uid() then
+    raise exception 'You cannot use your own invite code.';
+  end if;
+
+  if exists (select 1 from public.connect_referrals where invitee_id = auth.uid()) then
+    raise exception 'You have already used an invite code.';
+  end if;
+
+  update public.connect_referrals set invitee_id = auth.uid() where id = v_row_id;
+end;
+$$;

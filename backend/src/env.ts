@@ -32,9 +32,9 @@ export const env = {
   resendApiKey: optional('RESEND_API_KEY'),
   resendFromEmail: optional('RESEND_FROM_EMAIL') ?? 'Heritage Speakers <onboarding@resend.dev>',
 
-  // Only two voices needed: Peninsular Spanish and one Russian voice — no per-country Latin
-  // American rotation, since Google doesn't offer distinct MX/AR/CO voices (they'd all share
-  // the same generic es-US model), so we don't pretend otherwise.
+  // Peninsular Spanish, one Russian voice, one US English voice — no per-country Latin American
+  // rotation, since Google doesn't offer distinct MX/AR/CO voices (they'd all share the same
+  // generic es-US model), so we don't pretend otherwise.
   // Chirp 3 HD is Google's newest, most natural-sounding voice generation (replaces the older,
   // more mechanical Neural2/Wavenet voices used previously).
   googleTtsApiKey: optional('GOOGLE_TTS_API_KEY'),
@@ -43,6 +43,7 @@ export const env = {
     // and informative) — closer to a teacher than an announcer.
     'es-ES': optional('GOOGLE_TTS_VOICE_ES') ?? 'es-ES-Chirp3-HD-Leda',
     'ru-RU': optional('GOOGLE_TTS_VOICE_RU') ?? 'ru-RU-Chirp3-HD-Leda',
+    'en-US': optional('GOOGLE_TTS_VOICE_EN') ?? 'en-US-Chirp3-HD-Leda',
   } as Record<string, string | undefined>,
 };
 

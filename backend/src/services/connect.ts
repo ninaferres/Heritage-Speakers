@@ -91,6 +91,21 @@ export async function getConnectReferralCode(token: string): Promise<string> {
   return data as string;
 }
 
+/** Whether this user has already redeemed someone else's invite code (only one allowed, ever). */
+export async function hasRedeemedConnectReferral(token: string, userId: string): Promise<boolean> {
+  const client = userClient(token);
+  const { data, error } = await client.from('connect_referrals').select('id').eq('invitee_id', userId).limit(1);
+  if (error) throw new Error(`Failed to check referral status: ${error.message}`);
+  return (data ?? []).length > 0;
+}
+
+/** Links the caller to whoever owns this invite code — the "I was invited" side of invite-a-friend. */
+export async function redeemConnectReferralCode(token: string, code: string): Promise<void> {
+  const client = userClient(token);
+  const { error } = await client.rpc('redeem_connect_referral_code', { p_code: code });
+  if (error) throw new Error(error.message);
+}
+
 // ----------------------------------------------------------------------------
 // Phase 2 — native-language verification + matching/booking.
 // ----------------------------------------------------------------------------

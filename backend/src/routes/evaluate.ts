@@ -7,7 +7,7 @@ import { gradeListening, gradeReading, gradeSpeaking, gradeWriting } from '../se
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
 const cefrLevel = z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
-const exerciseLanguage = z.enum(['es', 'ru']).default('es');
+const exerciseLanguage = z.enum(['es', 'ru', 'en']).default('es');
 const question = z.object({ question: z.string(), hint: z.string().optional() }).passthrough();
 
 const writingSchema = z.object({ level: cefrLevel, prompt: z.string(), text: z.string().min(1), learningLanguage: exerciseLanguage });

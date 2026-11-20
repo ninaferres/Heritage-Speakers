@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
 import { connectProfileInputSchema, connectLanguageSchema, bookConnectSessionSchema } from '../schemas/connectSchemas.js';
 import {
@@ -7,6 +8,8 @@ import {
   upsertConnectProfile,
   getConnectCredits,
   getConnectReferralCode,
+  hasRedeemedConnectReferral,
+  redeemConnectReferralCode,
   submitLanguageVerification,
   getLanguageVerifications,
   getConnectMatches,
@@ -57,7 +60,27 @@ connectRouter.get('/credits', async (req, res) => {
 
 connectRouter.get('/referral-code', async (req, res) => {
   try {
-    res.json({ code: await getConnectReferralCode(req.accessToken!) });
+    const [code, redeemedByMe] = await Promise.all([
+      getConnectReferralCode(req.accessToken!),
+      hasRedeemedConnectReferral(req.accessToken!, req.userId!),
+    ]);
+    res.json({ code, redeemedByMe });
+  } catch (err) {
+    handleError(err, res);
+  }
+});
+
+const redeemReferralSchema = z.object({ code: z.string().min(4).max(16) });
+
+connectRouter.post('/redeem-referral', async (req, res) => {
+  const parsed = redeemReferralSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'A valid "code" is required.' });
+    return;
+  }
+  try {
+    await redeemConnectReferralCode(req.accessToken!, parsed.data.code);
+    res.status(204).end();
   } catch (err) {
     handleError(err, res);
   }
@@ -88,7 +111,7 @@ connectRouter.get('/verifications', async (req, res) => {
 connectRouter.get('/matches', async (req, res) => {
   const language = connectLanguageSchema.safeParse(req.query.language);
   if (!language.success) {
-    res.status(400).json({ error: 'A valid "language" query param (es|ru) is required.' });
+    res.status(400).json({ error: 'A valid "language" query param (es|ru|en) is required.' });
     return;
   }
   try {

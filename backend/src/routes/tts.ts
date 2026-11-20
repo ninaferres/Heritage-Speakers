@@ -5,7 +5,7 @@ import { synthesizeSpeech } from '../services/googleTts.js';
 
 const ttsSchema = z.object({
   text: z.string().min(1).max(4000),
-  accent: z.enum(['es-ES', 'ru-RU']),
+  accent: z.enum(['es-ES', 'ru-RU', 'en-US']),
   level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']).optional(),
 });
 

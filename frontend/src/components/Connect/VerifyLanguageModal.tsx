@@ -1,15 +1,17 @@
 import { useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { submitLanguageVerification, ConnectVerificationStatus } from '../../api/client';
+import { submitLanguageVerification, ConnectVerificationStatus, ConnectLanguage } from '../../api/client';
 
-const LANGUAGE_LABEL: Record<'es' | 'ru', { es: string; en: string }> = {
+const LANGUAGE_LABEL: Record<ConnectLanguage, { es: string; en: string }> = {
   es: { es: 'español', en: 'Spanish' },
   ru: { es: 'ruso', en: 'Russian' },
+  en: { es: 'inglés', en: 'English' },
 };
 
-const PROMPT: Record<'es' | 'ru', string> = {
+const PROMPT: Record<ConnectLanguage, string> = {
   es: 'Háblanos un poco de ti: de dónde eres, a qué te dedicas y qué es lo que más te gusta de tu idioma. También puedes simplemente leer esta frase en voz alta.',
   ru: 'Расскажите немного о себе: откуда вы, чем занимаетесь и что вам больше всего нравится в вашем языке. Также вы можете просто прочитать это предложение вслух.',
+  en: "Tell us a bit about yourself: where you're from, what you do, and what you like most about your language. You can also just read this sentence out loud.",
 };
 
 /** Records a 15-20s clip and submits it for (mocked, for now) automatic native-language
@@ -21,7 +23,7 @@ export function VerifyLanguageModal({
   onClose,
   onVerified,
 }: {
-  language: 'es' | 'ru';
+  language: ConnectLanguage;
   onClose: () => void;
   onVerified: (status: ConnectVerificationStatus) => void;
 }) {

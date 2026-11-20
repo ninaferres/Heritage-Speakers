@@ -5,7 +5,7 @@ import { getDailyMicroLesson } from '../services/microLessonGenerator.js';
 
 const querySchema = z.object({
   skill: z.enum(['listening', 'reading', 'grammar_syntax', 'vocabulary', 'speaking', 'writing']),
-  learningLanguage: z.enum(['es', 'ru']),
+  learningLanguage: z.enum(['es', 'ru', 'en']),
   uiLanguage: z.enum(['en', 'es']),
   level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']),
 });

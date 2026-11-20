@@ -6,7 +6,7 @@ import { getDailyExercise } from '../services/exerciseGenerator.js';
 const querySchema = z.object({
   skill: z.enum(['Speaking', 'Reading', 'Listening', 'Writing']),
   level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']),
-  language: z.enum(['es', 'ru']),
+  language: z.enum(['es', 'ru', 'en']),
 });
 
 export const exerciseRouter = Router();

@@ -43,9 +43,11 @@ export type GeneratedExercise =
   | ({ skill: 'Reading' } & GeneratedReading)
   | ({ skill: 'Listening' } & GeneratedListening);
 
-// One voice per language: Peninsular Spanish, one Russian voice. No regional rotation.
+// One voice per language: Peninsular Spanish, one Russian voice, one US English voice. No regional rotation.
 function accentForLanguage(language: ExerciseLanguage): string {
-  return language === 'ru' ? 'ru-RU' : 'es-ES';
+  if (language === 'ru') return 'ru-RU';
+  if (language === 'en') return 'en-US';
+  return 'es-ES';
 }
 
 // In-memory cache keyed by day, so every learner sees the same freshly-generated

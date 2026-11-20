@@ -32,8 +32,14 @@ export interface ListeningAssessmentQuestion {
 }
 export type ExerciseQuestion = OpenQuestion | MultipleChoiceQuestion | MatchingQuestion | SpeakingAssessmentQuestion | ListeningAssessmentQuestion;
 
-/** Voice used for Listening TTS audio: Peninsular Spanish, or the single Russian voice. */
-export type AccentId = 'es-ES' | 'ru-RU';
+/** Voice used for Listening TTS audio: Peninsular Spanish, the Russian voice, or US English. */
+export type AccentId = 'es-ES' | 'ru-RU' | 'en-US';
+
+export function accentForLearningLanguage(lang?: string | null): AccentId {
+  if (lang === 'ru') return 'ru-RU';
+  if (lang === 'en') return 'en-US';
+  return 'es-ES';
+}
 
 export interface ReadingExercise {
   skill: 'Reading';

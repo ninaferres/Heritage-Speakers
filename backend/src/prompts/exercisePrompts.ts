@@ -1,12 +1,13 @@
 export type SkillId = 'Speaking' | 'Reading' | 'Listening' | 'Writing';
 export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
-export type ExerciseLanguage = 'es' | 'ru';
+export type ExerciseLanguage = 'es' | 'ru' | 'en';
 
-const LANGUAGE_NAME: Record<ExerciseLanguage, string> = { es: 'Spanish', ru: 'Russian' };
+const LANGUAGE_NAME: Record<ExerciseLanguage, string> = { es: 'Spanish', ru: 'Russian', en: 'English' };
 
 const REGIONAL_GUIDANCE: Record<string, string> = {
   'es-ES': 'Write in Peninsular Spanish ONLY: use "vosotros" verb forms when addressing a group (never "ustedes" for that), "vale" as a filler word, and Spain-specific vocabulary (camarero not mesero, móvil not celular, ordenador not computadora, coche not carro, zumo not jugo, patatas not papas). Currency: euros. Do NOT use any Latin American vocabulary, diminutives in -ito/-ita as filler, or "ustedes" as the only plural you-form — this must sound like someone from Spain, not Latin America.',
   'ru-RU': 'Write in standard Russian (Moscow/central) with a neutral, clear register.',
+  'en-US': 'Write in standard American English with a neutral, clear register — this is for Spanish-speaking heritage English learners, so favor everyday US vocabulary and idiom over British/Commonwealth forms (apartment not flat, elevator not lift, vacation not holiday).',
 };
 
 export function levelGuidance(level: CefrLevel): string {
@@ -16,7 +17,7 @@ export function levelGuidance(level: CefrLevel): string {
     case 'A2':
       return 'Simple vocabulary, short sentences, basic past/future tenses. Everyday topics (shopping, travel basics, describing people/places, simple plans).';
     case 'B1':
-      return 'Moderate complexity, connected sentences with common connectors (aunque, por lo tanto, sin embargo / хотя, поэтому, однако). Everyday topics with some opinion/narration (travel stories, hobbies, work, simple opinions with reasons).';
+      return 'Moderate complexity, connected sentences with common connectors (aunque, por lo tanto, sin embargo / хотя, поэтому, однако / although, therefore, however). Everyday topics with some opinion/narration (travel stories, hobbies, work, simple opinions with reasons).';
     case 'B2':
       return 'More complex sentence structures, wider vocabulary, ability to discuss abstract-but-everyday topics (technology, social issues, workplace) with nuance and some formal register.';
     case 'C1':

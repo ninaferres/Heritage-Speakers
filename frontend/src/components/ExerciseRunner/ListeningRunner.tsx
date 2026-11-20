@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ListeningExercise, CefrLevel, AccentId } from '../../data/types';
+import { ListeningExercise, CefrLevel, accentForLearningLanguage } from '../../data/types';
 import { evaluateListening, synthesizeSpeechTTS } from '../../api/client';
 import { ComprehensionEvaluation } from '../../data/feedback';
 import { ComprehensionFeedback } from './FeedbackPanel';
@@ -12,7 +12,7 @@ export function ListeningRunner({ exercise, level, learningLanguage }: { exercis
   const { uiLanguage } = useLanguage();
   const { recordCompletion } = useStreaks();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
+  const accent = accentForLearningLanguage(learningLanguage);
   const [isPlaying, setIsPlaying] = useState(false);
   const [answers, setAnswers] = useState<string[]>(exercise.questions.map(() => ''));
   const [loading, setLoading] = useState(false);

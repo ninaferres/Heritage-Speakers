@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ListeningAssessmentQuestion, AccentId } from '../../data/types';
+import { ListeningAssessmentQuestion, accentForLearningLanguage } from '../../data/types';
 import { synthesizeSpeechTTS } from '../../api/client';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString } from '../../i18n/strings';
@@ -29,7 +29,7 @@ export function ListeningAssessmentQuestionRunner({ question, selected, onSelect
     setError(null);
     setIsLoading(true);
     try {
-      const accent: AccentId = learningLanguage === 'ru' ? 'ru-RU' : 'es-ES';
+      const accent = accentForLearningLanguage(learningLanguage);
       const audioBlob = await synthesizeSpeechTTS({ text: question.audioText, accent });
       const audioUrl = URL.createObjectURL(audioBlob);
       if (!audioRef.current) {

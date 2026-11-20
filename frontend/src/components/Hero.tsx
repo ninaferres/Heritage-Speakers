@@ -2,16 +2,17 @@ import { LogoMark } from './Logo';
 import { useLanguage } from '../context/LanguageContext';
 import { getString } from '../i18n/strings';
 
-const LEARNING_LANGUAGE_NAME: Record<'es' | 'ru', { es: string; en: string }> = {
+const LEARNING_LANGUAGE_NAME: Record<'es' | 'ru' | 'en', { es: string; en: string }> = {
   es: { es: 'español', en: 'Spanish' },
   ru: { es: 'ruso', en: 'Russian' },
+  en: { es: 'inglés', en: 'English' },
 };
 
 export function Hero() {
   const { uiLanguage, learningLanguage } = useLanguage();
   // Defaults keep the hero readable even before a learning language is chosen (e.g. on first
   // load before LanguageContext's auto-select effect runs).
-  const target = LEARNING_LANGUAGE_NAME[learningLanguage === 'ru' ? 'ru' : 'es'];
+  const target = LEARNING_LANGUAGE_NAME[learningLanguage === 'ru' ? 'ru' : learningLanguage === 'en' ? 'en' : 'es'];
 
   return (
     <header className="hero">

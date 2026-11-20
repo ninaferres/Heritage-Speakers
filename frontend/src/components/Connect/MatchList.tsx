@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { fetchConnectMatches, ConnectMatch } from '../../api/client';
+import { fetchConnectMatches, ConnectMatch, ConnectLanguage } from '../../api/client';
 import { BookSessionModal } from './BookSessionModal';
 import { DAY_KEYS } from '../../utils/connectSchedule';
+
+const LANGUAGE_LABEL: Record<ConnectLanguage, { es: string; en: string }> = {
+  es: { es: 'Español', en: 'Spanish' },
+  ru: { es: 'Ruso', en: 'Russian' },
+  en: { es: 'Inglés', en: 'English' },
+};
 
 /** Total weekly available hours across all 7 days — a quick-scan summary; exact days/times are
  * shown in the booking modal once you've picked someone. */
@@ -12,9 +18,9 @@ function describeAvailability(match: ConnectMatch, uiLanguage: 'en' | 'es'): str
   return uiLanguage === 'es' ? `${totalHours} h/semana disponibles` : `${totalHours} h/week available`;
 }
 
-export function MatchList({ learningLanguages }: { learningLanguages: ('es' | 'ru')[] }) {
+export function MatchList({ learningLanguages }: { learningLanguages: ConnectLanguage[] }) {
   const { uiLanguage } = useLanguage();
-  const [language, setLanguage] = useState<'es' | 'ru' | null>(learningLanguages[0] ?? null);
+  const [language, setLanguage] = useState<ConnectLanguage | null>(learningLanguages[0] ?? null);
   const [matches, setMatches] = useState<ConnectMatch[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [booking, setBooking] = useState<ConnectMatch | null>(null);
@@ -49,7 +55,7 @@ export function MatchList({ learningLanguages }: { learningLanguages: ('es' | 'r
               onClick={() => setLanguage(lang)}
               className={language === lang ? 'btn btn-wine btn-small' : 'btn btn-ghost btn-small'}
             >
-              {lang === 'es' ? 'Español' : 'Ruso'}
+              {LANGUAGE_LABEL[lang][uiLanguage]}
             </button>
           ))}
         </div>

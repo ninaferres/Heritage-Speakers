@@ -11,8 +11,10 @@ async function authHeaders(): Promise<Record<string, string>> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function normalizeLearningLanguage(lang?: string | null): 'es' | 'ru' {
-  return lang === 'ru' ? 'ru' : 'es';
+function normalizeLearningLanguage(lang?: string | null): 'es' | 'ru' | 'en' {
+  if (lang === 'ru') return 'ru';
+  if (lang === 'en') return 'en';
+  return 'es';
 }
 
 async function postJson<T>(path: string, body: unknown): Promise<T> {
@@ -242,18 +244,20 @@ export type ConnectDayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun
 // the user's own timezone. 1 hour is the minimum granularity on purpose.
 export type ConnectAvailability = Record<ConnectDayKey, number[]>;
 
+export type ConnectLanguage = 'es' | 'ru' | 'en';
+
 export interface ConnectProfile {
   bio: string | null;
-  nativeLanguages: ('es' | 'ru')[];
-  learningLanguages: ('es' | 'ru')[];
+  nativeLanguages: ConnectLanguage[];
+  learningLanguages: ConnectLanguage[];
   timezone: string | null;
   availability: ConnectAvailability;
 }
 
 export interface ConnectProfileInput {
   bio?: string;
-  nativeLanguages?: ('es' | 'ru')[];
-  learningLanguages?: ('es' | 'ru')[];
+  nativeLanguages?: ConnectLanguage[];
+  learningLanguages?: ConnectLanguage[];
   timezone?: string;
   availability?: ConnectAvailability;
 }
@@ -271,18 +275,21 @@ export async function fetchConnectCredits(): Promise<number> {
   return credits;
 }
 
-export async function fetchConnectReferralCode(): Promise<string> {
-  const { code } = await getJson<{ code: string }>('/connect/referral-code');
-  return code;
+export async function fetchConnectReferralCode(): Promise<{ code: string; redeemedByMe: boolean }> {
+  return getJson('/connect/referral-code');
+}
+
+export async function redeemConnectReferralCode(code: string): Promise<void> {
+  await postJson('/connect/redeem-referral', { code });
 }
 
 export type ConnectVerificationStatus = 'pending' | 'verified' | 'rejected' | 'flagged_for_review';
 export interface ConnectLanguageVerification {
-  language: 'es' | 'ru';
+  language: ConnectLanguage;
   status: ConnectVerificationStatus;
 }
 
-export async function submitLanguageVerification(language: 'es' | 'ru', audioBlob: Blob): Promise<ConnectLanguageVerification> {
+export async function submitLanguageVerification(language: ConnectLanguage, audioBlob: Blob): Promise<ConnectLanguageVerification> {
   const form = new FormData();
   form.append('language', language);
   form.append('audio', audioBlob, 'verification.webm');
@@ -312,7 +319,7 @@ export interface ConnectMatch {
   sessionsCount: number;
 }
 
-export async function fetchConnectMatches(language: 'es' | 'ru'): Promise<ConnectMatch[]> {
+export async function fetchConnectMatches(language: ConnectLanguage): Promise<ConnectMatch[]> {
   return getJson(`/connect/matches?language=${language}`);
 }
 
@@ -320,7 +327,7 @@ export interface ConnectSession {
   id: string;
   learnerId: string;
   nativeSpeakerId: string;
-  language: 'es' | 'ru';
+  language: ConnectLanguage;
   mode: 'audio' | 'text';
   scheduledAt: string;
   durationMinutesPlanned: number;
@@ -329,7 +336,7 @@ export interface ConnectSession {
 
 export interface BookConnectSessionInput {
   nativeSpeakerId: string;
-  language: 'es' | 'ru';
+  language: ConnectLanguage;
   scheduledAt: string;
   mode?: 'audio' | 'text';
   /** 10, 20 or 30 minutes — 1 credit per 10 minutes, 30 is the hard cap. */

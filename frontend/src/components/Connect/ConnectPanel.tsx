@@ -5,10 +5,12 @@ import {
   saveConnectProfile,
   fetchConnectCredits,
   fetchConnectReferralCode,
+  redeemConnectReferralCode,
   fetchLanguageVerifications,
   ConnectProfile,
   ConnectAvailability,
   ConnectDayKey,
+  ConnectLanguage,
   ConnectLanguageVerification,
   ConnectVerificationStatus,
 } from '../../api/client';
@@ -18,9 +20,10 @@ import { MatchList } from './MatchList';
 import { MySessions } from './MySessions';
 import { WeeklyAvailabilityGrid } from './WeeklyAvailabilityGrid';
 
-const LANGUAGE_LABEL: Record<'es' | 'ru', { es: string; en: string }> = {
+const LANGUAGE_LABEL: Record<ConnectLanguage, { es: string; en: string }> = {
   es: { es: 'Español', en: 'Spanish' },
   ru: { es: 'Ruso', en: 'Russian' },
+  en: { es: 'Inglés', en: 'English' },
 };
 
 const VERIFICATION_LABEL: Record<ConnectVerificationStatus, { es: string; en: string }> = {
@@ -45,28 +48,33 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
   const [profile, setProfile] = useState<ConnectProfile | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [redeemedByMe, setRedeemedByMe] = useState(false);
   const [verifications, setVerifications] = useState<ConnectLanguageVerification[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [bio, setBio] = useState('');
-  const [nativeLanguages, setNativeLanguages] = useState<('es' | 'ru')[]>([]);
-  const [learningLanguages, setLearningLanguages] = useState<('es' | 'ru')[]>([]);
+  const [nativeLanguages, setNativeLanguages] = useState<ConnectLanguage[]>([]);
+  const [learningLanguages, setLearningLanguages] = useState<ConnectLanguage[]>([]);
   const [availability, setAvailability] = useState<ConnectAvailability>(EMPTY_AVAILABILITY);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [verifyingLanguage, setVerifyingLanguage] = useState<'es' | 'ru' | null>(null);
+  const [verifyingLanguage, setVerifyingLanguage] = useState<ConnectLanguage | null>(null);
+  const [redeemInput, setRedeemInput] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemError, setRedeemError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     Promise.all([fetchConnectProfile(), fetchConnectCredits(), fetchConnectReferralCode(), fetchLanguageVerifications()])
-      .then(([p, c, code, v]) => {
+      .then(([p, c, referral, v]) => {
         if (cancelled) return;
         setProfile(p);
         setCredits(c);
-        setReferralCode(code);
+        setReferralCode(referral.code);
+        setRedeemedByMe(referral.redeemedByMe);
         setVerifications(v);
         setBio(p.bio ?? '');
         setNativeLanguages(p.nativeLanguages);
@@ -84,7 +92,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
     };
   }, []);
 
-  function handleToggleNative(lang: 'es' | 'ru') {
+  function handleToggleNative(lang: ConnectLanguage) {
     const next = toggle(nativeLanguages, lang);
     setNativeLanguages(next);
     const hasVerification = verifications.some((v) => v.language === lang);
@@ -93,7 +101,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
     }
   }
 
-  function handleVerified(lang: 'es' | 'ru', status: ConnectVerificationStatus) {
+  function handleVerified(lang: ConnectLanguage, status: ConnectVerificationStatus) {
     setVerifications((prev) => [...prev.filter((v) => v.language !== lang), { language: lang, status }]);
   }
 
@@ -128,6 +136,21 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     });
+  }
+
+  async function handleRedeem() {
+    if (!redeemInput.trim()) return;
+    setRedeeming(true);
+    setRedeemError(null);
+    try {
+      await redeemConnectReferralCode(redeemInput.trim());
+      setRedeemedByMe(true);
+      setRedeemInput('');
+    } catch (e) {
+      setRedeemError(e instanceof Error ? e.message : (uiLanguage === 'es' ? 'Código no válido.' : 'Invalid code.'));
+    } finally {
+      setRedeeming(false);
+    }
   }
 
   return (
@@ -209,7 +232,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
                 {uiLanguage === 'es' ? 'Hablo nativamente' : 'I natively speak'}
               </p>
               <div style={{ display: 'flex', gap: '.6rem', marginBottom: '.5rem', flexWrap: 'wrap' }}>
-                {(['es', 'ru'] as const).map((lang) => (
+                {(['es', 'ru', 'en'] as const).map((lang) => (
                   <button
                     key={lang}
                     onClick={() => handleToggleNative(lang)}
@@ -251,7 +274,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
                 {uiLanguage === 'es' ? 'Quiero practicar' : 'I want to practice'}
               </p>
               <div style={{ display: 'flex', gap: '.6rem' }}>
-                {(['es', 'ru'] as const).map((lang) => (
+                {(['es', 'ru', 'en'] as const).map((lang) => (
                   <button
                     key={lang}
                     onClick={() => setLearningLanguages((prev) => toggle(prev, lang))}
@@ -268,11 +291,8 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
               <h3 style={{ fontSize: '1rem', color: 'var(--wine-ink)', marginBottom: '.3rem' }}>
                 {uiLanguage === 'es' ? 'Disponibilidad' : 'Availability'}
               </h3>
-              <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '.4rem' }}>
-                {uiLanguage === 'es' ? `Zona horaria detectada: ${profile?.timezone ?? detectTimezone()}` : `Detected timezone: ${profile?.timezone ?? detectTimezone()}`}
-              </p>
               <p style={{ color: 'var(--muted)', fontSize: '.82rem', marginBottom: '.8rem' }}>
-                {uiLanguage === 'es' ? 'Toca las casillas en las que puedes dar clase (mínimo 1 hora por franja).' : 'Tap the cells you can teach (1 hour minimum per slot).'}
+                {uiLanguage === 'es' ? `Zona horaria detectada: ${profile?.timezone ?? detectTimezone()}` : `Detected timezone: ${profile?.timezone ?? detectTimezone()}`}
               </p>
 
               <WeeklyAvailabilityGrid availability={availability} onToggle={toggleHour} uiLanguage={uiLanguage} />
@@ -317,6 +337,34 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
                   ? (uiLanguage === 'es' ? '¡Copiado!' : 'Copied!')
                   : `${uiLanguage === 'es' ? 'Código' : 'Code'}: ${referralCode ?? '…'}`}
               </button>
+
+              <div style={{ marginTop: '1.2rem', paddingTop: '1.2rem', borderTop: '1px solid var(--line)' }}>
+                {redeemedByMe ? (
+                  <p style={{ margin: 0, color: 'var(--muted)', fontSize: '.85rem' }}>
+                    {uiLanguage === 'es' ? '¿A ti te invitó alguien? Ya has usado un código de invitación.' : 'Were you invited by someone? You have already used an invite code.'}
+                  </p>
+                ) : (
+                  <>
+                    <p style={{ margin: '0 0 .6rem', fontWeight: 600, color: 'var(--wine-ink)', fontSize: '.88rem' }}>
+                      {uiLanguage === 'es' ? '¿Te invitó alguien?' : 'Were you invited by someone?'}
+                    </p>
+                    <div style={{ display: 'flex', gap: '.5rem' }}>
+                      <input
+                        type="text"
+                        className="field-input"
+                        style={{ marginBottom: 0, textTransform: 'uppercase' }}
+                        placeholder={uiLanguage === 'es' ? 'Su código' : 'Their code'}
+                        value={redeemInput}
+                        onChange={(e) => setRedeemInput(e.target.value.toUpperCase())}
+                      />
+                      <button className="btn btn-wine btn-small" disabled={!redeemInput.trim() || redeeming} onClick={handleRedeem}>
+                        {redeeming ? '…' : (uiLanguage === 'es' ? 'Usar' : 'Use')}
+                      </button>
+                    </div>
+                    {redeemError && <p style={{ color: '#b3261e', fontSize: '.82rem', margin: '.6rem 0 0' }}>{redeemError}</p>}
+                  </>
+                )}
+              </div>
             </div>
           </>
         )}

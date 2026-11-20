@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SkillId, CefrLevel } from '../../data/types';
 import { getAssessmentQuestions } from '../../data/assessment.es';
 import { getAssessmentQuestionsRu } from '../../data/assessment.ru';
+import { getAssessmentQuestionsEn } from '../../data/assessment.en';
 import { useLanguage } from '../../context/LanguageContext';
 import { getString, StringKey } from '../../i18n/strings';
 import { evaluateSpeaking } from '../../api/client';
@@ -37,7 +38,13 @@ export function AssessmentModal({ onClose }: { onClose: () => void }) {
   const [isGradingSpeaking, setIsGradingSpeaking] = useState(false);
   const [speakingError, setSpeakingError] = useState<string | null>(null);
 
-  const getQuestionsFunc = !learningLanguage ? () => [] : (learningLanguage === 'ru' ? getAssessmentQuestionsRu : getAssessmentQuestions);
+  const getQuestionsFunc = !learningLanguage
+    ? () => []
+    : learningLanguage === 'ru'
+      ? getAssessmentQuestionsRu
+      : learningLanguage === 'en'
+        ? getAssessmentQuestionsEn
+        : getAssessmentQuestions;
 
   const questions = selectedSkill ? LEVELS.flatMap((level, levelIdx) => {
     const qs = getQuestionsFunc(selectedSkill, level);
