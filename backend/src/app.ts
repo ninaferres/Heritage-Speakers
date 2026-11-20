@@ -9,6 +9,7 @@ import { feedbackRouter } from './routes/feedback.js';
 import { welcomeEmailRouter } from './routes/welcomeEmail.js';
 import { practiceCompletionsRouter } from './routes/practiceCompletions.js';
 import { profileRouter, leaguesRouter } from './routes/profile.js';
+import { connectRouter } from './routes/connect.js';
 
 const app = express();
 app.use(cors({ origin: env.corsOrigin }));
@@ -34,6 +35,7 @@ app.use('/api/welcome-email', welcomeEmailRouter);
 app.use('/api/practice-completions', practiceCompletionsRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/leagues', leaguesRouter);
+app.use('/api/connect', connectRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });

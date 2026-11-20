@@ -7,6 +7,7 @@ import { AuthModal } from './AuthModal';
 import { AboutModal } from './AboutModal';
 import { WhyUsModal } from './WhyUsModal';
 import { ProfilePanel } from './ProfilePanel';
+import { ConnectPanel } from './Connect/ConnectPanel';
 import { getCopy } from '../i18n/copy';
 import { useMicroLessonGate } from '../context/MicroLessonGateContext';
 
@@ -16,6 +17,7 @@ export function Header() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [whyUsOpen, setWhyUsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [connectOpen, setConnectOpen] = useState(false);
   const { uiLanguage, setUILanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
   const { user, signOut } = useAuth();
   const { requestMicroLesson } = useMicroLessonGate();
@@ -165,6 +167,12 @@ export function Header() {
                   >
                     {uiLanguage === 'es' ? 'Ver perfil' : 'View profile'}
                   </button>
+                  <button
+                    className="btn btn-wine"
+                    onClick={() => { setConnectOpen(true); setNavOpen(false); }}
+                  >
+                    Connect
+                  </button>
                   <div className="nav-user-chip">
                     <span className="email" title={user.email ?? ''}>{user.email}</span>
                     <button className="btn btn-ghost btn-small" onClick={() => signOut()}>{uiLanguage === 'es' ? 'Cerrar sesión' : 'Log out'}</button>
@@ -199,6 +207,10 @@ export function Header() {
 
       {profileOpen && (
         <ProfilePanel onClose={() => setProfileOpen(false)} />
+      )}
+
+      {connectOpen && (
+        <ConnectPanel onClose={() => setConnectOpen(false)} />
       )}
     </>
   );

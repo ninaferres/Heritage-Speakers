@@ -28,6 +28,19 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return res.json();
 }
 
+async function putJson<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.error || `Request to ${path} failed (${res.status})`);
+  }
+  return res.json();
+}
+
 export async function evaluateWriting(params: {
   level: CefrLevel;
   prompt: string;
@@ -222,5 +235,45 @@ export async function synthesizeSpeechTTS(params: { text: string; accent: Accent
     console.error('TTS Error:', message);
     throw new Error(message);
   }
+}
+
+export type ConnectAvailabilityBlock = 'morning' | 'afternoon' | 'evening';
+export interface ConnectAvailability {
+  weekday: ConnectAvailabilityBlock[];
+  weekend: ConnectAvailabilityBlock[];
+}
+
+export interface ConnectProfile {
+  bio: string | null;
+  nativeLanguages: ('es' | 'ru')[];
+  learningLanguages: ('es' | 'ru')[];
+  timezone: string | null;
+  availability: ConnectAvailability;
+}
+
+export interface ConnectProfileInput {
+  bio?: string;
+  nativeLanguages?: ('es' | 'ru')[];
+  learningLanguages?: ('es' | 'ru')[];
+  timezone?: string;
+  availability?: ConnectAvailability;
+}
+
+export async function fetchConnectProfile(): Promise<ConnectProfile> {
+  return getJson('/connect/profile');
+}
+
+export async function saveConnectProfile(input: ConnectProfileInput): Promise<ConnectProfile> {
+  return putJson('/connect/profile', input);
+}
+
+export async function fetchConnectCredits(): Promise<number> {
+  const { credits } = await getJson<{ credits: number }>('/connect/credits');
+  return credits;
+}
+
+export async function fetchConnectReferralCode(): Promise<string> {
+  const { code } = await getJson<{ code: string }>('/connect/referral-code');
+  return code;
 }
 
