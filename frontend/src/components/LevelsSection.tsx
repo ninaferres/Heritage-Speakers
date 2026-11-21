@@ -132,31 +132,25 @@ export function LevelsIntroSection() {
 }
 
 export function ExamModeSection() {
-  const { learningLanguage, uiLanguage } = useLanguage();
+  const { uiLanguage } = useLanguage();
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   return (
     <section className="block levels exam-mode" id="levels">
       <div className="wrap">
-        {learningLanguage ? (
-          <>
-            <div className="head">
-              <span className="eyebrow">{uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}</span>
-              <h2>{uiLanguage === 'es' ? 'Elige tu destreza y tu nivel exacto' : 'Choose your skill and your exact level'}</h2>
-            </div>
-            <div className="level-grid">
-              {SKILLS.map((s) => (
-                <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
-              ))}
-            </div>
-            <p className="footnote">
-              <button type="button" className="btn-linklike" onClick={() => setAssessmentOpen(true)} style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}>
-                {uiLanguage === 'es' ? '¿No sabes tu nivel en una destreza? Haz un test rápido, elige habla, lectura, escucha o escritura' : "Don't know your level in a skill? Take a quick test, choose speaking, reading, listening, or writing"}
-              </button>
-            </p>
-          </>
-        ) : (
-          <p className="footnote">{getString('levels.selectLanguage', uiLanguage)}</p>
-        )}
+        <div className="head">
+          <span className="eyebrow">{uiLanguage === 'es' ? 'Modo examen' : 'Exam mode'}</span>
+          <h2>{uiLanguage === 'es' ? 'Elige tu destreza y tu nivel exacto' : 'Choose your skill and your exact level'}</h2>
+        </div>
+        <div className="level-grid">
+          {SKILLS.map((s) => (
+            <SkillCard key={s.id} id={s.id} sub={s.sub} uiLanguage={uiLanguage} />
+          ))}
+        </div>
+        <p className="footnote">
+          <button type="button" className="btn-linklike" onClick={() => setAssessmentOpen(true)} style={{ background: 'none', border: 0, color: 'var(--wine)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}>
+            {uiLanguage === 'es' ? '¿No sabes tu nivel en una destreza? Haz un test rápido, elige habla, lectura, escucha o escritura' : "Don't know your level in a skill? Take a quick test, choose speaking, reading, listening, or writing"}
+          </button>
+        </p>
 
         <p className="footnote">
           {uiLanguage === 'es'

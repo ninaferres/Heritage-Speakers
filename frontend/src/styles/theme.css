@@ -186,6 +186,19 @@ button{font-family:inherit}
 .hero-inner{display:flex;flex-direction:column;align-items:center}
 .hero .cta-row{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeInUp .8s ease-out .5s both}
 .hero > .wrap > .btn{animation:fadeInUp .8s ease-out .5s both}
+.hero-languages{
+  margin-top:2.6rem;display:flex;flex-direction:column;align-items:center;gap:.7rem;
+  animation:fadeInUp .8s ease-out .6s both;
+}
+.hero-languages-label{
+  font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(250,247,243,.65);font-weight:600;
+}
+.hero-languages-chips{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+.hero-lang-chip{
+  padding:.5rem 1.1rem;border-radius:999px;font-size:.92rem;font-weight:600;
+  border:1px solid rgba(250,247,243,.4);color:var(--bone);background:rgba(250,247,243,.08);
+}
+.hero-lang-chip.is-active{background:var(--gold);border-color:var(--gold);color:var(--wine-ink)}
 
 /* ---------- paths section (own block, bone background) ---------- */
 section.paths{

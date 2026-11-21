@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
+import { useLanguage } from './LanguageContext';
 import { AuthModal } from '../components/AuthModal';
+import { LanguagePicker } from '../components/LanguagePicker';
 import { MicroLessonRunner } from '../components/MicroLesson/MicroLessonRunner';
 
 interface MicroLessonGateContextValue {
@@ -14,16 +16,30 @@ const PENDING_KEY = 'hs.pendingMicroLesson';
 
 export function MicroLessonGateProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
+  const { availableLearningLanguages, setLearningLanguage } = useLanguage();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [languagePickerOpen, setLanguagePickerOpen] = useState(false);
   const [active, setActive] = useState(false);
   const wasSignedIn = useRef(Boolean(user));
+
+  // Shows the shared language picker before starting, unless there's genuinely only one
+  // active learning language to pick from — then there's nothing to choose.
+  function proceedToLanguagePick() {
+    const activeLanguages = availableLearningLanguages.filter((l) => l.status === 'active');
+    if (activeLanguages.length <= 1) {
+      if (activeLanguages[0]) setLearningLanguage(activeLanguages[0].code);
+      setActive(true);
+    } else {
+      setLanguagePickerOpen(true);
+    }
+  }
 
   useEffect(() => {
     const justSignedIn = !wasSignedIn.current && Boolean(user);
     wasSignedIn.current = Boolean(user);
     if (justSignedIn && window.sessionStorage.getItem(PENDING_KEY)) {
       window.sessionStorage.removeItem(PENDING_KEY);
-      setActive(true);
+      proceedToLanguagePick();
       setAuthModalOpen(false);
     }
   }, [user]);
@@ -44,7 +60,7 @@ export function MicroLessonGateProvider({ children }: { children: ReactNode }) {
 
   function requestMicroLesson() {
     if (user) {
-      setActive(true);
+      proceedToLanguagePick();
     } else {
       window.sessionStorage.setItem(PENDING_KEY, '1');
       setAuthModalOpen(true);
@@ -55,7 +71,7 @@ export function MicroLessonGateProvider({ children }: { children: ReactNode }) {
     setAuthModalOpen(false);
     if (window.sessionStorage.getItem(PENDING_KEY)) {
       window.sessionStorage.removeItem(PENDING_KEY);
-      setActive(true);
+      proceedToLanguagePick();
     }
   }
 
@@ -70,6 +86,19 @@ export function MicroLessonGateProvider({ children }: { children: ReactNode }) {
           }}
           onAuthenticated={handleAuthenticated}
         />
+      )}
+      {languagePickerOpen && (
+        <div className="exercise-overlay" onClick={(e) => e.target === e.currentTarget && setLanguagePickerOpen(false)}>
+          <div className="exercise-card" role="dialog" aria-modal="true">
+            <button className="modal-close" aria-label="Close" onClick={() => setLanguagePickerOpen(false)}>✕</button>
+            <LanguagePicker
+              onSelect={() => {
+                setLanguagePickerOpen(false);
+                setActive(true);
+              }}
+            />
+          </div>
+        </div>
       )}
       {active && <MicroLessonRunner onClose={() => setActive(false)} />}
     </MicroLessonGateContext.Provider>

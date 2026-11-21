@@ -29,12 +29,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [learningLanguage, setLearningLanguageState] = useState<LearningLanguageCode | null>(() => {
     if (typeof window === 'undefined') return null;
     const saved = window.localStorage.getItem(LEARNING_LANGUAGE_STORAGE_KEY) as LearningLanguageCode | null;
-    if (saved) return saved;
-    // Each UI language maps to exactly one active learning language today, so
-    // there's no real choice to make — pick it automatically instead of
-    // making the learner click a button to unlock the rest of the site.
+    if (!saved) return null;
+    // Only trust a saved pick that's still a valid, active choice for the saved UI language —
+    // otherwise require a fresh pick via the language picker instead of silently falling back.
     const uiSaved = (window.localStorage.getItem(UI_LANGUAGE_STORAGE_KEY) as UILanguageCode | null) || DEFAULT_UI_LANGUAGE;
-    return getLearningLanguages(uiSaved).find((l) => l.status === 'active')?.code ?? null;
+    const stillValid = getLearningLanguages(uiSaved).some((l) => l.code === saved && l.status === 'active');
+    return stillValid ? saved : null;
   });
 
   const availableLearningLanguages = useMemo(() => getLearningLanguages(uiLanguage), [uiLanguage]);
@@ -45,11 +45,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       setUILanguage: (next: UILanguageCode) => {
         setUILanguageState(next);
         window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, next);
-        // Auto-select the (only) active learning language for the new UI language.
-        const autoLearning = getLearningLanguages(next).find((l) => l.status === 'active')?.code ?? null;
-        setLearningLanguageState(autoLearning);
-        if (autoLearning) window.localStorage.setItem(LEARNING_LANGUAGE_STORAGE_KEY, autoLearning);
-        else window.localStorage.removeItem(LEARNING_LANGUAGE_STORAGE_KEY);
+        // Keep the current learning language only if it's still a valid, active choice for the
+        // new UI language (e.g. Russian stays valid from either English or Spanish UI);
+        // otherwise clear it so the learner picks again via the language picker.
+        const stillValid = getLearningLanguages(next).some((l) => l.code === learningLanguage && l.status === 'active');
+        if (!stillValid) {
+          setLearningLanguageState(null);
+          window.localStorage.removeItem(LEARNING_LANGUAGE_STORAGE_KEY);
+        }
       },
       learningLanguage,
       setLearningLanguage: (next: LearningLanguageCode) => {

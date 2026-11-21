@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
+import { useLanguage } from './LanguageContext';
 import { AuthModal } from '../components/AuthModal';
+import { LanguagePicker } from '../components/LanguagePicker';
 import { ExerciseRunner } from '../components/ExerciseRunner/ExerciseRunner';
 import { ExamEntryModal } from '../components/ExamEntryModal';
 import { CefrLevel, SkillId } from '../data/types';
@@ -17,10 +19,24 @@ const ExerciseGateContext = createContext<ExerciseGateContextValue | undefined>(
 
 export function ExerciseGateProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { availableLearningLanguages, setLearningLanguage } = useLanguage();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingLanguagePick, setPendingLanguagePick] = useState<PendingExercise | null>(null);
   const [active, setActive] = useState<PendingExercise | null>(null);
   const [entryOpen, setEntryOpen] = useState(false);
   const wasSignedIn = useRef(Boolean(user));
+
+  // Shows the shared language picker before starting, unless there's genuinely only one
+  // active learning language to pick from — then there's nothing to choose.
+  function proceedToLanguagePick(pending: PendingExercise) {
+    const activeLanguages = availableLearningLanguages.filter((l) => l.status === 'active');
+    if (activeLanguages.length <= 1) {
+      if (activeLanguages[0]) setLearningLanguage(activeLanguages[0].code);
+      setActive(pending);
+    } else {
+      setPendingLanguagePick(pending);
+    }
+  }
 
   // Covers both same-tab email/password login and the full-page redirect
   // that Google OAuth performs: whenever the user transitions from signed
@@ -31,7 +47,7 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
     if (justSignedIn) {
       const resumed = pendingExerciseStore.take();
       if (resumed) {
-        setActive(resumed);
+        proceedToLanguagePick(resumed);
         setAuthModalOpen(false);
       }
     }
@@ -50,7 +66,7 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
 
   function requestExercise(skill: SkillId, level: CefrLevel) {
     if (user) {
-      setActive({ skill, level });
+      proceedToLanguagePick({ skill, level });
     } else {
       pendingExerciseStore.save({ skill, level });
       setAuthModalOpen(true);
@@ -60,7 +76,7 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
   function handleAuthenticated() {
     setAuthModalOpen(false);
     const resumed = pendingExerciseStore.take();
-    if (resumed) setActive(resumed);
+    if (resumed) proceedToLanguagePick(resumed);
   }
 
   return (
@@ -76,6 +92,19 @@ export function ExerciseGateProvider({ children }: { children: ReactNode }) {
         />
       )}
       {entryOpen && <ExamEntryModal onClose={() => setEntryOpen(false)} />}
+      {pendingLanguagePick && (
+        <div className="exercise-overlay" onClick={(e) => e.target === e.currentTarget && setPendingLanguagePick(null)}>
+          <div className="exercise-card" role="dialog" aria-modal="true">
+            <button className="modal-close" aria-label="Close" onClick={() => setPendingLanguagePick(null)}>✕</button>
+            <LanguagePicker
+              onSelect={() => {
+                setActive(pendingLanguagePick);
+                setPendingLanguagePick(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
       {active && <ExerciseRunner skill={active.skill} level={active.level} onClose={() => setActive(null)} />}
     </ExerciseGateContext.Provider>
   );

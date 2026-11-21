@@ -16,6 +16,7 @@ import { ListeningComprehensionStep } from './ListeningComprehensionStep';
 import { SpeakingPracticeStep } from './SpeakingPracticeStep';
 import { WritingPracticeStep } from './WritingPracticeStep';
 import { AssessmentModal } from '../Assessment/AssessmentModal';
+import { LanguagePicker } from '../LanguagePicker';
 
 const CLASS_SKILLS: ClassSkill[] = ['listening', 'reading', 'grammar_syntax', 'vocabulary', 'speaking', 'writing'];
 
@@ -50,7 +51,7 @@ function mapToExamSkill(skill: ClassSkill): SkillId {
 type Phase = 'skill_select' | 'level_select' | 'loading' | 'running' | 'review' | 'results';
 
 export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
-  const { uiLanguage, learningLanguage, setLearningLanguage, availableLearningLanguages } = useLanguage();
+  const { uiLanguage, learningLanguage } = useLanguage();
   const { streaks, recordCompletion } = useStreaks();
   const [skill, setSkill] = useState<ClassSkill | null>(null);
   const [level, setLevel] = useState<CefrLevel | null>(null);
@@ -141,27 +142,13 @@ export function MicroLessonRunner({ onClose }: { onClose: () => void }) {
   }
 
   if (!learningLanguage) {
-    const activeLanguages = availableLearningLanguages.filter((l) => l.status === 'active');
+    // Defensive fallback: MicroLessonGateContext always runs the shared language picker
+    // before mounting this component, so this should be unreachable in practice.
     return (
       <div className="exercise-overlay">
         <div className="exercise-card" role="dialog" aria-modal="true">
           <button className="modal-close" aria-label="Close" onClick={onClose}>✕</button>
-          <div>
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--wine-ink)' }}>
-              {uiLanguage === 'es' ? 'Elige primero qué idioma quieres aprender' : 'Choose a language to learn first'}
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {activeLanguages.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => setLearningLanguage(lang.code)}
-                  style={{ padding: '1.2rem', border: '2px solid var(--wine)', borderRadius: '12px', background: 'transparent', color: 'var(--wine-ink)', fontWeight: '700', fontSize: '1.1rem', cursor: 'pointer' }}
-                >
-                  {lang.nativeLabel}
-                </button>
-              ))}
-            </div>
-          </div>
+          <LanguagePicker onSelect={() => {}} />
         </div>
       </div>
     );
