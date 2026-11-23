@@ -99,7 +99,7 @@ export async function evaluateSpeaking(params: {
 // Fetches (or triggers server-side generation of) today's exercise for this skill/level/language.
 // Callers should fall back to the static local exercise bank if this rejects.
 export async function fetchDailyExercise(skill: SkillId, level: CefrLevel, language: string): Promise<Exercise> {
-  const query = new URLSearchParams({ skill, level, language: language === 'ru' ? 'ru' : 'es' });
+  const query = new URLSearchParams({ skill, level, language: language === 'ru' ? 'ru' : language === 'en' ? 'en' : 'es' });
   const res = await fetch(`${API_BASE}/exercise?${query.toString()}`, {
     headers: await authHeaders(),
   });
@@ -115,7 +115,7 @@ export async function fetchDailyExercise(skill: SkillId, level: CefrLevel, langu
 export async function fetchDailyMicroLesson(skill: ClassSkill, learningLanguage: string, uiLanguage: string, level: CefrLevel): Promise<MicroLesson> {
   const query = new URLSearchParams({
     skill,
-    learningLanguage: learningLanguage === 'ru' ? 'ru' : 'es',
+    learningLanguage: learningLanguage === 'ru' ? 'ru' : learningLanguage === 'en' ? 'en' : 'es',
     uiLanguage: uiLanguage === 'es' ? 'es' : 'en',
     level,
   });
