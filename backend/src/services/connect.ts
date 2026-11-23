@@ -30,6 +30,7 @@ export interface ConnectProfile {
   learningLanguages: string[];
   timezone: string | null;
   availability: ConnectAvailability;
+  interests: string[];
 }
 
 const EMPTY_AVAILABILITY: ConnectAvailability = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
@@ -41,6 +42,7 @@ function fromRow(row: any): ConnectProfile {
     learningLanguages: row?.learning_languages ?? [],
     timezone: row?.timezone ?? null,
     availability: row?.availability ?? EMPTY_AVAILABILITY,
+    interests: row?.interests ?? [],
   };
 }
 
@@ -58,6 +60,7 @@ export interface ConnectProfileInput {
   learningLanguages?: string[];
   timezone?: string;
   availability?: ConnectAvailability;
+  interests?: string[];
 }
 
 /** Creates or updates this user's Connect profile. Only the fields provided are changed. */
@@ -69,6 +72,7 @@ export async function upsertConnectProfile(token: string, userId: string, input:
   if (input.learningLanguages !== undefined) patch.learning_languages = input.learningLanguages;
   if (input.timezone !== undefined) patch.timezone = input.timezone;
   if (input.availability !== undefined) patch.availability = input.availability;
+  if (input.interests !== undefined) patch.interests = input.interests;
 
   const { data, error } = await client.from('connect_profiles').upsert(patch, { onConflict: 'user_id' }).select().single();
   if (error) throw new Error(`Failed to save Connect profile: ${error.message}`);
@@ -161,6 +165,7 @@ export interface ConnectMatch {
   bio: string | null;
   timezone: string | null;
   availability: ConnectAvailability;
+  interests: string[];
   reliabilityPct: number | null;
   sessionsCount: number;
 }
@@ -177,6 +182,7 @@ export async function getConnectMatches(token: string, language: string): Promis
     bio: row.bio,
     timezone: row.timezone,
     availability: row.availability ?? EMPTY_AVAILABILITY,
+    interests: row.interests ?? [],
     reliabilityPct: row.reliability_pct === null ? null : Number(row.reliability_pct),
     sessionsCount: Number(row.sessions_count),
   }));

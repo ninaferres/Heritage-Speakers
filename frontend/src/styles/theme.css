@@ -453,6 +453,11 @@ footer .copy{font-size:.86rem;color:rgba(250,247,243,.48);width:100%;text-align:
 .exercise-card .modal-close:hover{background:var(--bone-dim);border-color:var(--wine)}
 .exercise-timer{position:fixed;top:1.2rem;right:5.5rem;font-weight:700;font-size:1rem;color:var(--wine);text-align:center;background:var(--card);padding:0.6rem 1rem;border-radius:10px;border:1px solid var(--line)}
 .exercise-head-eyebrow{color:var(--gold);font-weight:700;letter-spacing:.15em;text-transform:uppercase;font-size:.74rem;margin-top:3.5rem}
+
+.connect-title{
+  background:linear-gradient(90deg, var(--wine) 0%, var(--gold) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
 .exercise-card h2{color:var(--wine-ink);margin:.4rem 0 .3rem;font-size:1.8rem}
 .exercise-meta{color:var(--muted);font-size:.92rem;margin-bottom:2rem}
 .exercise-card > div:not(.modal-close){max-width:800px;margin:0 auto}

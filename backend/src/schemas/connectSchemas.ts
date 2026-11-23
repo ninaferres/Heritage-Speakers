@@ -14,12 +14,19 @@ export const connectAvailabilitySchema = z.object({
   sun: hourSlotSchema,
 });
 
+// Fixed set of interest-topic codes, mirrored in the frontend's CONNECT_INTERESTS —
+// shown on match cards to help pick who to book with.
+export const connectInterestSchema = z.enum([
+  'travel', 'music', 'movies', 'cooking', 'sports', 'reading', 'art', 'tech', 'nature', 'history', 'gaming', 'fashion',
+]);
+
 export const connectProfileInputSchema = z.object({
   bio: z.string().max(500).optional(),
   nativeLanguages: z.array(z.enum(['es', 'ru', 'en'])).optional(),
   learningLanguages: z.array(z.enum(['es', 'ru', 'en'])).optional(),
   timezone: z.string().min(1).max(100).optional(),
   availability: connectAvailabilitySchema.optional(),
+  interests: z.array(connectInterestSchema).optional(),
 });
 
 export type ConnectProfileInputBody = z.infer<typeof connectProfileInputSchema>;

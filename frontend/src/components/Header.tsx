@@ -171,7 +171,7 @@ export function Header() {
                     className="btn btn-wine"
                     onClick={() => { setConnectOpen(true); setNavOpen(false); }}
                   >
-                    Connect
+                    {uiLanguage === 'es' ? 'Conectar' : 'Connect'}
                   </button>
                   <div className="nav-user-chip">
                     <span className="email" title={user.email ?? ''}>{user.email}</span>

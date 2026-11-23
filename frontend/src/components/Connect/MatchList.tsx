@@ -3,6 +3,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { fetchConnectMatches, ConnectMatch, ConnectLanguage } from '../../api/client';
 import { BookSessionModal } from './BookSessionModal';
 import { DAY_KEYS } from '../../utils/connectSchedule';
+import { interestLabel } from '../../data/connectInterests';
 
 const LANGUAGE_LABEL: Record<ConnectLanguage, { es: string; en: string }> = {
   es: { es: 'Español', en: 'Spanish' },
@@ -83,6 +84,26 @@ export function MatchList({ learningLanguages }: { learningLanguages: ConnectLan
                 </strong>
               </div>
               {m.bio && <p style={{ margin: '0 0 .5rem', color: 'var(--charcoal)' }}>{m.bio}</p>}
+              {m.interests.length > 0 && (
+                <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap', marginBottom: '.6rem' }}>
+                  {m.interests.map((code) => (
+                    <span
+                      key={code}
+                      style={{
+                        fontSize: '.76rem',
+                        fontWeight: 600,
+                        color: 'var(--wine-ink)',
+                        background: 'rgba(184,147,90,.16)',
+                        border: '1px solid rgba(184,147,90,.4)',
+                        borderRadius: '999px',
+                        padding: '.2rem .6rem',
+                      }}
+                    >
+                      {interestLabel(code, uiLanguage)}
+                    </span>
+                  ))}
+                </div>
+              )}
               <p style={{ margin: '0 0 .8rem', color: 'var(--muted)', fontSize: '.85rem' }}>
                 {describeAvailability(m, uiLanguage)} {m.timezone ? `(${m.timezone})` : ''}
               </p>

@@ -252,6 +252,7 @@ export interface ConnectProfile {
   learningLanguages: ConnectLanguage[];
   timezone: string | null;
   availability: ConnectAvailability;
+  interests: string[];
 }
 
 export interface ConnectProfileInput {
@@ -260,6 +261,7 @@ export interface ConnectProfileInput {
   learningLanguages?: ConnectLanguage[];
   timezone?: string;
   availability?: ConnectAvailability;
+  interests?: string[];
 }
 
 export async function fetchConnectProfile(): Promise<ConnectProfile> {
@@ -315,6 +317,7 @@ export interface ConnectMatch {
   bio: string | null;
   timezone: string | null;
   availability: ConnectAvailability;
+  interests: string[];
   reliabilityPct: number | null;
   sessionsCount: number;
 }

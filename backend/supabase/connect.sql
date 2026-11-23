@@ -25,9 +25,16 @@ create table if not exists public.connect_profiles (
   -- week, each value an hour (0-23) marking the start of an available 1-hour slot in the
   -- user's OWN timezone (the one stored above). 1 hour is the minimum granularity on purpose.
   availability jsonb not null default '{"mon": [], "tue": [], "wed": [], "thu": [], "fri": [], "sat": [], "sun": []}'::jsonb,
+  -- Fixed set of interest-topic codes (see CONNECT_INTERESTS in the frontend) — shown on match
+  -- cards to help pick who to book with. Required by the UI before saving, but not enforced
+  -- at the DB level since an empty array is a valid transient state while editing.
+  interests text[] not null default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Added after the table already existed in Phase 1/2 installs — safe to re-run.
+alter table public.connect_profiles add column if not exists interests text[] not null default '{}';
 
 alter table public.connect_profiles enable row level security;
 
@@ -419,6 +426,7 @@ returns table (
   bio text,
   timezone text,
   availability jsonb,
+  interests text[],
   reliability_pct numeric,
   sessions_count bigint
 )
@@ -427,7 +435,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select p.user_id, p.bio, p.timezone, p.availability, r.reliability_pct, r.sessions_count
+  select p.user_id, p.bio, p.timezone, p.availability, p.interests, r.reliability_pct, r.sessions_count
   from public.connect_profiles p
   cross join lateral public.get_connect_reliability(p.user_id) r
   where p.user_id <> auth.uid()

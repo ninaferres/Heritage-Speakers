@@ -15,6 +15,7 @@ import {
   ConnectVerificationStatus,
 } from '../../api/client';
 import { detectTimezone } from '../../utils/connectSchedule';
+import { CONNECT_INTERESTS } from '../../data/connectInterests';
 import { VerifyLanguageModal } from './VerifyLanguageModal';
 import { MatchList } from './MatchList';
 import { MySessions } from './MySessions';
@@ -56,6 +57,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
   const [nativeLanguages, setNativeLanguages] = useState<ConnectLanguage[]>([]);
   const [learningLanguages, setLearningLanguages] = useState<ConnectLanguage[]>([]);
   const [availability, setAvailability] = useState<ConnectAvailability>(EMPTY_AVAILABILITY);
+  const [interests, setInterests] = useState<string[]>([]);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -80,6 +82,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
         setNativeLanguages(p.nativeLanguages);
         setLearningLanguages(p.learningLanguages);
         setAvailability(p.availability);
+        setInterests(p.interests);
       })
       .catch(() => {
         // Connect is a supplementary section — the panel still shows a usable empty form below.
@@ -109,8 +112,16 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
     setAvailability((prev) => ({ ...prev, [day]: toggle(prev[day], hour) }));
   }
 
+  function toggleInterest(code: string) {
+    setInterests((prev) => toggle(prev, code));
+  }
+
   async function handleSave() {
     setError(null);
+    if (interests.length === 0) {
+      setError(uiLanguage === 'es' ? 'Elige al menos un interés.' : 'Choose at least one interest.');
+      return;
+    }
     setSaving(true);
     try {
       const updated = await saveConnectProfile({
@@ -119,6 +130,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
         learningLanguages,
         timezone: profile?.timezone ?? detectTimezone(),
         availability,
+        interests,
       });
       setProfile(updated);
       setSaved(true);
@@ -157,7 +169,7 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
     <div style={{ position: 'fixed', inset: 0, background: 'var(--bone)', zIndex: 1000, overflow: 'auto' }}>
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '3rem 2rem', minHeight: '100vh' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.6rem' }}>
-          <span className="eyebrow">Connect</span>
+          <span className="eyebrow connect-title">{uiLanguage === 'es' ? 'Conectar' : 'Connect'}</span>
           <button
             onClick={onClose}
             aria-label={uiLanguage === 'es' ? 'Cerrar' : 'Close'}
@@ -281,6 +293,30 @@ export function ConnectPanel({ onClose }: { onClose: () => void }) {
                     className={learningLanguages.includes(lang) ? 'btn btn-gold btn-small' : 'btn btn-ghost btn-small'}
                   >
                     {LANGUAGE_LABEL[lang][uiLanguage]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Interests */}
+            <div style={{ marginBottom: '1.8rem' }}>
+              <h3 style={{ fontSize: '1rem', color: 'var(--wine-ink)', marginBottom: '.3rem' }}>
+                {uiLanguage === 'es' ? 'Tus intereses' : 'Your interests'}
+              </h3>
+              <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginBottom: '.8rem' }}>
+                {uiLanguage === 'es'
+                  ? 'Obligatorio: elige al menos uno. Se muestran a los demás en "Buscar".'
+                  : 'Required: choose at least one. Shown to others in "Find a partner".'}
+              </p>
+              <div style={{ display: 'flex', gap: '.6rem', flexWrap: 'wrap' }}>
+                {CONNECT_INTERESTS.map((interest) => (
+                  <button
+                    key={interest.code}
+                    type="button"
+                    onClick={() => toggleInterest(interest.code)}
+                    className={interests.includes(interest.code) ? 'btn btn-gold btn-small' : 'btn btn-ghost btn-small'}
+                  >
+                    {interest[uiLanguage]}
                   </button>
                 ))}
               </div>
